@@ -121,9 +121,9 @@ export default function Requests() {
     const matchTab = activeTab === 'All' || r.tab === activeTab;
     const q = search.toLowerCase();
     const matchSearch = !q
-      || r.id.toLowerCase().includes(q)
-      || r.location.toLowerCase().includes(q)
-      || r.type.toLowerCase().includes(q);
+      || String(r.id || '').toLowerCase().includes(q)
+      || String(r.location || '').toLowerCase().includes(q)
+      || String(r.type || '').toLowerCase().includes(q);
     return matchTab && matchSearch;
   });
 

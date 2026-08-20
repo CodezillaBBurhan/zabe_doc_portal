@@ -199,7 +199,7 @@ export default function TeamPermissions() {
         <div className="flex-1 min-w-0 bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col overflow-hidden w-full relative">
           
           {/* Table Toolbar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 relative">
+          <div className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 relative z-20">
             <div className="relative w-full sm:w-[320px]">
               <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" />
               <input 
@@ -225,7 +225,7 @@ export default function TeamPermissions() {
                 </button>
                 
                 {showFilterDropdown && (
-                  <div className="absolute right-0 top-[110%] w-64 bg-white border border-[#e4e7ec] shadow-lg rounded-xl z-10 p-4">
+                  <div className="absolute right-0 top-[110%] w-64 bg-white border border-[#e4e7ec] shadow-lg rounded-xl z-50 p-4">
                     <div className="mb-4">
                       <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">Role</label>
                       <select 
