@@ -1,33 +1,266 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import GlobalTable from '../components/organisms/GlobalTable';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+
+// --- Helper to Generate Mock Data ---
+const generateMockLogs = () => {
+  const users = [
+    { name: 'System_Service', role: 'Automation' },
+    { name: 'A. Mitchell', role: 'Lead Ops' },
+    { name: 'J. Harrison', role: 'Analyst' },
+    { name: 'S. Vance', role: 'Admin' },
+    { name: 'M. Chen', role: 'Operator' },
+    { name: 'T. Brooks', role: 'Auditor' }
+  ];
+  const actions = ['Data_Sync', 'Override_Config', 'Export_Report', 'Modify_Perms', 'Health_Check', 'Login_Attempt', 'Purge_Logs'];
+  const modules = ['Voter_DB', 'Core_Routing', 'Reports', 'Auth_Control', 'Infrastructure', 'System'];
+  const targets = ['tbl_precinct', 'node_alpha_config', 'turnout_Q3_config', 'usr_grp_field', 'cluster_node', 'api_gateway', 'db_replica'];
+  
+  const logs = [];
+  const now = new Date();
+  
+  for (let i = 0; i < 300; i++) {
+    const user = users[Math.floor(Math.random() * users.length)];
+    // Bias towards last 24h
+    const timeOffset = Math.random() > 0.4 
+      ? Math.random() * 24 * 60 * 60 * 1000 // last 24h
+      : Math.random() * 30 * 24 * 60 * 60 * 1000; // last 30d
+      
+    const timestamp = new Date(now.getTime() - timeOffset);
+    
+    // Create some logical correlation
+    const isError = Math.random() > 0.85;
+    const severity = isError ? (Math.random() > 0.5 ? 'Critical' : 'High') : (Math.random() > 0.5 ? 'Low' : 'Medium');
+    const status = isError ? (Math.random() > 0.3 ? 'Failed' : 'Blocked') : 'Success';
+
+    logs.push({
+      id: i.toString(),
+      timestamp: timestamp.toISOString(),
+      user: user.name,
+      role: user.role,
+      action: actions[Math.floor(Math.random() * actions.length)],
+      module: modules[Math.floor(Math.random() * modules.length)],
+      target: targets[Math.floor(Math.random() * targets.length)],
+      severity,
+      status
+    });
+  }
+  
+  return logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+};
+
+const initialLogs = generateMockLogs();
 
 export default function AuditLogs() {
-  const auditData = [
-    { time: '10:42:15 AM', user: 'System_Service', role: 'Automation', action: 'Data_Sync', module: 'Voter_DB', target: 'tbl_precinct' },
-    { time: '10:38:02 AM', user: 'A. Mitchell', role: 'Lead Ops', action: 'Override_Config', module: 'Core_Routing', target: 'node_alpha_config' },
-    { time: '10:15:44 AM', user: 'J. Harrison', role: 'Analyst', action: 'Export_Report', module: 'Reports', target: 'turnout_Q3_config' },
-    { time: '09:55:10 AM', user: 'S. Vance', role: 'Admin', action: 'Modify_Perms', module: 'Auth_Control', target: 'usr_grp_field' },
-    { time: '09:12:05 AM', user: 'System_Service', role: 'Automation', action: 'Health_Check', module: 'Infrastructure', target: 'cluster_node' },
-  ];
+  const [logs] = useState(initialLogs);
 
-  const chartBars = Array.from({ length: 24 }).map((_, i) => {
-    // Generate random heights, make one red
-    const isCritical = i === 14;
-    const height = isCritical ? '40%' : `${Math.random() * 40 + 10}%`;
-    return { height, isCritical };
-  });
+  // Filter States
+  const [showFilters, setShowFilters] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState('24h'); // '24h', '7d', '30d', 'All'
+  const [userFilter, setUserFilter] = useState('All');
+  const [severityFilter, setSeverityFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+
+  // Export Menu State
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef(null);
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target)) {
+        setExportMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Filter logic
+  const filteredLogs = useMemo(() => {
+    return logs.filter(log => {
+      // Search
+      const s = searchTerm.toLowerCase();
+      const searchMatch = !s || [log.user, log.action, log.module, log.target, log.role].some(val => val.toLowerCase().includes(s));
+      
+      // User
+      const userMatch = userFilter === 'All' || log.user === userFilter;
+      
+      // Severity
+      const severityMatch = severityFilter === 'All' || log.severity === severityFilter;
+      
+      // Status
+      const statusMatch = statusFilter === 'All' || log.status === statusFilter;
+      
+      // Date
+      const now = new Date();
+      const logTime = new Date(log.timestamp);
+      let dateMatch = true;
+      if (dateFilter === '24h') dateMatch = (now - logTime) <= 24 * 60 * 60 * 1000;
+      if (dateFilter === '7d') dateMatch = (now - logTime) <= 7 * 24 * 60 * 60 * 1000;
+      if (dateFilter === '30d') dateMatch = (now - logTime) <= 30 * 24 * 60 * 60 * 1000;
+
+      return searchMatch && userMatch && severityMatch && statusMatch && dateMatch;
+    });
+  }, [logs, searchTerm, dateFilter, userFilter, severityFilter, statusFilter]);
+
+  // Reset pagination on filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, dateFilter, userFilter, severityFilter, statusFilter, rowsPerPage]);
+
+  const totalPages = Math.ceil(filteredLogs.length / rowsPerPage) || 1;
+  const paginatedLogs = filteredLogs.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  // Derived options for filters
+  const uniqueUsers = ['All', ...new Set(logs.map(l => l.user))];
+
+  // Active filter chips
+  const activeFilters = [];
+  if (dateFilter !== 'All') activeFilters.push({ label: `Date: Last ${dateFilter}`, type: 'date' });
+  if (userFilter !== 'All') activeFilters.push({ label: `User: ${userFilter}`, type: 'user' });
+  if (severityFilter !== 'All') activeFilters.push({ label: `Severity: ${severityFilter}`, type: 'severity', isRed: severityFilter === 'Critical' || severityFilter === 'High' });
+  if (statusFilter !== 'All') activeFilters.push({ label: `Status: ${statusFilter}`, type: 'status', isRed: statusFilter === 'Failed' || statusFilter === 'Blocked' });
+  if (searchTerm) activeFilters.push({ label: `Search: "${searchTerm}"`, type: 'search' });
+
+  const clearFilter = (type) => {
+    if (type === 'date') setDateFilter('All');
+    if (type === 'user') setUserFilter('All');
+    if (type === 'severity') setSeverityFilter('All');
+    if (type === 'status') setStatusFilter('All');
+    if (type === 'search') setSearchTerm('');
+  };
+
+  const clearAllFilters = () => {
+    setDateFilter('All');
+    setUserFilter('All');
+    setSeverityFilter('All');
+    setStatusFilter('All');
+    setSearchTerm('');
+  };
+
+  // Stats calculation
+  const totalEvents = filteredLogs.length;
+  const failedEvents = filteredLogs.filter(l => l.status === 'Failed').length;
+  const blockedEvents = filteredLogs.filter(l => l.status === 'Blocked').length;
+  const criticalEvents = filteredLogs.filter(l => l.severity === 'Critical').length;
+
+  // Critical events list (latest 3)
+  const latestCritical = [...filteredLogs]
+    .filter(l => l.severity === 'Critical')
+    .slice(0, 3);
+
+  // User activity stats
+  const userStats = useMemo(() => {
+    const counts = {};
+    filteredLogs.forEach(l => {
+      if (!counts[l.user]) counts[l.user] = { count: 0, role: l.role };
+      counts[l.user].count++;
+    });
+    return Object.entries(counts)
+      .map(([user, data]) => ({ user, count: data.count, role: data.role }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+  }, [filteredLogs]);
+
+  // Chart calculation (last 24h)
+  const chartBars = useMemo(() => {
+    const now = new Date();
+    const bars = Array.from({length: 24}).map((_, i) => {
+      const bucketStart = new Date(now.getTime() - (24 - i) * 60 * 60 * 1000);
+      const bucketEnd = new Date(now.getTime() - (23 - i) * 60 * 60 * 1000);
+      const eventsInBucket = filteredLogs.filter(l => {
+        const t = new Date(l.timestamp);
+        return t >= bucketStart && t < bucketEnd;
+      });
+      const cCount = eventsInBucket.filter(l => l.severity === 'Critical').length;
+      return { count: eventsInBucket.length, isCritical: cCount > 0 };
+    });
+    
+    const maxCount = Math.max(...bars.map(b => b.count), 1); // prevent /0
+    
+    return bars.map(b => ({
+      height: `${(b.count / maxCount) * 100}%`,
+      isCritical: b.isCritical,
+      count: b.count
+    }));
+  }, [filteredLogs]);
+
+  // Exports
+  const handleExportCSV = () => {
+    const headers = ['Timestamp', 'User', 'Role', 'Action', 'Module', 'Target', 'Severity', 'Status'];
+    const rows = filteredLogs.map(log => [
+      new Date(log.timestamp).toLocaleString(),
+      log.user, log.role, log.action, log.module, log.target, log.severity, log.status
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "audit-logs.csv");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setExportMenuOpen(false);
+  };
+
+  const handleExportPDF = async () => {
+    setExportMenuOpen(false);
+    const element = document.getElementById('audit-dashboard');
+    if (!element) return;
+    
+    try {
+      const canvas = await html2canvas(element, { 
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('audit-logs-report.pdf');
+    } catch (error) {
+      console.error("Failed to generate PDF", error);
+      alert("Failed to generate PDF. See console for details.");
+    }
+  };
+
+  const formatTimeOnly = (isoString) => {
+    const d = new Date(isoString);
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  };
   
-  // Overwrite some to match image vaguely
-  const barHeights = [10, 15, 20, 10, 30, 45, 30, 60, 65, 55, 40, 25, 15, 35, 40, 30, 50, 60, 55, 40, 20, 20];
-  const actualBars = Array.from({length: 22}).map((_, i) => ({
-    height: `${barHeights[i]}%`,
-    isCritical: i === 13,
-    topBlue: [4, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19].includes(i) // some bars have a top darker line in image
-  }));
+  const formatDateTime = (isoString) => {
+    const d = new Date(isoString);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
+  const getInitials = (name) => {
+    return name.split(/[_ ]/).map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  };
+
+  const getColorClass = (index) => {
+    const colors = [
+      'bg-[#e6eeff] text-[#005fb0]',
+      'bg-[#ffeddf] text-[#9b4500]',
+      'bg-[#f3e8ff] text-[#6b21a8]'
+    ];
+    return colors[index % colors.length];
+  };
 
   return (
-    <div className="flex flex-col gap-6 w-full pb-10">
+    <div id="audit-dashboard" className="flex flex-col gap-6 w-full pb-10 bg-gray-50 min-h-screen">
       
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -35,73 +268,151 @@ export default function AuditLogs() {
           <h1 className="text-[28px] font-bold text-[#111827] leading-tight">Audit Logs</h1>
           <p className="text-[14px] text-gray-500 mt-1">Track every important action performed across the Election Center.</p>
         </div>
-        <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 flex">
+        <div className="flex gap-3 w-full sm:w-auto relative" ref={exportMenuRef}>
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 border rounded-md shadow-sm text-sm font-medium flex transition-colors ${showFilters ? 'bg-gray-100 border-gray-300 text-gray-800' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+          >
             <MaterialIcon icon="filter_list" className="text-gray-500 text-[20px]" />
-            Filter
+            Filter {activeFilters.length > 0 && <span className="ml-1 bg-brand-orange text-white text-[10px] px-1.5 py-0.5 rounded-full">{activeFilters.length}</span>}
           </button>
-          <button className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-[#ff5a1f] hover:bg-[#e64a10] text-white rounded-md shadow-sm text-sm font-medium flex">
+          
+          <button 
+            onClick={() => setExportMenuOpen(!exportMenuOpen)}
+            className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-[#ff8c42] hover:bg-[#ff7a22] text-white rounded-md shadow-sm text-sm font-medium flex transition-colors"
+          >
             <MaterialIcon icon="download" className="text-white text-[20px]" />
             Export
           </button>
+          
+          {/* Export Dropdown */}
+          {exportMenuOpen && (
+            <div className="absolute right-0 top-[110%] w-48 bg-white border border-gray-200 shadow-xl rounded-md z-50 overflow-hidden">
+              <button onClick={handleExportCSV} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100 flex items-center gap-2">
+                <MaterialIcon icon="grid_on" className="text-gray-400 text-[18px]" /> CSV Spreadsheet
+              </button>
+              <button onClick={handleExportPDF} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                <MaterialIcon icon="picture_as_pdf" className="text-gray-400 text-[18px]" /> Screenshot (PDF)
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Filter Section */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-4 mb-4">
-          <div className="relative flex-1 min-w-[200px] w-full">
-            <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" />
-            <input 
-              type="text" 
-              placeholder="Search users, actions, targets..." 
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-brand-orange"
-            />
+      {showFilters && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-all">
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <div className="relative flex-1 min-w-[200px] w-full">
+              <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" />
+              <input 
+                type="text" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search users, actions, targets..." 
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-brand-orange"
+              />
+            </div>
+            
+            <div className="relative w-full xs:w-auto flex-1 min-w-[150px]">
+              <select 
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer"
+              >
+                <option value="All">Date Range: All Time</option>
+                <option value="24h">Date Range: Last 24h</option>
+                <option value="7d">Date Range: Last 7 days</option>
+                <option value="30d">Date Range: Last 30 days</option>
+              </select>
+              <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
+            </div>
+            
+            <div className="relative w-full xs:w-auto flex-1 min-w-[150px]">
+              <select 
+                value={userFilter}
+                onChange={(e) => setUserFilter(e.target.value)}
+                className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer"
+              >
+                {uniqueUsers.map(u => (
+                  <option key={u} value={u}>User: {u}</option>
+                ))}
+              </select>
+              <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
+            </div>
+            
+            {activeFilters.length > 0 && (
+              <button 
+                onClick={clearAllFilters}
+                className="hidden sm:flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 ml-auto font-medium"
+              >
+                <MaterialIcon icon="close" className="text-[18px]" />
+                Clear Filters
+              </button>
+            )}
           </div>
-          <div className="relative w-full xs:w-auto flex-1 min-w-[150px]">
-            <select className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer">
-              <option>Date Range: Last 24h</option>
-            </select>
-            <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
+          
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative flex-1 min-w-[150px] sm:flex-none">
+              <select 
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value)}
+                className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer"
+              >
+                <option value="All">Severity: All</option>
+                <option value="Low">Severity: Low</option>
+                <option value="Medium">Severity: Medium</option>
+                <option value="High">Severity: High</option>
+                <option value="Critical">Severity: Critical</option>
+              </select>
+              <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
+            </div>
+            
+            <div className="relative flex-1 min-w-[150px] sm:flex-none">
+              <select 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer"
+              >
+                <option value="All">Status: All</option>
+                <option value="Success">Status: Success</option>
+                <option value="Failed">Status: Failed</option>
+                <option value="Blocked">Status: Blocked</option>
+              </select>
+              <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
+            </div>
           </div>
-          <div className="relative w-full xs:w-auto flex-1 min-w-[150px]">
-            <select className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer">
-              <option>User: All</option>
-            </select>
-            <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
-          </div>
-          <button className="hidden sm:flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 ml-auto font-medium">
-            <MaterialIcon icon="close" className="text-[18px]" />
-            Clear Filters
-          </button>
+          
+          {/* Active Filters */}
+          {activeFilters.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
+              {activeFilters.map(filter => (
+                <div 
+                  key={filter.type} 
+                  className={`flex items-center gap-1 px-3 py-1 border rounded-full text-xs font-medium ${
+                    filter.isRed 
+                      ? 'bg-red-50 border-red-100 text-red-700' 
+                      : 'bg-gray-100 border-gray-200 text-gray-700'
+                  }`}
+                >
+                  {filter.label}
+                  <button 
+                    type="button" 
+                    onClick={() => clearFilter(filter.type)}
+                    className="flex items-center justify-center p-0.5 rounded-full hover:bg-black/5 transition-colors focus:outline-none"
+                    aria-label="Remove filter"
+                  >
+                    <MaterialIcon 
+                      icon="close" 
+                      className={`text-[14px] cursor-pointer ${filter.isRed ? 'hover:text-red-900' : 'hover:text-gray-900'}`} 
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="relative">
-            <select className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer">
-              <option>Severity: All</option>
-            </select>
-            <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
-          </div>
-          <div className="relative">
-            <select className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer">
-              <option>Status: All</option>
-            </select>
-            <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
-          </div>
-        </div>
-        
-        {/* Active Filters */}
-        <div className="mt-4 pt-4 border-t border-gray-100 flex gap-2">
-          <div className="flex items-center gap-1 px-3 py-1 bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700">
-            Date: Last 24h
-            <MaterialIcon icon="close" className="text-[14px] cursor-pointer hover:text-gray-900" />
-          </div>
-          <div className="flex items-center gap-1 px-3 py-1 bg-red-50 border border-red-100 rounded-full text-xs font-medium text-red-700">
-            Severity: Critical
-            <MaterialIcon icon="close" className="text-[14px] cursor-pointer hover:text-red-900" />
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Main Content Layout */}
       <div className="flex flex-col gap-6 w-full">
@@ -110,13 +421,12 @@ export default function AuditLogs() {
         <div className="flex flex-col xl:flex-row gap-6 w-full">
           {/* Left: Chart Section */}
           <div className="flex-1 min-w-0 flex flex-col h-full">
-            {/* Chart Section */}
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 h-full flex flex-col">
               <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-6">AUDIT ACTIVITY — LAST 24 HOURS</h3>
               
               <div className="h-64 flex items-end justify-between gap-1 mb-6 border-b border-gray-100 pb-2">
-                {actualBars.map((bar, i) => (
-                  <div key={i} className="w-full flex flex-col justify-end h-full relative group">
+                {chartBars.map((bar, i) => (
+                  <div key={i} className="w-full flex flex-col justify-end h-full relative group" title={`Events: ${bar.count}`}>
                     <div 
                       className={`w-full rounded-t-sm transition-all ${bar.isCritical ? 'bg-red-50' : 'bg-[#f0f5fc]'}`} 
                       style={{ height: bar.height }}
@@ -124,11 +434,8 @@ export default function AuditLogs() {
                       {bar.isCritical && (
                         <div className="w-full h-1 bg-red-500 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
                       )}
-                      {!bar.isCritical && bar.topBlue && (
+                      {!bar.isCritical && bar.count > 0 && (
                         <div className="w-full h-1 bg-blue-400 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
-                      )}
-                      {!bar.isCritical && !bar.topBlue && (
-                        <div className="w-full h-1 bg-blue-300 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
                       )}
                     </div>
                   </div>
@@ -136,44 +443,39 @@ export default function AuditLogs() {
               </div>
               
               <div className="flex justify-between text-[11px] text-gray-400 font-medium">
-                <span>12:00 PM (Yesterday)</span>
-                <span>12:00 AM</span>
-                <span>12:00 PM (Today)</span>
+                <span>24h ago</span>
+                <span>12h ago</span>
+                <span>Now</span>
               </div>
             </div>
-            
           </div>
 
           {/* Right Column (Cards) */}
           <div className="w-full xl:w-[320px] flex flex-col gap-6 shrink-0">
             
-            {/* Today's Activity */}
+            {/* Log Summary */}
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
-              <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-4">TODAY'S ACTIVITY</h3>
+              <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-4">LOG SUMMARY (FILTERED)</h3>
               
               <div className="mb-5">
                 <div className="text-[13px] text-gray-500 mb-1">Total Events</div>
                 <div className="flex items-baseline gap-3">
-                  <div className="text-[36px] font-bold text-gray-900 leading-none">1,248</div>
-                  <div className="flex items-center text-[#12B76A] text-[13px] font-medium">
-                    <MaterialIcon icon="trending_up" className="text-[16px] mr-0.5" />
-                    +12%
-                  </div>
+                  <div className="text-[36px] font-bold text-gray-900 leading-none">{totalEvents.toLocaleString()}</div>
                 </div>
               </div>
               
               <div className="border-t border-gray-100 pt-5 flex justify-between">
                 <div>
                   <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">FAILED</div>
-                  <div className="text-[20px] font-bold text-[#d92d20]">14</div>
+                  <div className="text-[20px] font-bold text-[#d92d20]">{failedEvents}</div>
                 </div>
                 <div>
                   <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">BLOCKED</div>
-                  <div className="text-[20px] font-bold text-[#d92d20]">3</div>
+                  <div className="text-[20px] font-bold text-[#d92d20]">{blockedEvents}</div>
                 </div>
                 <div>
                   <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">CRITICAL</div>
-                  <div className="text-[20px] font-bold text-[#d92d20]">8</div>
+                  <div className="text-[20px] font-bold text-[#d92d20]">{criticalEvents}</div>
                 </div>
               </div>
             </div>
@@ -182,45 +484,26 @@ export default function AuditLogs() {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
               <div className="flex items-center gap-2 mb-4">
                 <MaterialIcon icon="warning_amber" className="text-[#d92d20] text-[20px]" />
-                <h3 className="text-[11px] font-bold text-[#d92d20] uppercase tracking-wider">CRITICAL EVENTS</h3>
+                <h3 className="text-[11px] font-bold text-[#d92d20] uppercase tracking-wider">LATEST CRITICAL EVENTS</h3>
               </div>
               
               <div className="flex flex-col">
-                {/* Event 1 */}
-                <div className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
-                  <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
-                  <div className="flex justify-between items-start mb-1">
-                    <div className="font-semibold text-[13px] text-gray-900">Override Configuration</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">10:38 AM</div>
-                  </div>
-                  <div className="text-[12px] text-gray-500 leading-relaxed">
-                    A. Mitchell attempted Core_Routing override.
-                  </div>
-                </div>
-                
-                {/* Event 2 */}
-                <div className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
-                  <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
-                  <div className="flex justify-between items-start mb-1">
-                    <div className="font-semibold text-[13px] text-gray-900">DB Connection Failed</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">08:14 AM</div>
-                  </div>
-                  <div className="text-[12px] text-gray-500 leading-relaxed">
-                    System_Service failed to connect to Replica_3.
-                  </div>
-                </div>
-                
-                {/* Event 3 */}
-                <div className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
-                  <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
-                  <div className="flex justify-between items-start mb-1">
-                    <div className="font-semibold text-[13px] text-gray-900">Mass Permission Alter</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">02:11 AM</div>
-                  </div>
-                  <div className="text-[12px] text-gray-500 leading-relaxed">
-                    S. Vance modified 42 user roles in batch.
-                  </div>
-                </div>
+                {latestCritical.length === 0 ? (
+                  <div className="text-sm text-gray-500 italic py-4">No critical events found in current filter.</div>
+                ) : (
+                  latestCritical.map((event, idx) => (
+                    <div key={idx} className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
+                      <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
+                      <div className="flex justify-between items-start mb-1">
+                        <div className="font-semibold text-[13px] text-gray-900">{event.action}</div>
+                        <div className="text-[11px] text-gray-500 mt-0.5">{formatTimeOnly(event.timestamp)}</div>
+                      </div>
+                      <div className="text-[12px] text-gray-500 leading-relaxed">
+                        {event.user} triggered on {event.target} ({event.module}).
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
             
@@ -232,56 +515,27 @@ export default function AuditLogs() {
               </div>
               
               <div className="flex flex-col gap-4">
-                {/* User 1 */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#e6eeff] text-[#005fb0] flex items-center justify-center text-[14px] font-bold shrink-0">
-                      SS
+                {userStats.length === 0 ? (
+                  <div className="text-sm text-gray-500 italic py-2">No active users in current filter.</div>
+                ) : (
+                  userStats.map((stat, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0 ${getColorClass(idx)}`}>
+                          {getInitials(stat.user)}
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-gray-900">{stat.user}</div>
+                          <div className="text-[11px] text-gray-500">{stat.role}</div>
+                        </div>
+                      </div>
+                      <div className="text-[11px] text-gray-500 flex flex-col items-end">
+                        <span className="font-semibold text-gray-700 text-[13px]">{stat.count}</span>
+                        acts
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-[13px] font-semibold text-gray-900">System_Service</div>
-                      <div className="text-[11px] text-gray-500">Automation</div>
-                    </div>
-                  </div>
-                  <div className="text-[11px] text-gray-500 flex flex-col items-end">
-                    <span className="font-semibold text-gray-700 text-[13px]">842</span>
-                    acts
-                  </div>
-                </div>
-                
-                {/* User 2 */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#ffeddf] text-[#9b4500] flex items-center justify-center text-[14px] font-bold shrink-0">
-                      SV
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-semibold text-gray-900">S. Vance</div>
-                      <div className="text-[11px] text-gray-500">Admin</div>
-                    </div>
-                  </div>
-                  <div className="text-[11px] text-gray-500 flex flex-col items-end">
-                    <span className="font-semibold text-gray-700 text-[13px]">156</span>
-                    acts
-                  </div>
-                </div>
-                
-                {/* User 3 */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#f3e8ff] text-[#6b21a8] flex items-center justify-center text-[14px] font-bold shrink-0">
-                      AM
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-semibold text-gray-900">A. Mitchell</div>
-                      <div className="text-[11px] text-gray-500">Lead Ops</div>
-                    </div>
-                  </div>
-                  <div className="text-[11px] text-gray-500 flex flex-col items-end">
-                    <span className="font-semibold text-gray-700 text-[13px]">89</span>
-                    acts
-                  </div>
-                </div>
+                  ))
+                )}
               </div>
             </div>
             
@@ -290,48 +544,89 @@ export default function AuditLogs() {
 
         {/* Bottom Row (Table) */}
         <div className="w-full flex flex-col">
-            {/* Audit Log Table Card */}
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
               <GlobalTable className="text-[13px]">
                   <thead>
-                    <tr className="border-b border-gray-200 text-gray-500 font-semibold tracking-wider text-[11px] uppercase">
-                      <th className="px-5 py-4">TIMESTAMP</th>
-                      <th className="px-5 py-4">USER</th>
-                      <th className="px-5 py-4">ROLE</th>
-                      <th className="px-5 py-4">ACTION</th>
-                      <th className="px-5 py-4">MODULE</th>
-                      <th className="px-5 py-4">TARGET</th>
+                    <tr className="border-b border-gray-200 text-gray-500 font-semibold tracking-wider text-[11px] uppercase bg-gray-50/50">
+                      <th className="px-5 py-4 text-left">TIMESTAMP</th>
+                      <th className="px-5 py-4 text-left">USER</th>
+                      <th className="px-5 py-4 text-left">ROLE</th>
+                      <th className="px-5 py-4 text-left">ACTION</th>
+                      <th className="px-5 py-4 text-left">MODULE</th>
+                      <th className="px-5 py-4 text-left">TARGET</th>
+                      <th className="px-5 py-4 text-left">SEVERITY</th>
+                      <th className="px-5 py-4 text-left">STATUS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {auditData.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50 text-gray-600">
-                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.time}</td>
-                        <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.user}</td>
-                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.role}</td>
-                        <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.action}</td>
-                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.module}</td>
-                        <td className="px-5 py-4 whitespace-nowrap">
-                          <span className="font-mono text-[12px] text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
-                            {row.target}
-                          </span>
+                    {paginatedLogs.length === 0 ? (
+                      <tr>
+                        <td colSpan="8" className="px-5 py-12 text-center text-gray-500">
+                          <MaterialIcon icon="search_off" className="text-[48px] text-gray-300 mb-3" />
+                          <p className="text-[14px] font-medium text-gray-700">No logs found matching your criteria</p>
+                          <p className="text-[13px] mt-1">Try adjusting your search or filters.</p>
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      paginatedLogs.map((row) => (
+                        <tr key={row.id} className="hover:bg-gray-50 text-gray-600 transition-colors">
+                          <td className="px-5 py-4 whitespace-nowrap text-gray-500">{formatDateTime(row.timestamp)}</td>
+                          <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.user}</td>
+                          <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.role}</td>
+                          <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.action}</td>
+                          <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.module}</td>
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className="font-mono text-[12px] text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
+                              {row.target}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className={`text-[12px] font-medium px-2 py-1 rounded-full ${
+                              row.severity === 'Critical' ? 'bg-red-100 text-red-700' :
+                              row.severity === 'High' ? 'bg-orange-100 text-orange-700' :
+                              row.severity === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {row.severity}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <span className={`text-[12px] font-medium px-2 py-1 rounded-full ${
+                              row.status === 'Success' ? 'bg-green-100 text-green-700' :
+                              row.status === 'Failed' ? 'bg-red-100 text-red-700' :
+                              'bg-gray-200 text-gray-800'
+                            }`}>
+                              {row.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </GlobalTable>
               
               {/* Pagination */}
               <div className="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[13px] text-gray-500 bg-gray-50/50 gap-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                  <span>Showing 1-25 of 1,248</span>
+                  <span>
+                    Showing {filteredLogs.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1}-
+                    {Math.min(currentPage * rowsPerPage, filteredLogs.length)} of {filteredLogs.length}
+                  </span>
                   <div className="flex items-center gap-2">
                     <span>Rows per page:</span>
                     <div className="relative">
-                      <select className="appearance-none bg-transparent pr-5 font-medium text-gray-700 focus:outline-none cursor-pointer">
-                        <option>25</option>
-                        <option>50</option>
-                        <option>100</option>
+                      <select 
+                        value={rowsPerPage}
+                        onChange={(e) => {
+                          setRowsPerPage(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                        className="appearance-none bg-transparent pr-5 font-medium text-gray-700 focus:outline-none cursor-pointer"
+                      >
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
                       </select>
                       <MaterialIcon icon="expand_more" className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 text-[16px] pointer-events-none" />
                     </div>
@@ -339,13 +634,27 @@ export default function AuditLogs() {
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-1">
-                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 disabled:opacity-50">Prev</button>
-                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 bg-gray-100 font-medium">1</button>
-                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">2</button>
-                  <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">3</button>
-                  <span className="px-1 sm:px-2">...</span>
-                  <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">50</button>
-                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">Next</button>
+                  <button 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
+                  >
+                    Prev
+                  </button>
+                  
+                  {/* Simplified page numbers rendering for brevity */}
+                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-700 font-medium bg-gray-100">
+                    {currentPage}
+                  </button>
+                  <span className="px-1 sm:px-2 text-gray-400">/ {totalPages}</span>
+                  
+                  <button 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
             </div>
