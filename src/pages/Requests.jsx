@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import ManualEntryDrawer from '../components/organisms/ManualEntryDrawer';
+import RequestDetailDrawer from '../components/organisms/RequestDetailDrawer';
 
 /* ─────────────────────────────────────────
    DATA
@@ -133,6 +134,7 @@ export default function Requests() {
   const [search, setSearch] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selected, setSelected] = useState([]);
+  const [detailRequest, setDetailRequest] = useState(null);
 
   const filtered = REQUESTS.filter((r) => {
     const matchTab = activeTab === 'All' || r.tab === activeTab;
@@ -468,15 +470,17 @@ export default function Requests() {
 
                     {/* Action */}
                     <td style={{ ...td(), textAlign: 'right', paddingRight: 20 }}>
-                      <button style={{
-                        width: 32, height: 32,
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                        border: '1px solid #E5E7EB', borderRadius: 8,
-                        background: '#fff', color: '#6B7280',
-                        cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                        transition: 'all .15s',
-                      }}
+                      <button
+                        style={{
+                          width: 32, height: 32,
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          border: '1px solid #E5E7EB', borderRadius: 8,
+                          background: '#fff', color: '#6B7280',
+                          cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                          transition: 'all .15s',
+                        }}
                         title="View Detail"
+                        onClick={() => setDetailRequest(row)}
                         onMouseEnter={(e) => { e.currentTarget.style.color = '#FF5A1F'; e.currentTarget.style.borderColor = '#FDBA74'; }}
                         onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.borderColor = '#E5E7EB'; }}
                       >
@@ -522,6 +526,14 @@ export default function Requests() {
 
       {/* ── Manual Entry Drawer ── */}
       <ManualEntryDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+
+      {/* ── Request Detail Drawer ── */}
+      <RequestDetailDrawer
+        request={detailRequest}
+        onClose={() => setDetailRequest(null)}
+        onApprove={(r) => console.log('Approved:', r.id)}
+        onReject={(r) => console.log('Rejected:', r.id)}
+      />
     </div>
   );
 }
