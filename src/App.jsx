@@ -5,6 +5,9 @@ import Requests from './pages/Requests';
 import Incidents from './pages/Incidents';
 import WardMap from './pages/WardMap';
 import History from './pages/History';
+import SituationRoom from './pages/SituationRoom';
+import PublicLinks from './pages/PublicLinks';
+import CreatePublicLink from './pages/CreatePublicLink';
 import MainLayout from './components/templates/MainLayout';
 
 function App() {
@@ -22,6 +25,9 @@ function App() {
           <Route path="/incidents" element={<Incidents />} />
           <Route path="/map" element={<WardMap />} />
           <Route path="/history" element={<History />} />
+          <Route path="/tv" element={<SituationRoom />} />
+          <Route path="/links" element={<PublicLinks />} />
+          <Route path="/links/create" element={<CreatePublicLink />} />
           {/* Add all other internal pages here */}
         </Route>
       </Routes>
