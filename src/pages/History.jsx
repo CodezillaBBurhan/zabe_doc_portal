@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
+import CompareCyclesDrawer from '../components/organisms/CompareCyclesDrawer';
 
 /* ── UI Components ── */
 function DropdownFilter({ label, value, options, onChange, isActive, onClick, onClose }) {
@@ -69,6 +70,7 @@ const TABLE_DATA = [
 
 export default function History() {
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [dateRange, setDateRange] = useState('All');
   const [electionType, setElectionType] = useState('All');
   const [region, setRegion] = useState('All States');
@@ -111,7 +113,7 @@ export default function History() {
             <MaterialIcon icon="file_download" className="text-[16px]" />
             Export Report
           </button>
-          <button style={{ height: 36, padding: '0 16px', borderRadius: 8, border: 'none', background: '#FF5A1F', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={() => setIsCompareOpen(true)} style={{ height: 36, padding: '0 16px', borderRadius: 8, border: 'none', background: '#FF5A1F', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <MaterialIcon icon="compare_arrows" className="text-[16px]" />
             Compare Cycles
           </button>
@@ -324,6 +326,11 @@ export default function History() {
         Data source: Election Archive | Last updated: 18 Aug 2026
       </div>
 
+      <CompareCyclesDrawer 
+        isOpen={isCompareOpen} 
+        onClose={() => setIsCompareOpen(false)} 
+        data={filteredData} 
+      />
     </div>
   );
 }
