@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Requests from './pages/Requests';
 import MainLayout from './components/templates/MainLayout';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         {/* Protected Application Routes wrapped in MainLayout */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/requests" element={<Requests />} />
           {/* Add all other internal pages here */}
         </Route>
       </Routes>

@@ -8,8 +8,8 @@ export default function Header() {
           <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm" />
           <input 
             type="text"
-            className="pl-9 pr-4 py-1.5 border border-[#D0D5DD] rounded-md text-sm w-64 focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container bg-surface-bright" 
-            placeholder="Search..." 
+            className="pl-9 pr-4 py-1.5 border border-gray-200 rounded-md text-[13px] w-72 focus:outline-none focus:ring-1 focus:ring-brand-orange bg-white placeholder-gray-400 shadow-sm" 
+            placeholder="Search commands, reports..." 
           />
         </div>
       </div>
