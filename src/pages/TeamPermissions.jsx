@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 
 export default function TeamPermissions() {
@@ -18,10 +19,10 @@ export default function TeamPermissions() {
             <MaterialIcon icon="settings" className="mr-2 text-[18px]" />
             Manage Permissions
           </button>
-          <button className="flex items-center text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md px-4 py-2 transition-colors shadow-sm">
+          <Link to="/members" className="flex items-center text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md px-4 py-2 transition-colors shadow-sm">
             <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
             Assign Member
-          </button>
+          </Link>
         </div>
       </div>
 

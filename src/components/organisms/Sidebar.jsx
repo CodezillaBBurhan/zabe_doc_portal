@@ -50,6 +50,7 @@ export default function Sidebar() {
         <SidebarLink icon="settings_input_component" label="TV Control" to="/tv" active={currentPath === '/tv'} />
         <SidebarLink icon="link" label="Public Links" to="/links" active={currentPath === '/links'} />
         <SidebarLink icon="group" label="Team & Permissions" to="/team" active={currentPath === '/team'} />
+        <SidebarLink icon="people" label="Members" to="/members" active={currentPath === '/members'} />
         <SidebarLink icon="list_alt" label="Audit Logs" to="/logs" active={currentPath === '/logs'} />
         <SidebarLink icon="settings" label="Settings" to="/settings" active={currentPath === '/settings'} />
       </div>

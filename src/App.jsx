@@ -27,11 +27,11 @@ function App() {
         {/* Protected Application Routes wrapped in MainLayout */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/audit-logs" element={<AuditLogs />} />
+          <Route path="/logs" element={<AuditLogs />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/permissions" element={<Permissions />} />
-          <Route path="/team-permissions" element={<TeamPermissions />} />
+          <Route path="/team" element={<TeamPermissions />} />
           <Route path="/members" element={<Members />} />
           <Route path="/requests" element={<Requests />} />
           <Route path="/incidents" element={<Incidents />} />
