@@ -48,9 +48,46 @@ function LGARow({ name, pct, color }) {
   );
 }
 
+function FilterDropdown({ options, value, onChange, isActive, onClick, onClose, icon }) {
+  return (
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+      <span onClick={onClick} style={{ color: value !== options[0] || !value.startsWith('All') ? '#111827' : '#6B7280', fontWeight: value !== options[0] || !value.startsWith('All') ? 600 : 500, cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '2px 4px', margin: '0 -4px', borderRadius: 4, background: isActive ? '#E5E7EB' : 'transparent', transition: 'background 0.2s' }}>
+        {value} 
+        {icon && <MaterialIcon icon={icon} className="text-[14px] ml-1 text-gray-400" />}
+      </span>
+      {isActive && (
+        <>
+          <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 100 }} />
+          <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 101, minWidth: 160, padding: 4 }}>
+            {options.map(opt => (
+              <div 
+                key={opt} 
+                onClick={() => { onChange(opt); onClose(); }} 
+                style={{ padding: '8px 12px', fontSize: 13, cursor: 'pointer', borderRadius: 6, background: value === opt ? '#F3F4F6' : 'transparent', color: '#111827', fontWeight: value === opt ? 600 : 400 }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#F9FAFB'}
+                onMouseLeave={(e) => e.currentTarget.style.background = value === opt ? '#F3F4F6' : 'transparent'}
+              >
+                {opt}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ── Main Page ── */
 export default function WardMap() {
   const [search, setSearch] = useState('');
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [selectedState, setSelectedState] = useState('Lagos State');
+  const [selectedLga, setSelectedLga] = useState('All LGAs');
+  const [selectedWard, setSelectedWard] = useState('All Wards');
+
+  const stateOptions = ['Lagos State', 'Abuja (FCT)', 'Kano State', 'Rivers State'];
+  const lgaOptions = ['All LGAs', 'Ikeja', 'Surulere', 'Lagos Island', 'Kosofe', 'Alimosho'];
+  const wardOptions = ['All Wards', 'Ward 1', 'Ward 2', 'Ward 3', 'Ward 4'];
 
   return (
     <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
@@ -74,10 +111,16 @@ export default function WardMap() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 16, flexShrink: 0 }}>
         {/* Breadcrumbs */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#F9FAFB', padding: '6px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12, fontWeight: 500 }}>
-          <span style={{ color: '#374151', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>Nigeria <MaterialIcon icon="chevron_right" className="text-[14px] mx-1 text-gray-400" /></span>
-          <span style={{ color: '#111827', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>Lagos State <MaterialIcon icon="chevron_right" className="text-[14px] mx-1 text-gray-400" /></span>
-          <span style={{ color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>All LGAs <MaterialIcon icon="chevron_right" className="text-[14px] mx-1 text-gray-400" /></span>
-          <span style={{ color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>All Wards <MaterialIcon icon="expand_more" className="text-[14px] ml-1 text-gray-400" /></span>
+          <span style={{ color: '#374151', display: 'flex', alignItems: 'center', padding: '2px 0' }}>Nigeria</span>
+          <MaterialIcon icon="chevron_right" className="text-[14px] mx-[2px] text-gray-400" />
+          
+          <FilterDropdown options={stateOptions} value={selectedState} onChange={setSelectedState} isActive={activeDropdown === 'state'} onClick={() => setActiveDropdown(activeDropdown === 'state' ? null : 'state')} onClose={() => setActiveDropdown(null)} />
+          <MaterialIcon icon="chevron_right" className="text-[14px] mx-[2px] text-gray-400" />
+          
+          <FilterDropdown options={lgaOptions} value={selectedLga} onChange={setSelectedLga} isActive={activeDropdown === 'lga'} onClick={() => setActiveDropdown(activeDropdown === 'lga' ? null : 'lga')} onClose={() => setActiveDropdown(null)} />
+          <MaterialIcon icon="chevron_right" className="text-[14px] mx-[2px] text-gray-400" />
+          
+          <FilterDropdown options={wardOptions} value={selectedWard} onChange={setSelectedWard} isActive={activeDropdown === 'ward'} onClick={() => setActiveDropdown(activeDropdown === 'ward' ? null : 'ward')} onClose={() => setActiveDropdown(null)} icon="expand_more" />
         </div>
 
         {/* Search */}
@@ -179,7 +222,9 @@ export default function WardMap() {
             <span style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>SELECTED REGION:</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <MaterialIcon icon="location_on" className="text-[20px]" style={{ color: '#026AA2' }} />
-              <span style={{ fontSize: 20, fontWeight: 700, color: '#111827' }}>Lagos State</span>
+              <span style={{ fontSize: 20, fontWeight: 700, color: '#111827' }}>
+                {selectedWard !== 'All Wards' ? `${selectedWard}, ${selectedLga}` : selectedLga !== 'All LGAs' ? `${selectedLga}, ${selectedState}` : selectedState}
+              </span>
             </div>
           </div>
 
