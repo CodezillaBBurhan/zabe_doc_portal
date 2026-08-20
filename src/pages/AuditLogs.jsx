@@ -107,11 +107,11 @@ export default function AuditLogs() {
       <div className="flex flex-col gap-6 w-full">
         
         {/* Top Row (Chart & Cards) */}
-        <div className="flex flex-col xl:flex-row gap-6 w-full">
+        <div className="flex flex-col xl:flex-row gap-6 w-full items-start">
           {/* Left: Chart Section */}
-          <div className="flex-1 min-w-0 flex flex-col h-full">
+          <div className="flex-1 min-w-0 flex flex-col gap-6 w-full">
             {/* Chart Section */}
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 h-full flex flex-col">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col">
               <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-6">AUDIT ACTIVITY — LAST 24 HOURS</h3>
               
               <div className="h-64 flex items-end justify-between gap-1 mb-6 border-b border-gray-100 pb-2">
@@ -142,6 +142,68 @@ export default function AuditLogs() {
               </div>
             </div>
             
+  {/* Bottom Row (Table) */}
+        <div className="w-full flex flex-col">
+            {/* Audit Log Table Card */}
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+              <GlobalTable className="text-[13px]">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-500 font-semibold tracking-wider text-[11px] uppercase">
+                      <th className="px-5 py-4">TIMESTAMP</th>
+                      <th className="px-5 py-4">USER</th>
+                      <th className="px-5 py-4">ROLE</th>
+                      <th className="px-5 py-4">ACTION</th>
+                      <th className="px-5 py-4">MODULE</th>
+                      <th className="px-5 py-4">TARGET</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {auditData.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50 text-gray-600">
+                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.time}</td>
+                        <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.user}</td>
+                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.role}</td>
+                        <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.action}</td>
+                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.module}</td>
+                        <td className="px-5 py-4 whitespace-nowrap">
+                          <span className="font-mono text-[12px] text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
+                            {row.target}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </GlobalTable>
+              
+              {/* Pagination */}
+              <div className="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[13px] text-gray-500 bg-gray-50/50 gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                  <span>Showing 1-25 of 1,248</span>
+                  <div className="flex items-center gap-2">
+                    <span>Rows per page:</span>
+                    <div className="relative">
+                      <select className="appearance-none bg-transparent pr-5 font-medium text-gray-700 focus:outline-none cursor-pointer">
+                        <option>25</option>
+                        <option>50</option>
+                        <option>100</option>
+                      </select>
+                      <MaterialIcon icon="expand_more" className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 text-[16px] pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-1">
+                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 disabled:opacity-50">Prev</button>
+                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 bg-gray-100 font-medium">1</button>
+                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">2</button>
+                  <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">3</button>
+                  <span className="px-1 sm:px-2">...</span>
+                  <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">50</button>
+                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">Next</button>
+                </div>
+              </div>
+            </div>
+        </div>
           </div>
 
           {/* Right Column (Cards) */}
@@ -288,69 +350,7 @@ export default function AuditLogs() {
           </div>
         </div>
 
-        {/* Bottom Row (Table) */}
-        <div className="w-full flex flex-col">
-            {/* Audit Log Table Card */}
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
-              <GlobalTable className="text-[13px]">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-gray-500 font-semibold tracking-wider text-[11px] uppercase">
-                      <th className="px-5 py-4">TIMESTAMP</th>
-                      <th className="px-5 py-4">USER</th>
-                      <th className="px-5 py-4">ROLE</th>
-                      <th className="px-5 py-4">ACTION</th>
-                      <th className="px-5 py-4">MODULE</th>
-                      <th className="px-5 py-4">TARGET</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {auditData.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50 text-gray-600">
-                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.time}</td>
-                        <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.user}</td>
-                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.role}</td>
-                        <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.action}</td>
-                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.module}</td>
-                        <td className="px-5 py-4 whitespace-nowrap">
-                          <span className="font-mono text-[12px] text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
-                            {row.target}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </GlobalTable>
-              
-              {/* Pagination */}
-              <div className="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[13px] text-gray-500 bg-gray-50/50 gap-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                  <span>Showing 1-25 of 1,248</span>
-                  <div className="flex items-center gap-2">
-                    <span>Rows per page:</span>
-                    <div className="relative">
-                      <select className="appearance-none bg-transparent pr-5 font-medium text-gray-700 focus:outline-none cursor-pointer">
-                        <option>25</option>
-                        <option>50</option>
-                        <option>100</option>
-                      </select>
-                      <MaterialIcon icon="expand_more" className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 text-[16px] pointer-events-none" />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-1">
-                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 disabled:opacity-50">Prev</button>
-                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 bg-gray-100 font-medium">1</button>
-                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">2</button>
-                  <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">3</button>
-                  <span className="px-1 sm:px-2">...</span>
-                  <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">50</button>
-                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">Next</button>
-                </div>
               </div>
-            </div>
-        </div>
-      </div>
     </div>
   );
 }
