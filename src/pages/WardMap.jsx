@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 /* ── Components ── */
 function KPICard({ icon, title, value, sub, iconBg, iconColor, valueColor = '#111827', progress }) {
@@ -94,63 +97,64 @@ export default function WardMap() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', background: '#F8FAFC' }}>
         
         {/* Map Area */}
-        <div style={{ flex: '1 1 50%', position: 'relative', background: '#E0E8F0', overflow: 'hidden' }}>
-          {/* Abstract Map Background SVG */}
-          <svg width="100%" height="100%" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice" style={{ opacity: 0.9 }}>
-            {/* Water background */}
-            <rect width="100%" height="100%" fill="#E0E8F0" />
+        <div style={{ flex: '1 1 50%', minHeight: 450, position: 'relative', overflow: 'hidden', zIndex: 0 }}>
+          <MapContainer center={[9.0820, 8.6753]} zoom={6} zoomControl={false} style={{ width: '100%', height: '100%', minHeight: 450, background: '#E0E8F0' }}>
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            />
+            {/* Custom Markers matching the Figma design */}
+            <Marker position={[12.0022, 8.5920]} icon={L.divIcon({
+              className: 'custom-marker',
+              html: `<div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(249,115,22,0.2); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; border-radius: 50%; background: #F97316; border: 2px solid #fff;"></div></div>`,
+              iconSize: [32, 32], iconAnchor: [16, 16]
+            })}>
+              <Popup>Kano - Warning/Delayed</Popup>
+            </Marker>
             
-            {/* Abstract Landmass (Nigeria shape approx) */}
-            <g transform="translate(150, 20) scale(1.1)">
-              {/* Regions with different colors */}
-              <path d="M 150 150 L 250 100 L 350 120 L 400 200 L 350 300 L 250 350 L 150 280 Z" fill="#E6DECA" stroke="#D1C9B6" strokeWidth="1" />
-              <path d="M 350 120 L 450 80 L 550 120 L 600 220 L 500 280 L 400 200 Z" fill="#D3E0CC" stroke="#C1CEBA" strokeWidth="1" />
-              <path d="M 400 200 L 500 280 L 600 220 L 650 320 L 550 400 L 450 350 Z" fill="#E8E2D2" stroke="#D6D0C0" strokeWidth="1" />
-              <path d="M 250 350 L 350 300 L 450 350 L 400 450 L 280 420 Z" fill="#D0E3E8" stroke="#BECED3" strokeWidth="1" />
-              <path d="M 150 280 L 250 350 L 280 420 L 180 400 L 120 320 Z" fill="#EAE0D3" stroke="#D8CECO" strokeWidth="1" />
-              
-              {/* City Names (Abstract) */}
-              <text x="250" y="160" fontSize="12" fill="#9CA3AF" fontWeight="600">Sokoto</text>
-              <text x="350" y="180" fontSize="12" fill="#9CA3AF" fontWeight="600">Kano</text>
-              <text x="500" y="160" fontSize="12" fill="#9CA3AF" fontWeight="600">Borno</text>
-              <text x="300" y="260" fontSize="12" fill="#6B7280" fontWeight="700">Abuja</text>
-              <text x="180" y="380" fontSize="12" fill="#4B5563" fontWeight="700">Lagos</text>
-              <text x="350" y="380" fontSize="12" fill="#9CA3AF" fontWeight="600">Delta</text>
-              <text x="480" y="320" fontSize="12" fill="#9CA3AF" fontWeight="600">Enugu</text>
+            <Marker position={[11.8333, 13.1500]} icon={L.divIcon({
+              className: 'custom-marker',
+              html: `<div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(22,163,74,0.2); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; border-radius: 50%; background: #16A34A; border: 2px solid #fff;"></div></div>`,
+              iconSize: [32, 32], iconAnchor: [16, 16]
+            })}>
+              <Popup>Borno - Collation Complete</Popup>
+            </Marker>
 
-              {/* Markers */}
-              {/* Normal */}
-              <circle cx="300" cy="280" r="14" fill="#026AA2" opacity="0.2" />
-              <circle cx="300" cy="280" r="6" fill="#026AA2" stroke="#fff" strokeWidth="2" />
-              <text x="290" y="283" fontSize="8" fill="#fff" fontWeight="700">42%</text>
-              
-              {/* Complete */}
-              <circle cx="520" cy="180" r="14" fill="#16A34A" opacity="0.2" />
-              <circle cx="520" cy="180" r="6" fill="#16A34A" stroke="#fff" strokeWidth="2" />
+            <Marker position={[9.0579, 7.4951]} icon={L.divIcon({
+              className: 'custom-marker',
+              html: `<div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(2,106,162,0.2); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; border-radius: 50%; background: #026AA2; border: 2px solid #fff; display: flex; align-items: center; justify-content: center;"><span style="color: #fff; font-size: 7px; font-weight: 700;">42%</span></div></div>`,
+              iconSize: [32, 32], iconAnchor: [16, 16]
+            })}>
+              <Popup>Abuja - 42% Normal Activity</Popup>
+            </Marker>
 
-              {/* Warning */}
-              <circle cx="360" cy="190" r="14" fill="#F97316" opacity="0.2" />
-              <circle cx="360" cy="190" r="6" fill="#F97316" stroke="#fff" strokeWidth="2" />
+            <Marker position={[6.5244, 3.3792]} icon={L.divIcon({
+              className: 'custom-marker',
+              html: `<div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(220,38,38,0.15); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(220,38,38,0.3); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; border-radius: 50%; background: #DC2626; border: 2px solid #fff; display: flex; align-items: center; justify-content: center;"><span style="color: #fff; font-size: 7px; font-weight: 700;">85%</span></div></div></div>`,
+              iconSize: [48, 48], iconAnchor: [24, 24]
+            })}>
+              <Popup>Lagos - 85% Critical Incident</Popup>
+            </Marker>
 
-              {/* Critical */}
-              <circle cx="180" cy="370" r="24" fill="#DC2626" opacity="0.15" />
-              <circle cx="180" cy="370" r="12" fill="#DC2626" opacity="0.3" />
-              <circle cx="180" cy="370" r="6" fill="#DC2626" stroke="#fff" strokeWidth="2" />
-              <text x="171" y="373" fontSize="8" fill="#fff" fontWeight="700">85%</text>
-
-              <circle cx="620" cy="270" r="16" fill="#DC2626" opacity="0.2" />
-              <circle cx="620" cy="270" r="6" fill="#DC2626" stroke="#fff" strokeWidth="2" />
-            </g>
-          </svg>
-
-          {/* Zoom Controls */}
-          <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <button style={{ width: 32, height: 32, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 18, color: '#374151', borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-            <button style={{ width: 32, height: 32, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 18, color: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
-          </div>
+            <Marker position={[6.4413, 7.4988]} icon={L.divIcon({
+              className: 'custom-marker',
+              html: `<div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(220,38,38,0.15); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; border-radius: 50%; background: #DC2626; border: 2px solid #fff;"></div></div>`,
+              iconSize: [36, 36], iconAnchor: [18, 18]
+            })}>
+              <Popup>Enugu - Critical Incident</Popup>
+            </Marker>
+            
+            {/* Custom Zoom Controls to match Figma design (Leaflet default disabled above) */}
+            <div className="leaflet-top leaflet-right">
+              <div className="leaflet-control leaflet-bar" style={{ marginTop: 16, marginRight: 16, border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 8, overflow: 'hidden' }}>
+                <a className="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in" style={{ width: 32, height: 32, lineHeight: '32px', color: '#374151', fontSize: 18, borderBottom: '1px solid #F3F4F6' }}>+</a>
+                <a className="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out" style={{ width: 32, height: 32, lineHeight: '32px', color: '#374151', fontSize: 18 }}>−</a>
+              </div>
+            </div>
+          </MapContainer>
 
           {/* Legend */}
-          <div style={{ position: 'absolute', bottom: 16, left: 16, background: '#fff', borderRadius: 8, padding: '12px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+          <div style={{ position: 'absolute', bottom: 16, left: 16, background: '#fff', borderRadius: 8, padding: '12px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', zIndex: 1000 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>STATUS LEGEND</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
