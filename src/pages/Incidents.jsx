@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
+import ReportIncidentDrawer from '../components/organisms/ReportIncidentDrawer';
+import IncidentDetailDrawer from '../components/organisms/IncidentDetailDrawer';
 
 /* ── Data ── */
 const INCIDENTS = [
@@ -94,6 +96,8 @@ export default function Incidents() {
   const [search, setSearch]       = useState('');
   const [severity, setSeverity]   = useState('All');
   const [category, setCategory]   = useState('All');
+  const [reportOpen, setReportOpen]     = useState(false);
+  const [detailIncident, setDetailIncident] = useState(null);
 
   const filtered = INCIDENTS.filter((r) => {
     const matchTab = activeTab === 'All Incidents' || r.tab === activeTab;
@@ -113,7 +117,7 @@ export default function Incidents() {
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111827', letterSpacing: '-0.3px' }}>Incidents</h1>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Monitor, manage, and resolve election incidents in real-time.</p>
         </div>
-        <button style={{ height: 36, padding: '0 18px', borderRadius: 8, background: '#FF5A1F', color: '#fff', fontWeight: 600, fontSize: 13, border: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer', boxShadow: '0 1px 3px rgba(255,90,31,0.35)', flexShrink: 0 }}>
+        <button onClick={() => setReportOpen(true)} style={{ height: 36, padding: '0 18px', borderRadius: 8, background: '#FF5A1F', color: '#fff', fontWeight: 600, fontSize: 13, border: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer', boxShadow: '0 1px 3px rgba(255,90,31,0.35)', flexShrink: 0 }}>
           <MaterialIcon icon="add" className="text-[16px]" />
           Report Incident
         </button>
@@ -153,11 +157,13 @@ export default function Incidents() {
           {/* Filter bar */}
           <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: '12px 16px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', flex: 1, minWidth: 180 }}>
-              <MaterialIcon icon="search" className="text-[16px]" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
+              <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', display: 'flex', alignItems: 'center', pointerEvents: 'none', zIndex: 1 }}>
+                <MaterialIcon icon="search" className="text-[16px]" />
+              </span>
               <input
                 value={search} onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search incidents by ID, detail or location..."
-                style={{ height: 34, paddingLeft: 32, paddingRight: 12, width: '100%', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', boxSizing: 'border-box', color: '#374151' }}
+                style={{ height: 34, paddingLeft: 34, paddingRight: 12, width: '100%', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', boxSizing: 'border-box', color: '#374151' }}
               />
             </div>
             {[
@@ -251,7 +257,7 @@ export default function Incidents() {
                           <div style={{ fontSize: 11, color: '#9CA3AF' }}>Today</div>
                         </td>
                         <td style={{ ...cell, textAlign: 'right' }}>
-                          <button style={{ height: 30, padding: '0 12px', border: '1px solid #FDBA74', borderRadius: 7, background: '#fff', fontSize: 12, fontWeight: 600, color: '#EA580C', cursor: 'pointer' }}>
+                          <button onClick={() => setDetailIncident(row)} style={{ height: 30, padding: '0 12px', border: '1px solid #FDBA74', borderRadius: 7, background: '#fff', fontSize: 12, fontWeight: 600, color: '#EA580C', cursor: 'pointer' }}>
                             View Details
                           </button>
                         </td>
@@ -351,6 +357,10 @@ export default function Incidents() {
 
         </div>
       </div>
+
+      {/* ── Drawers ── */}
+      <ReportIncidentDrawer open={reportOpen} onClose={() => setReportOpen(false)} />
+      <IncidentDetailDrawer incident={detailIncident} onClose={() => setDetailIncident(null)} />
     </div>
   );
 }
