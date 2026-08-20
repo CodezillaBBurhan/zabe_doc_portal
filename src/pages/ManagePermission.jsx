@@ -36,10 +36,10 @@ export default function ManagePermission() {
             <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-r from-[#fff3eb] to-[#ffecd9]"></div>
             
             <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-white shadow-md overflow-hidden relative z-10 mb-4 mt-4">
-              <img src="https://i.pravatar.cc/150?u=sarah" alt="Avatar" className="w-full h-full object-cover" />
+              <img src="https://cdn.pixabay.com/photo/2021/03/21/13/28/woman-6112091_1280.jpg" alt="Avatar" className="w-full h-full object-cover" />
             </div>
             
-            <h2 className="text-[22px] font-bold text-[#0f1c2d] mb-1 relative z-10">Sarah Jenkins</h2>
+            <h2 className="text-[22px] font-bold text-[#0f1c2d] mb-1 relative z-10">Chiamaka Adebayo</h2>
             <div className="text-[14px] font-semibold text-[#b35e22] mb-6 relative z-10">Operations Lead</div>
             
             <div className="w-full bg-[#f9fafb] border border-[#e4e7ec] rounded-lg p-4 flex flex-col gap-3 mb-6">
@@ -228,7 +228,7 @@ export default function ManagePermission() {
               >
                 Cancel Changes
               </button>
-              <button className="px-6 py-2.5 rounded-md text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] transition-colors shadow-sm flex items-center">
+              <button className="px-6 py-2.5 rounded-md text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] transition-colors shadow-sm flex items-center">
                 <MaterialIcon icon="save" className="mr-2 text-[18px]" />
                 Save Permissions
               </button>

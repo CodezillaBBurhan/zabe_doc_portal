@@ -25,7 +25,7 @@ export default function TeamPermissions() {
           </button>
           <button 
             onClick={() => setIsAssignDrawerOpen(true)}
-            className="flex-1 sm:flex-none justify-center flex items-center text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md px-4 py-2 transition-colors shadow-sm"
+            className="flex-1 sm:flex-none justify-center flex items-center text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md px-4 py-2 transition-colors shadow-sm"
           >
             <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
             Assign Member
@@ -74,10 +74,10 @@ export default function TeamPermissions() {
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0 overflow-hidden">
-                        <img src="https://i.pravatar.cc/150?u=sarah" alt="Avatar" className="w-full h-full object-cover" />
+                        <img src="https://cdn.pixabay.com/photo/2021/03/21/13/28/woman-6112091_1280.jpg" alt="Avatar" className="w-full h-full object-cover" />
                       </div>
                       <div className="min-w-0">
-                        <div className="font-semibold text-[#0f1c2d] mb-0.5 truncate">Sarah Jenkins</div>
+                        <div className="font-semibold text-[#0f1c2d] mb-0.5 truncate">Chiamaka Adebayo</div>
                         <div className="text-[13px] text-gray-500 truncate">s.jenkins@election.gov</div>
                       </div>
                     </div>
@@ -148,7 +148,7 @@ export default function TeamPermissions() {
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0 overflow-hidden">
-                        <img src="https://i.pravatar.cc/150?u=elena" alt="Avatar" className="w-full h-full object-cover" />
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr_tL7J7JPf9gnw9fytdW8s5ALj4LK7pU3glA4ISVeww&s=10" alt="Avatar" className="w-full h-full object-cover" />
                       </div>
                       <div className="min-w-0">
                         <div className="font-semibold text-[#0f1c2d] mb-0.5 truncate">Elena Rostova</div>
@@ -214,10 +214,10 @@ export default function TeamPermissions() {
               </button>
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full bg-gray-200 shrink-0 overflow-hidden border border-gray-200">
-                  <img src="https://i.pravatar.cc/150?u=sarah" alt="Avatar" className="w-full h-full object-cover" />
+                  <img src="https://cdn.pixabay.com/photo/2021/03/21/13/28/woman-6112091_1280.jpg" alt="Avatar" className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <h2 className="text-[18px] font-bold text-[#0f1c2d] mb-0.5">Sarah Jenkins</h2>
+                  <h2 className="text-[18px] font-bold text-[#0f1c2d] mb-0.5">Chiamaka Adebayo</h2>
                   <div className="text-[14px] text-gray-500">Operations Lead</div>
                 </div>
               </div>
@@ -315,7 +315,7 @@ export default function TeamPermissions() {
               <button className="px-4 py-2 rounded-md text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 transition-colors">
                 Cancel
               </button>
-              <button className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] transition-colors shadow-sm">
+              <button className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] transition-colors shadow-sm">
                 Save Changes
               </button>
             </div>
@@ -365,7 +365,7 @@ export default function TeamPermissions() {
             <div className="relative">
               <select className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer">
                 <option>Select Existing Member</option>
-                <option>John Doe</option>
+                <option>Oluwaseun Adewale</option>
                 <option>Jane Smith</option>
               </select>
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -447,7 +447,7 @@ export default function TeamPermissions() {
           <button onClick={() => setIsAssignDrawerOpen(false)} className="px-4 py-2 text-[14px] font-medium text-gray-500 hover:text-gray-900 transition-colors">
             Cancel
           </button>
-          <button className="px-5 py-2 text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md transition-colors shadow-sm">
+          <button className="px-5 py-2 text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md transition-colors shadow-sm">
             Create Member
           </button>
         </div>

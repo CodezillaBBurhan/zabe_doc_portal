@@ -111,7 +111,7 @@ export default function Header({ onMenuClick }) {
                     </div>
                     <div className="flex-1">
                       <div className="text-[13px] font-bold text-[#0f1c2d] mb-0.5">New Operative Joined</div>
-                      <div className="text-[12px] text-gray-500 leading-tight mb-1">John Doe has joined the National Command team.</div>
+                      <div className="text-[12px] text-gray-500 leading-tight mb-1">Oluwaseun Adewale has joined the National Command team.</div>
                       <div className="text-[11px] text-gray-400">2 hours ago</div>
                     </div>
                   </div>
@@ -140,7 +140,7 @@ export default function Header({ onMenuClick }) {
               <div className="absolute top-[48px] right-0 w-[240px] bg-white border border-[#e4e7ec] rounded-xl shadow-xl z-50 flex flex-col py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="px-4 py-3 border-b border-[#e4e7ec] mb-1">
                   <div className="text-[14px] font-bold text-[#0f1c2d]">Admin User</div>
-                  <div className="text-[12px] text-gray-500">admin@zabe.app</div>
+                  <div className="text-[12px] text-gray-500">admin@doc.app</div>
                 </div>
                 
                 <Link to="/profile" className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-[13px] font-semibold text-gray-700 transition-colors">

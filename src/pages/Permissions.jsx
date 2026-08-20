@@ -30,7 +30,7 @@ export default function Permissions() {
             <MaterialIcon icon="upload" className="mr-2 text-[18px]" />
             Import Permissions
           </button>
-          <button className="flex items-center text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md px-4 py-2 transition-colors shadow-sm">
+          <button className="flex items-center text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md px-4 py-2 transition-colors shadow-sm">
             <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
             Add Permission
           </button>

@@ -308,7 +308,7 @@ const CreatePublicLink = () => {
                 </div>
               </div>
               <div className="w-2/12 flex items-center justify-center bg-gray-50 rounded-md border border-gray-100">
-                <span className="text-[7px] font-bold text-gray-400">Powered by Zabe</span>
+                <span className="text-[7px] font-bold text-gray-400">Powered by DOC</span>
               </div>
             </div>
 

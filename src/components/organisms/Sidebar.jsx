@@ -13,8 +13,8 @@ export default function Sidebar({ isOpen, onClose }) {
             <MaterialIcon icon="flag" className="text-white text-sm" />
           </div>
           <div className="min-w-0">
-            <h1 className="font-headline-sm text-headline-sm font-bold text-on-surface leading-tight truncate">Election Center</h1>
-            <p className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px] truncate">NATIONAL COMMAND</p>
+            <h1 className="font-headline-sm text-[15px] font-bold text-on-surface leading-tight truncate">Digital Operations</h1>
+            <p className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px] truncate">Center (DOC)</p>
           </div>
         </div>
         {onClose && (

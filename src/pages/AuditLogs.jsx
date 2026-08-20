@@ -40,7 +40,7 @@ export default function AuditLogs() {
             <MaterialIcon icon="filter_list" className="text-gray-500 text-[20px]" />
             Filter
           </button>
-          <button className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-[#ff8c42] hover:bg-[#ff7a22] text-white rounded-md shadow-sm text-sm font-medium flex">
+          <button className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-[#ff5a1f] hover:bg-[#e64a10] text-white rounded-md shadow-sm text-sm font-medium flex">
             <MaterialIcon icon="download" className="text-white text-[20px]" />
             Export
           </button>

@@ -21,7 +21,7 @@ export default function UserProfile() {
             <MaterialIcon icon="edit" className="mr-2 text-[16px]" />
             Edit Profile
           </button>
-          <button className="flex items-center text-[13px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md px-4 py-2 transition-colors shadow-sm">
+          <button className="flex items-center text-[13px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md px-4 py-2 transition-colors shadow-sm">
             <MaterialIcon icon="sync" className="mr-1.5 text-[16px]" />
             Change Role
           </button>
@@ -36,11 +36,11 @@ export default function UserProfile() {
             
             <div className="p-8 flex flex-col items-center border-b border-[#e4e7ec] relative">
               <div className="w-20 h-20 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden relative mb-4">
-                <img src="https://i.pravatar.cc/150?u=sarah" alt="Avatar" className="w-full h-full object-cover" />
+                <img src="https://cdn.pixabay.com/photo/2021/03/21/13/28/woman-6112091_1280.jpg" alt="Avatar" className="w-full h-full object-cover" />
               </div>
               <div className="absolute top-[88px] right-[125px] w-4 h-4 bg-[#12b76a] border-2 border-white rounded-full"></div>
               
-              <h2 className="text-[22px] font-bold text-[#0f1c2d] mb-1">Sarah Jenkins</h2>
+              <h2 className="text-[22px] font-bold text-[#0f1c2d] mb-1">Chiamaka Adebayo</h2>
               <div className="text-[14px] font-semibold text-[#b35e22]">Operations Lead</div>
             </div>
 
