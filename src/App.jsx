@@ -14,6 +14,9 @@ import History from './pages/History';
 import SituationRoom from './pages/SituationRoom';
 import PublicLinks from './pages/PublicLinks';
 import CreatePublicLink from './pages/CreatePublicLink';
+import UserProfile from './pages/UserProfile';
+import ManagePermission from './pages/ManagePermission';
+import NotFound from './pages/NotFound';
 import MainLayout from './components/templates/MainLayout';
 
 function App() {
@@ -40,7 +43,12 @@ function App() {
           <Route path="/tv" element={<SituationRoom />} />
           <Route path="/links" element={<PublicLinks />} />
           <Route path="/links/create" element={<CreatePublicLink />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/manage-permission" element={<ManagePermission />} />
           {/* Add all other internal pages here */}
+          
+          {/* 404 Catch-All Route inside layout */}
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </Router>

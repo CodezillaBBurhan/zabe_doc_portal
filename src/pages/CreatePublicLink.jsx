@@ -1,10 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronRight, Eye, Plus, Minus, Save } from 'lucide-react';
+import { PublicLinksAPI } from '../mocks/api';
 
 const CreatePublicLink = () => {
   const navigate = useNavigate();
   const [linkName, setLinkName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSave = async () => {
+    if (!linkName.trim()) return;
+    setIsSubmitting(true);
+    try {
+      await PublicLinksAPI.create({
+        name: linkName,
+        url: `elec.tn/${linkName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+        createdBy: 'Admin', // mock user
+        views: 0,
+        status: 'Active',
+        createdOn: new Date().toISOString().split('T')[0]
+      });
+      navigate('/links');
+    } catch (e) {
+      console.error(e);
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="flex flex-col w-full pb-12">
@@ -297,9 +318,15 @@ const CreatePublicLink = () => {
 
       {/* Footer Actions */}
       <div className="flex justify-end mb-8">
-        <button className="flex items-center gap-2 bg-brand-orange hover:opacity-90 text-white px-6 py-2.5 rounded-lg font-label-md text-label-md transition-opacity shadow-sm">
+        <button 
+          onClick={handleSave}
+          disabled={!linkName.trim() || isSubmitting}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-label-md text-label-md shadow-sm transition-opacity ${
+            !linkName.trim() || isSubmitting ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-brand-orange hover:opacity-90 text-white'
+          }`}
+        >
           <Save className="w-4 h-4" />
-          Save Public Link
+          {isSubmitting ? 'Saving...' : 'Save Public Link'}
         </button>
       </div>
     </div>

@@ -1,19 +1,13 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { IncidentsAPI } from '../mocks/api';
+import Spinner from '../components/atoms/Spinner';
+import EmptyState from '../components/molecules/EmptyState';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import ReportIncidentDrawer from '../components/organisms/ReportIncidentDrawer';
 import IncidentDetailDrawer from '../components/organisms/IncidentDetailDrawer';
 import GlobalTable from '../components/organisms/GlobalTable';
 
-/* ── Data ── */
-const INCIDENTS = [
-  { id: 'INC-2024-892', severity: 'Critical', category: 'Security',   detail: 'Unauthorized access to results portal',        location: 'Abuja',  sub: 'AMAC',        time: '10:42 AM', tab: 'Critical' },
-  { id: 'INC-2024-891', severity: 'High',     category: 'Technical',  detail: 'Connectivity loss at results collation center', location: 'Lagos',  sub: 'Ikeja',       time: '10:15 AM', tab: 'Active'   },
-  { id: 'INC-2024-889', severity: 'Medium',   category: 'Logistics',  detail: 'Ballot box delay due to vehicle breakdown',     location: 'Kano',   sub: 'Dala',        time: '09:30 AM', tab: 'Active'   },
-  { id: 'INC-2024-890', severity: 'Low',      category: 'Results',    detail: 'Minor discrepancy in ward results',             location: 'Rivers', sub: 'Obio-Akpor',  time: '09:12 AM', tab: 'Pending'  },
-  { id: 'INC-2024-888', severity: 'High',     category: 'Security',   detail: 'Voter intimidation reported',                  location: 'Kaduna', sub: 'Zaria',       time: '08:45 AM', tab: 'Active'   },
-  { id: 'INC-2024-887', severity: 'Medium',   category: 'Logistics',  detail: 'IEC material shortage at polling unit',         location: 'Kwara',  sub: 'Ilorin West', time: '08:20 AM', tab: 'Active'   },
-  { id: 'INC-2024-886', severity: 'Low',      category: 'Technical',  detail: 'TV screen not updating',                       location: 'Enugu',  sub: 'Enugu North', time: '08:05 AM', tab: 'Pending'  },
-];
+/* ── Data (now fetched from API) ── */
 
 const SEVERITY = {
   Critical: { bg: '#FEE2E2', color: '#DC2626' },
@@ -93,6 +87,9 @@ const cell = { padding: '14px 12px', verticalAlign: 'middle', fontSize: 13 };
 const hd   = { padding: '10px 12px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap', textAlign: 'left', background: '#FAFAFA', borderBottom: '1px solid #F3F4F6' };
 
 export default function Incidents() {
+  const [incidents, setIncidents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [activeTab, setActiveTab] = useState('All Incidents');
   const [search, setSearch]       = useState('');
   const [severity, setSeverity]   = useState('All');
@@ -100,7 +97,31 @@ export default function Incidents() {
   const [reportOpen, setReportOpen]     = useState(false);
   const [detailIncident, setDetailIncident] = useState(null);
 
-  const filtered = INCIDENTS.filter((r) => {
+  useEffect(() => {
+    fetchIncidents();
+  }, []);
+
+  const fetchIncidents = async () => {
+    setIsLoading(true);
+    try {
+      const data = await IncidentsAPI.getAll();
+      const mapped = data.map(i => ({
+        ...i,
+        detail: i.title,
+        sub: i.location.split(' - ')[1] || '',
+        location: i.location.split(' - ')[0] || '',
+        time: new Date(i.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        tab: i.status === 'Resolved' ? 'Resolved' : i.severity === 'Critical' ? 'Critical' : i.status === 'Open' ? 'Pending' : 'Active'
+      }));
+      setIncidents(mapped);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filtered = incidents.filter((r) => {
     const matchTab = activeTab === 'All Incidents' || r.tab === activeTab;
     const matchSev = severity === 'All' || r.severity === severity;
     const matchCat = category === 'All' || r.category === category;
@@ -267,7 +288,19 @@ export default function Incidents() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((row) => {
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '48px 0', textAlign: 'center' }}>
+                        <Spinner />
+                      </td>
+                    </tr>
+                  ) : filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '48px 0', textAlign: 'center' }}>
+                        <EmptyState title="No incidents found" description="There are no incidents matching your filters." />
+                      </td>
+                    </tr>
+                  ) : filtered.map((row) => {
                     const sev  = SEVERITY[row.severity] || SEVERITY.Low;
                     const cat  = CAT_ICON[row.category] || CAT_ICON.Others;
                     return (
@@ -308,13 +341,6 @@ export default function Incidents() {
                       </tr>
                     );
                   })}
-                  {filtered.length === 0 && (
-                    <tr>
-                      <td colSpan={7} style={{ padding: '40px 0', textAlign: 'center', fontSize: 13, color: '#9CA3AF' }}>
-                        No incidents match your filter.
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </GlobalTable>
 
@@ -343,7 +369,8 @@ export default function Incidents() {
         </div>
 
       {/* ── Drawers ── */}
-      <ReportIncidentDrawer open={reportOpen} onClose={() => setReportOpen(false)} />
+      {/* ── Drawers ── */}
+      <ReportIncidentDrawer open={reportOpen} onClose={() => setReportOpen(false)} onSubmit={fetchIncidents} />
       <IncidentDetailDrawer incident={detailIncident} onClose={() => setDetailIncident(null)} />
     </div>
   );

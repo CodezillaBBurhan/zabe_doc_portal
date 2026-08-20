@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { RequestsAPI } from '../mocks/api';
+import Spinner from '../components/atoms/Spinner';
+import EmptyState from '../components/molecules/EmptyState';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import ManualEntryDrawer from '../components/organisms/ManualEntryDrawer';
 import RequestDetailDrawer from '../components/organisms/RequestDetailDrawer';
@@ -7,61 +10,9 @@ import GlobalTable from '../components/organisms/GlobalTable';
 /* ─────────────────────────────────────────
    DATA
 ───────────────────────────────────────── */
-const REQUESTS = [
-  {
-    id: 'REQ-8901',
-    type: 'Logistical',
-    typeIcon: 'local_shipping',
-    location: 'Kano Municipal, KN',
-    locationSub: 'Ward 04',
-    requester: 'Emeka Okafor',
-    time: '10:42 AM',
-    timeSub: 'Today',
-    priority: 'Critical',
-    status: 'Pending',
-    tab: 'Pending',
-  },
-  {
-    id: 'REQ-8899',
-    type: 'Security',
-    typeIcon: 'security',
-    location: 'Oshodi-Isolo, LA',
-    locationSub: 'Ward 11',
-    requester: 'Aisha Bello',
-    time: '10:15 AM',
-    timeSub: 'Today',
-    priority: 'High',
-    status: 'Assigned',
-    tab: 'Assigned',
-  },
-  {
-    id: 'REQ-8898',
-    type: 'Technical',
-    typeIcon: 'computer',
-    location: 'Port Harcourt, RI',
-    locationSub: 'HQ Node',
-    requester: 'Chidi Nwosu',
-    time: '09:30 AM',
-    timeSub: 'Today',
-    priority: 'Medium',
-    status: 'In Progress',
-    tab: 'Assigned',
-  },
-  {
-    id: 'REQ-8895',
-    type: 'Logistical',
-    typeIcon: 'local_shipping',
-    location: 'Abuja Municipal, FC',
-    locationSub: 'Zone A',
-    requester: 'Fatima Sule',
-    time: '08:55 AM',
-    timeSub: 'Today',
-    priority: 'High',
-    status: 'Resolved',
-    tab: 'Resolved',
-  },
-];
-
+/* ─────────────────────────────────────────
+   DATA (now fetched from API)
+───────────────────────────────────────── */
 const TAB_COUNTS = { All: 124, Pending: 89, Assigned: 28, Resolved: 7 };
 
 /* ─────────────────────────────────────────
@@ -131,13 +82,42 @@ const KPI_CARDS = [
    COMPONENT
 ───────────────────────────────────────── */
 export default function Requests() {
+  const [requests, setRequests] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selected, setSelected] = useState([]);
   const [detailRequest, setDetailRequest] = useState(null);
 
-  const filtered = REQUESTS.filter((r) => {
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    setIsLoading(true);
+    try {
+      const data = await RequestsAPI.getAll();
+      // Map API data to component structure if needed
+      const mapped = data.map(r => ({
+        ...r,
+        typeIcon: r.type === 'Security' ? 'security' : r.type === 'Logistical' ? 'local_shipping' : 'computer',
+        locationSub: r.location,
+        requester: r.submitter,
+        time: new Date(r.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        timeSub: 'Today',
+        tab: r.status === 'Resolved' || r.status === 'Rejected' ? 'Resolved' : r.status === 'Pending' ? 'Pending' : 'Assigned'
+      }));
+      setRequests(mapped);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filtered = requests.filter((r) => {
     const matchTab = activeTab === 'All' || r.tab === activeTab;
     const q = search.toLowerCase();
     const matchSearch = !q
@@ -370,7 +350,19 @@ export default function Requests() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((row) => {
+              {isLoading ? (
+                <tr>
+                  <td colSpan="8" style={{ padding: '48px 0', textAlign: 'center' }}>
+                    <Spinner />
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan="8" style={{ padding: '48px 0', textAlign: 'center' }}>
+                    <EmptyState title="No requests found" description="There are no requests matching your filters." />
+                  </td>
+                </tr>
+              ) : filtered.map((row) => {
                 const isChecked = selected.includes(row.id);
                 const pStyle = PRIORITY_STYLES[row.priority] || PRIORITY_STYLES.Low;
                 const sStyle = STATUS_STYLES[row.status] || STATUS_STYLES.Pending;
@@ -516,7 +508,7 @@ export default function Requests() {
       </div>
 
       {/* ── Manual Entry Drawer ── */}
-      <ManualEntryDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <ManualEntryDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} onSubmit={fetchRequests} />
 
       {/* ── Request Detail Drawer ── */}
       <RequestDetailDrawer

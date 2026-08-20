@@ -1,18 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import { MembersAPI } from '../mocks/api';
+import Spinner from '../components/atoms/Spinner';
+import EmptyState from '../components/molecules/EmptyState';
+import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import GlobalTable from '../components/organisms/GlobalTable';
 
-// Mock initial data
-const initialMembers = [
-  { id: 1, name: 'John Doe', email: 'john.doe@election.gov', designation: 'DEO', role: 'L1', publicLink: 'Kano North', status: 'Active', createdDate: 'Oct 24, 2023' },
-  { id: 2, name: 'Michael Smith', email: 'michael.smith@election.gov', designation: 'DEO', role: 'L2', publicLink: 'Abuja Central', status: 'Active', createdDate: 'Oct 23, 2023' },
-  { id: 3, name: 'Sarah Williams', email: 'sarah.williams@election.gov', designation: 'DEO', role: 'L3', publicLink: 'Lagos Mainland', status: 'Active', createdDate: 'Oct 22, 2023' },
-];
 
 const PAGE_SIZE = 10;
 
 export default function Members() {
-  const [members, setMembers] = useState(initialMembers);
+  const [members, setMembers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const fetchMembers = async () => {
+    setIsLoading(true);
+    try {
+      const data = await MembersAPI.getAll();
+      setMembers(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   // Drawer State
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -141,7 +156,7 @@ export default function Members() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (drawerMode === 'view') return;
     if (!validate()) return;
@@ -150,29 +165,35 @@ export default function Members() {
     const today = new Date();
     const dateStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-    if (drawerMode === 'add') {
-      const newMember = {
-        id: Date.now(),
-        name: formData.name,
-        email: formData.email,
-        designation: formData.designation,
-        role: roleCode,
-        publicLink: formData.publicLink === 'Select Existing Link' ? '-' : formData.publicLink,
-        status: 'Active',
-        createdDate: dateStr
-      };
-      setMembers([...members, newMember]);
-    } else if (drawerMode === 'edit') {
-      setMembers(members.map(m => m.id === selectedMember.id ? {
-        ...m,
-        name: formData.name,
-        email: formData.email,
-        designation: formData.designation,
-        role: roleCode,
-        publicLink: formData.publicLink === 'Select Existing Link' ? '-' : formData.publicLink
-      } : m));
+    setIsLoading(true);
+    try {
+      if (drawerMode === 'add') {
+        const newMember = await MembersAPI.create({
+          name: formData.name,
+          email: formData.email,
+          designation: formData.designation,
+          role: roleCode,
+          publicLink: formData.publicLink === 'Select Existing Link' ? '-' : formData.publicLink,
+          status: 'Active',
+          addedOn: dateStr // renamed from createdDate based on mock db structure
+        });
+        setMembers([...members, newMember]);
+      } else if (drawerMode === 'edit') {
+        const updatedMember = await MembersAPI.update(selectedMember.id, {
+          name: formData.name,
+          email: formData.email,
+          designation: formData.designation,
+          role: roleCode,
+          publicLink: formData.publicLink === 'Select Existing Link' ? '-' : formData.publicLink
+        });
+        setMembers(members.map(m => m.id === selectedMember.id ? updatedMember : m));
+      }
+      handleCloseDrawer();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-    handleCloseDrawer();
   };
 
   // Delete Handlers
@@ -181,9 +202,17 @@ export default function Members() {
     setDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (memberToDelete) {
-      setMembers(members.filter(m => m.id !== memberToDelete.id));
+      setIsLoading(true);
+      try {
+        await MembersAPI.delete(memberToDelete.id);
+        setMembers(members.filter(m => m.id !== memberToDelete.id));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
     }
     setDeleteModalOpen(false);
     setMemberToDelete(null);
@@ -287,10 +316,16 @@ export default function Members() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e4e7ec]">
-              {paginatedMembers.length === 0 ? (
+              {isLoading ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-[14px] text-gray-500">
-                    No members found
+                  <td colSpan="7" className="px-6 py-12">
+                    <Spinner />
+                  </td>
+                </tr>
+              ) : paginatedMembers.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-12">
+                    <EmptyState title="No members found" description="There are no members matching your current filters." />
                   </td>
                 </tr>
               ) : (
@@ -316,7 +351,7 @@ export default function Members() {
                         {member.status}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600">{member.createdDate}</td>
+                    <td className="px-6 py-4 text-gray-600">{member.addedOn || member.createdDate}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-3 text-gray-400 relative">
                         <button 
@@ -373,31 +408,15 @@ export default function Members() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {deleteModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-gray-900/40" onClick={() => setDeleteModalOpen(false)}></div>
-          <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 relative z-10">
-            <h3 className="text-[18px] font-bold text-[#0f1c2d] mb-2">Delete Member?</h3>
-            <p className="text-[14px] text-gray-500 mb-6 leading-relaxed">
-              Are you sure you want to delete <span className="font-semibold text-gray-700">{memberToDelete?.name}</span>? This action cannot be undone.
-            </p>
-            <div className="flex items-center justify-end gap-3">
-              <button 
-                onClick={() => setDeleteModalOpen(false)}
-                className="px-4 py-2 rounded-md text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={confirmDelete}
-                className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog 
+        isOpen={deleteModalOpen} 
+        onClose={() => setDeleteModalOpen(false)} 
+        onConfirm={confirmDelete}
+        title="Delete Member?"
+        message={`Are you sure you want to delete ${memberToDelete?.name}? This action cannot be undone.`}
+        confirmText="Delete"
+        confirmColor="red"
+      />
 
       {/* Drawer Overlay */}
       {drawerOpen && (

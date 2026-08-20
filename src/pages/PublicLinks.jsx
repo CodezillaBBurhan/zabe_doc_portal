@@ -1,45 +1,59 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Search, ChevronDown, Plus, X, Copy, Edit, Trash2 } from 'lucide-react';
+import { PublicLinksAPI } from '../mocks/api';
+import Spinner from '../components/atoms/Spinner';
+import EmptyState from '../components/molecules/EmptyState';
+import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import GlobalTable from '../components/organisms/GlobalTable';
 import { useNavigate } from 'react-router-dom';
 
 const PublicLinks = () => {
   const navigate = useNavigate();
-  const linksData = [
-    {
-      id: 1,
-      name: 'National Result Dashboard',
-      url: 'elec.tn/nat-res-24',
-      destination: '/dashboards/national',
-      createdBy: 'J. Smith',
-      views: '450k',
-      created: 'Oct 12, 2024',
-      expiry: 'Never',
-      status: 'Active'
-    },
-    {
-      id: 2,
-      name: 'Lagos Incident Map',
-      url: 'elec.tn/lag-inc-map',
-      destination: '/maps/incident-lagos',
-      createdBy: 'M. Johnson',
-      views: '12k',
-      created: 'Oct 15, 2024',
-      expiry: 'Oct 20, 2024',
-      status: 'Expiring'
-    },
-    {
-      id: 3,
-      name: 'Press Briefing Deck',
-      url: 'elec.tn/press-brief-1',
-      destination: '/docs/briefing-v1.pdf',
-      createdBy: 'A. Davis',
-      views: '850',
-      created: 'Oct 10, 2024',
-      expiry: 'Oct 11, 2024',
-      status: 'Revoked'
+  const [linksData, setLinksData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Delete state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [linkToDelete, setLinkToDelete] = useState(null);
+
+  useEffect(() => {
+    fetchLinks();
+  }, []);
+
+  const fetchLinks = async () => {
+    setIsLoading(true);
+    try {
+      const data = await PublicLinksAPI.getAll();
+      const mapped = data.map(link => ({
+        ...link,
+        destination: '/dashboards/national', // mock destination
+        views: typeof link.views === 'number' ? `${link.views.toLocaleString()}` : link.views,
+        created: link.createdOn || link.created,
+        expiry: 'Never' // mock expiry
+      }));
+      setLinksData(mapped);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  const confirmDelete = async () => {
+    if (linkToDelete) {
+      setIsLoading(true);
+      try {
+        await PublicLinksAPI.delete(linkToDelete.id);
+        setLinksData(linksData.filter(l => l.id !== linkToDelete.id));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    setDeleteModalOpen(false);
+    setLinkToDelete(null);
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState({
@@ -216,7 +230,13 @@ const PublicLinks = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/30">
-              {filteredLinks.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan="8" className="py-12 px-6 text-center">
+                    <Spinner />
+                  </td>
+                </tr>
+              ) : filteredLinks.length > 0 ? (
                 filteredLinks.map((link) => (
                   <tr key={link.id} className="hover:bg-surface-container-lowest/50 transition-colors">
                     <td className="py-4 px-6">
@@ -237,7 +257,7 @@ const PublicLinks = () => {
                         <button className="p-1.5 text-secondary hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Edit Link">
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button className="p-1.5 text-secondary hover:text-error hover:bg-error/10 rounded-md transition-colors" title="Delete Link">
+                        <button onClick={() => { setLinkToDelete(link); setDeleteModalOpen(true); }} className="p-1.5 text-secondary hover:text-error hover:bg-error/10 rounded-md transition-colors" title="Delete Link">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -246,14 +266,25 @@ const PublicLinks = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="py-8 px-6 text-center text-secondary font-body-md">
-                    No links found matching your filters.
+                  <td colSpan="8" className="py-12 px-6 text-center">
+                    <EmptyState title="No links found" description="No public links match your filters." />
                   </td>
                 </tr>
               )}
             </tbody>
           </GlobalTable>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDialog 
+        isOpen={deleteModalOpen} 
+        onClose={() => setDeleteModalOpen(false)} 
+        onConfirm={confirmDelete}
+        title="Delete Public Link?"
+        message={`Are you sure you want to delete the link "${linkToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        confirmColor="red"
+      />
     </div>
   );
 };

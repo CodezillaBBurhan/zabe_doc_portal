@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import MaterialIcon from '../atoms/MaterialIcon';
+import { IncidentsAPI } from '../../mocks/api';
 
 const inputStyle = { width: '100%', height: 36, padding: '0 12px', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', color: '#111827', background: '#fff', boxSizing: 'border-box' };
 const labelStyle = { display: 'block', fontSize: 11, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 };
@@ -10,7 +11,7 @@ const Field = ({ label, required, children }) => (
   </div>
 );
 
-export default function ReportIncidentDrawer({ open, onClose }) {
+export default function ReportIncidentDrawer({ open, onClose, onSubmit }) {
   const [form, setForm] = useState({ category: '', severity: '', location: '', ward: '', description: '', reporter: '', time: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -20,9 +21,26 @@ export default function ReportIncidentDrawer({ open, onClose }) {
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const isValid = form.category && form.severity && form.location && form.description && form.reporter;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setSubmitting(true);
-    setTimeout(() => { setSubmitting(false); setSubmitted(true); setTimeout(onClose, 1200); }, 900);
+    try {
+      await IncidentsAPI.create({
+        category: form.category,
+        severity: form.severity,
+        location: `${form.location} - ${form.ward}`,
+        title: form.description,
+        reportedBy: form.reporter,
+        time: new Date().toISOString(),
+        status: 'Open'
+      });
+      setSubmitted(true);
+      if (onSubmit) onSubmit(); // Trigger refresh in parent
+      setTimeout(() => { onClose(); }, 1200);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!open) return null;

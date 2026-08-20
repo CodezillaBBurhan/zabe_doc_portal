@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import GlobalTable from '../components/organisms/GlobalTable';
 
 export default function TeamPermissions() {
   const [isAssignDrawerOpen, setIsAssignDrawerOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col w-full pb-10">
@@ -205,7 +206,10 @@ export default function TeamPermissions() {
             
             {/* Profile Header */}
             <div className="p-6 border-b border-[#e4e7ec] relative">
-              <button className="absolute top-6 right-6 text-[13px] font-semibold text-[#005fb0] hover:text-[#004786]">
+              <button 
+                onClick={() => navigate('/profile')}
+                className="absolute top-6 right-6 text-[13px] font-semibold text-[#005fb0] hover:text-[#004786]"
+              >
                 Edit Profile
               </button>
               <div className="flex items-center gap-4">
@@ -228,7 +232,10 @@ export default function TeamPermissions() {
                 <div className="bg-[#f0f5fc] rounded-md py-2.5 px-4 text-center text-[11px] font-bold text-[#475467] tracking-wider mb-3">
                   32 PERMISSIONS &bull; 8 MODULES &bull; 24 MEMBERS
                 </div>
-                <button className="w-full flex items-center justify-center text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2 hover:bg-gray-50 transition-colors">
+                <button 
+                  onClick={() => navigate('/manage-permission')}
+                  className="w-full flex items-center justify-center text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2 hover:bg-gray-50 transition-colors"
+                >
                   <MaterialIcon icon="edit" className="mr-2 text-[16px]" />
                   Manage Permissions
                 </button>

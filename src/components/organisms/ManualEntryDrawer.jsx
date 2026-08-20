@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import MaterialIcon from '../atoms/MaterialIcon';
+import { RequestsAPI } from '../../mocks/api';
 
 const FIELD = ({ label, children, required }) => (
   <div style={{ marginBottom: 16 }}>
@@ -18,7 +19,7 @@ const inputStyle = {
 
 const selectStyle = { ...inputStyle, cursor: 'pointer', appearance: 'none' };
 
-export default function ManualEntryDrawer({ open, onClose }) {
+export default function ManualEntryDrawer({ open, onClose, onSubmit }) {
   const [form, setForm] = useState({
     type: '', location: '', ward: '', priority: '', subject: '', description: '', justification: '', requester: '',
   });
@@ -32,9 +33,25 @@ export default function ManualEntryDrawer({ open, onClose }) {
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setSubmitting(true);
-    setTimeout(() => { setSubmitting(false); setSubmitted(true); setTimeout(onClose, 1200); }, 900);
+    try {
+      await RequestsAPI.create({
+        type: form.type,
+        location: `${form.location} - ${form.ward}`,
+        submitter: form.requester,
+        date: new Date().toISOString(),
+        status: 'Pending',
+        priority: form.priority,
+      });
+      setSubmitted(true);
+      if (onSubmit) onSubmit(); // Trigger refresh in parent
+      setTimeout(() => { onClose(); }, 1200);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const isValid = form.type && form.location && form.priority && form.subject && form.requester;
