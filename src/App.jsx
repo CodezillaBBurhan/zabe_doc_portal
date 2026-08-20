@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Requests from './pages/Requests';
+import Incidents from './pages/Incidents';
 import MainLayout from './components/templates/MainLayout';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/requests" element={<Requests />} />
+          <Route path="/incidents" element={<Incidents />} />
           {/* Add all other internal pages here */}
         </Route>
       </Routes>
