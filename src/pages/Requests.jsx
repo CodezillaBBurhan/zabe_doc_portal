@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
+import ManualEntryDrawer from '../components/organisms/ManualEntryDrawer';
 
 /* ─────────────────────────────────────────
    DATA
@@ -130,6 +131,7 @@ const KPI_CARDS = [
 export default function Requests() {
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selected, setSelected] = useState([]);
 
   const filtered = REQUESTS.filter((r) => {
@@ -173,7 +175,7 @@ export default function Requests() {
             Filter
           </button>
           {/* Manual Entry button */}
-          <button style={{
+          <button onClick={() => setDrawerOpen(true)} style={{
             height: 36, padding: '0 18px', borderRadius: 8,
             background: '#FF5A1F', color: '#fff',
             fontWeight: 600, fontSize: 13, border: 'none',
@@ -517,6 +519,9 @@ export default function Requests() {
           </div>
         </div>
       </div>
+
+      {/* ── Manual Entry Drawer ── */}
+      <ManualEntryDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
 }
