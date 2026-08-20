@@ -195,10 +195,10 @@ export default function AuditLogs() {
 
   // Exports
   const handleExportCSV = () => {
-    const headers = ['Timestamp', 'User', 'Role', 'Action', 'Module', 'Target', 'Severity', 'Status'];
+    const headers = ['Timestamp', 'User', 'Role', 'Action', 'Module', 'Target'];
     const rows = filteredLogs.map(log => [
       new Date(log.timestamp).toLocaleString(),
-      log.user, log.role, log.action, log.module, log.target, log.severity, log.status
+      log.user, log.role, log.action, log.module, log.target
     ]);
     const csvContent = "data:text/csv;charset=utf-8," 
       + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
@@ -239,6 +239,11 @@ export default function AuditLogs() {
   const formatTimeOnly = (isoString) => {
     const d = new Date(isoString);
     return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  };
+  
+  const formatTimeWithSeconds = (isoString) => {
+    const d = new Date(isoString);
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   };
   
   const formatDateTime = (isoString) => {
@@ -303,7 +308,7 @@ export default function AuditLogs() {
       {showFilters && (
         <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-all">
           <div className="flex flex-wrap items-center gap-4 mb-4">
-            <div className="relative flex-1 min-w-[200px] w-full">
+            <div className="relative flex-1 w-full sm:w-[40%]">
               <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" />
               <input 
                 type="text" 
@@ -314,7 +319,7 @@ export default function AuditLogs() {
               />
             </div>
             
-            <div className="relative w-full xs:w-auto flex-1 min-w-[150px]">
+            <div className="relative w-full sm:w-[20%]">
               <select 
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
@@ -328,7 +333,7 @@ export default function AuditLogs() {
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
             </div>
             
-            <div className="relative w-full xs:w-auto flex-1 min-w-[150px]">
+            <div className="relative w-full sm:w-[20%]">
               <select 
                 value={userFilter}
                 onChange={(e) => setUserFilter(e.target.value)}
@@ -341,19 +346,17 @@ export default function AuditLogs() {
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
             </div>
             
-            {activeFilters.length > 0 && (
-              <button 
-                onClick={clearAllFilters}
-                className="hidden sm:flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 ml-auto font-medium"
-              >
-                <MaterialIcon icon="close" className="text-[18px]" />
-                Clear Filters
-              </button>
-            )}
+            <button 
+              onClick={clearAllFilters}
+              className="hidden sm:flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 ml-auto font-medium"
+            >
+              <MaterialIcon icon="close" className="text-[18px]" />
+              Clear Filters
+            </button>
           </div>
           
           <div className="flex flex-wrap items-center gap-4">
-            <div className="relative flex-1 min-w-[150px] sm:flex-none">
+            <div className="relative w-full sm:w-[20%]">
               <select 
                 value={severityFilter}
                 onChange={(e) => setSeverityFilter(e.target.value)}
@@ -368,7 +371,7 @@ export default function AuditLogs() {
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
             </div>
             
-            <div className="relative flex-1 min-w-[150px] sm:flex-none">
+            <div className="relative w-full sm:w-[20%]">
               <select 
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -415,249 +418,230 @@ export default function AuditLogs() {
       )}
 
       {/* Main Content Layout */}
-      <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col xl:flex-row gap-6 w-full">
         
-        {/* Top Row (Chart & Cards) */}
-        <div className="flex flex-col xl:flex-row gap-6 w-full">
-          {/* Left: Chart Section */}
-          <div className="flex-1 min-w-0 flex flex-col h-full">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 h-full flex flex-col">
-              <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-6">AUDIT ACTIVITY — LAST 24 HOURS</h3>
-              
-              <div className="h-64 flex items-end justify-between gap-1 mb-6 border-b border-gray-100 pb-2">
-                {chartBars.map((bar, i) => (
-                  <div key={i} className="w-full flex flex-col justify-end h-full relative group" title={`Events: ${bar.count}`}>
-                    <div 
-                      className={`w-full rounded-t-sm transition-all ${bar.isCritical ? 'bg-red-50' : 'bg-[#f0f5fc]'}`} 
-                      style={{ height: bar.height }}
+        {/* Left Column (Table & Chart) */}
+        <div className="flex-1 min-w-0 flex flex-col gap-6">
+          
+          {/* Audit Log Table Card */}
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+            <GlobalTable className="text-[13px]">
+              <thead>
+                <tr className="border-b border-gray-200 text-gray-500 font-semibold tracking-wider text-[11px] uppercase bg-gray-50/50">
+                  <th className="px-5 py-4 text-left">TIMESTAMP</th>
+                  <th className="px-5 py-4 text-left">USER</th>
+                  <th className="px-5 py-4 text-left">ROLE</th>
+                  <th className="px-5 py-4 text-left">ACTION</th>
+                  <th className="px-5 py-4 text-left">MODULE</th>
+                  <th className="px-5 py-4 text-left">TARGET</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {paginatedLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="px-5 py-12 text-center text-gray-500">
+                      <MaterialIcon icon="search_off" className="text-[48px] text-gray-300 mb-3" />
+                      <p className="text-[14px] font-medium text-gray-700">No logs found matching your criteria</p>
+                      <p className="text-[13px] mt-1">Try adjusting your search or filters.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedLogs.map((row) => (
+                    <tr key={row.id} className="hover:bg-gray-50 text-gray-600 transition-colors">
+                      <td className="px-5 py-4 whitespace-nowrap text-gray-500">{formatTimeWithSeconds(row.timestamp)}</td>
+                      <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.user}</td>
+                      <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.role}</td>
+                      <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.action}</td>
+                      <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.module}</td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <span className="font-mono text-[12px] text-gray-600 px-1.5 py-0.5">
+                          {row.target}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </GlobalTable>
+            
+            {/* Pagination */}
+            <div className="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[13px] text-gray-500 bg-gray-50/50 gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                <span>
+                  Showing {filteredLogs.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1}-
+                  {Math.min(currentPage * rowsPerPage, filteredLogs.length)} of {filteredLogs.length.toLocaleString()}
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="ml-0 sm:ml-4">Rows per page:</span>
+                  <div className="relative">
+                    <select 
+                      value={rowsPerPage}
+                      onChange={(e) => {
+                        setRowsPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="appearance-none bg-transparent pr-5 font-medium text-gray-700 focus:outline-none cursor-pointer"
                     >
-                      {bar.isCritical && (
-                        <div className="w-full h-1 bg-red-500 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
-                      )}
-                      {!bar.isCritical && bar.count > 0 && (
-                        <div className="w-full h-1 bg-blue-400 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
-                      )}
-                    </div>
+                      <option value={10}>10</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                    <MaterialIcon icon="expand_more" className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 text-[16px] pointer-events-none" />
                   </div>
-                ))}
+                </div>
               </div>
               
-              <div className="flex justify-between text-[11px] text-gray-400 font-medium">
-                <span>24h ago</span>
-                <span>12h ago</span>
-                <span>Now</span>
+              <div className="flex flex-wrap items-center gap-1">
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
+                >
+                  Prev
+                </button>
+                
+                {/* Simplified page numbers rendering for brevity */}
+                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-700 font-medium bg-gray-100">
+                  {currentPage}
+                </button>
+                <span className="px-1 sm:px-2 text-gray-400">/ {totalPages}</span>
+                
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
+                >
+                  Next
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Right Column (Cards) */}
-          <div className="w-full xl:w-[320px] flex flex-col gap-6 shrink-0">
+          {/* Chart Section */}
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col">
+            <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-6">AUDIT ACTIVITY — LAST 24 HOURS</h3>
             
-            {/* Log Summary */}
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
-              <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-4">LOG SUMMARY (FILTERED)</h3>
-              
-              <div className="mb-5">
-                <div className="text-[13px] text-gray-500 mb-1">Total Events</div>
-                <div className="flex items-baseline gap-3">
-                  <div className="text-[36px] font-bold text-gray-900 leading-none">{totalEvents.toLocaleString()}</div>
+            <div className="h-48 flex items-end justify-between gap-1 mb-6 border-b border-gray-100 pb-2">
+              {chartBars.map((bar, i) => (
+                <div key={i} className="w-full flex flex-col justify-end h-full relative group" title={`Events: ${bar.count}`}>
+                  <div 
+                    className={`w-full rounded-t-sm transition-all ${bar.isCritical ? 'bg-red-50' : 'bg-[#f0f5fc]'}`} 
+                    style={{ height: bar.height }}
+                  >
+                    {bar.isCritical && (
+                      <div className="w-full h-1 bg-red-500 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
+                    )}
+                    {!bar.isCritical && bar.count > 0 && (
+                      <div className="w-full h-1 bg-blue-400 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
+                    )}
+                  </div>
                 </div>
-              </div>
-              
-              <div className="border-t border-gray-100 pt-5 flex justify-between">
-                <div>
-                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">FAILED</div>
-                  <div className="text-[20px] font-bold text-[#d92d20]">{failedEvents}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">BLOCKED</div>
-                  <div className="text-[20px] font-bold text-[#d92d20]">{blockedEvents}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">CRITICAL</div>
-                  <div className="text-[20px] font-bold text-[#d92d20]">{criticalEvents}</div>
-                </div>
-              </div>
+              ))}
             </div>
             
-            {/* Critical Events */}
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <MaterialIcon icon="warning_amber" className="text-[#d92d20] text-[20px]" />
-                <h3 className="text-[11px] font-bold text-[#d92d20] uppercase tracking-wider">LATEST CRITICAL EVENTS</h3>
-              </div>
-              
-              <div className="flex flex-col">
-                {latestCritical.length === 0 ? (
-                  <div className="text-sm text-gray-500 italic py-4">No critical events found in current filter.</div>
-                ) : (
-                  latestCritical.map((event, idx) => (
-                    <div key={idx} className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
-                      <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
-                      <div className="flex justify-between items-start mb-1">
-                        <div className="font-semibold text-[13px] text-gray-900">{event.action}</div>
-                        <div className="text-[11px] text-gray-500 mt-0.5">{formatTimeOnly(event.timestamp)}</div>
-                      </div>
-                      <div className="text-[12px] text-gray-500 leading-relaxed">
-                        {event.user} triggered on {event.target} ({event.module}).
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+            <div className="flex justify-between text-[11px] text-gray-400 font-medium">
+              <span>12:00 PM (Yesterday)</span>
+              <span>12:00 AM</span>
+              <span>12:00 PM (Today)</span>
             </div>
-            
-            {/* Most Active Users */}
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <MaterialIcon icon="group" className="text-gray-500 text-[20px]" />
-                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">MOST ACTIVE USERS</h3>
-              </div>
-              
-              <div className="flex flex-col gap-4">
-                {userStats.length === 0 ? (
-                  <div className="text-sm text-gray-500 italic py-2">No active users in current filter.</div>
-                ) : (
-                  userStats.map((stat, idx) => (
-                    <div key={idx} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0 ${getColorClass(idx)}`}>
-                          {getInitials(stat.user)}
-                        </div>
-                        <div>
-                          <div className="text-[13px] font-semibold text-gray-900">{stat.user}</div>
-                          <div className="text-[11px] text-gray-500">{stat.role}</div>
-                        </div>
-                      </div>
-                      <div className="text-[11px] text-gray-500 flex flex-col items-end">
-                        <span className="font-semibold text-gray-700 text-[13px]">{stat.count}</span>
-                        acts
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-            
           </div>
+
         </div>
 
-        {/* Bottom Row (Table) */}
-        <div className="w-full flex flex-col">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
-              <GlobalTable className="text-[13px]">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-gray-500 font-semibold tracking-wider text-[11px] uppercase bg-gray-50/50">
-                      <th className="px-5 py-4 text-left">TIMESTAMP</th>
-                      <th className="px-5 py-4 text-left">USER</th>
-                      <th className="px-5 py-4 text-left">ROLE</th>
-                      <th className="px-5 py-4 text-left">ACTION</th>
-                      <th className="px-5 py-4 text-left">MODULE</th>
-                      <th className="px-5 py-4 text-left">TARGET</th>
-                      <th className="px-5 py-4 text-left">SEVERITY</th>
-                      <th className="px-5 py-4 text-left">STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {paginatedLogs.length === 0 ? (
-                      <tr>
-                        <td colSpan="8" className="px-5 py-12 text-center text-gray-500">
-                          <MaterialIcon icon="search_off" className="text-[48px] text-gray-300 mb-3" />
-                          <p className="text-[14px] font-medium text-gray-700">No logs found matching your criteria</p>
-                          <p className="text-[13px] mt-1">Try adjusting your search or filters.</p>
-                        </td>
-                      </tr>
-                    ) : (
-                      paginatedLogs.map((row) => (
-                        <tr key={row.id} className="hover:bg-gray-50 text-gray-600 transition-colors">
-                          <td className="px-5 py-4 whitespace-nowrap text-gray-500">{formatDateTime(row.timestamp)}</td>
-                          <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.user}</td>
-                          <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.role}</td>
-                          <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.action}</td>
-                          <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.module}</td>
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <span className="font-mono text-[12px] text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
-                              {row.target}
-                            </span>
-                          </td>
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <span className={`text-[12px] font-medium px-2 py-1 rounded-full ${
-                              row.severity === 'Critical' ? 'bg-red-100 text-red-700' :
-                              row.severity === 'High' ? 'bg-orange-100 text-orange-700' :
-                              row.severity === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-gray-100 text-gray-700'
-                            }`}>
-                              {row.severity}
-                            </span>
-                          </td>
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <span className={`text-[12px] font-medium px-2 py-1 rounded-full ${
-                              row.status === 'Success' ? 'bg-green-100 text-green-700' :
-                              row.status === 'Failed' ? 'bg-red-100 text-red-700' :
-                              'bg-gray-200 text-gray-800'
-                            }`}>
-                              {row.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </GlobalTable>
-              
-              {/* Pagination */}
-              <div className="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[13px] text-gray-500 bg-gray-50/50 gap-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                  <span>
-                    Showing {filteredLogs.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1}-
-                    {Math.min(currentPage * rowsPerPage, filteredLogs.length)} of {filteredLogs.length}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span>Rows per page:</span>
-                    <div className="relative">
-                      <select 
-                        value={rowsPerPage}
-                        onChange={(e) => {
-                          setRowsPerPage(Number(e.target.value));
-                          setCurrentPage(1);
-                        }}
-                        className="appearance-none bg-transparent pr-5 font-medium text-gray-700 focus:outline-none cursor-pointer"
-                      >
-                        <option value={10}>10</option>
-                        <option value={25}>25</option>
-                        <option value={50}>50</option>
-                        <option value={100}>100</option>
-                      </select>
-                      <MaterialIcon icon="expand_more" className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 text-[16px] pointer-events-none" />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-1">
-                  <button 
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
-                  >
-                    Prev
-                  </button>
-                  
-                  {/* Simplified page numbers rendering for brevity */}
-                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-700 font-medium bg-gray-100">
-                    {currentPage}
-                  </button>
-                  <span className="px-1 sm:px-2 text-gray-400">/ {totalPages}</span>
-                  
-                  <button 
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages || totalPages === 0}
-                    className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
-                  >
-                    Next
-                  </button>
+        {/* Right Column (Cards) */}
+        <div className="w-full xl:w-[320px] flex flex-col gap-6 shrink-0">
+          
+          {/* Log Summary */}
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
+            <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-4">TODAY'S ACTIVITY</h3>
+            
+            <div className="mb-5">
+              <div className="text-[13px] text-gray-500 mb-1">Total Events</div>
+              <div className="flex items-baseline gap-3">
+                <div className="text-[36px] font-bold text-gray-900 leading-none">{totalEvents.toLocaleString()}</div>
+                <div className="flex items-center text-[#12B76A] text-[13px] font-medium">
+                  <MaterialIcon icon="trending_up" className="text-[16px] mr-0.5" />
+                  +12%
                 </div>
               </div>
             </div>
+            
+            <div className="border-t border-gray-100 pt-5 flex justify-between">
+              <div>
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">FAILED</div>
+                <div className="text-[20px] font-bold text-[#d92d20]">{failedEvents}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">BLOCKED</div>
+                <div className="text-[20px] font-bold text-[#d92d20]">{blockedEvents}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">CRITICAL</div>
+                <div className="text-[20px] font-bold text-[#d92d20]">{criticalEvents}</div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Critical Events */}
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <MaterialIcon icon="warning_amber" className="text-[#d92d20] text-[20px]" />
+              <h3 className="text-[11px] font-bold text-[#d92d20] uppercase tracking-wider">CRITICAL EVENTS</h3>
+            </div>
+            
+            <div className="flex flex-col">
+              {latestCritical.length === 0 ? (
+                <div className="text-sm text-gray-500 italic py-4">No critical events found in current filter.</div>
+              ) : (
+                latestCritical.map((event, idx) => (
+                  <div key={idx} className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
+                    <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
+                    <div className="flex justify-between items-start mb-1">
+                      <div className="font-semibold text-[13px] text-gray-900">{event.action.replace(/_/g, ' ')}</div>
+                      <div className="text-[11px] text-gray-500 mt-0.5">{formatTimeOnly(event.timestamp)}</div>
+                    </div>
+                    <div className="text-[12px] text-gray-500 leading-relaxed">
+                      {event.user} triggered on {event.target}.
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          
+          {/* Most Active Users */}
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <MaterialIcon icon="group" className="text-gray-500 text-[20px]" />
+              <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">MOST ACTIVE USERS</h3>
+            </div>
+            
+            <div className="flex flex-col gap-4">
+              {userStats.length === 0 ? (
+                <div className="text-sm text-gray-500 italic py-2">No active users in current filter.</div>
+              ) : (
+                userStats.map((stat, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0 ${getColorClass(idx)}`}>
+                        {getInitials(stat.user)}
+                      </div>
+                      <div>
+                        <div className="text-[13px] font-semibold text-gray-900">{stat.user}</div>
+                        <div className="text-[11px] text-gray-500">{stat.role}</div>
+                      </div>
+                    </div>
+                    <div className="text-[11px] text-gray-500 flex flex-col items-end">
+                      <span className="font-semibold text-gray-700 text-[13px]">{stat.count}</span>
+                      acts
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          
         </div>
       </div>
     </div>
