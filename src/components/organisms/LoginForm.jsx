@@ -1,4 +1,5 @@
 import { Mail, Lock, Eye, ArrowRight, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { FormLogo } from '../atoms/Logo';
 import FormField from '../molecules/FormField';
 import Checkbox from '../atoms/Checkbox';
@@ -7,6 +8,13 @@ import Button from '../atoms/Button';
 import Divider from '../molecules/Divider';
 
 export default function LoginForm() {
+  const navigate = useNavigate();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    navigate('/dashboard');
+  };
+
   return (
     <div className="w-full max-w-[420px] mx-auto">
       <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-10 pt-10 pb-8 border border-gray-100">
@@ -22,7 +30,7 @@ export default function LoginForm() {
 
         <Divider text="SIGN IN TO COMMAND CENTER" />
 
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4" onSubmit={handleLogin}>
           <FormField
             id="email"
             type="email"
