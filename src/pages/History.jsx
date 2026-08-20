@@ -2,14 +2,32 @@ import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 
 /* ── UI Components ── */
-function DropdownFilter({ label, value }) {
+function DropdownFilter({ label, value, options, onChange, isActive, onClick, onClose }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, position: 'relative' }}>
       <label style={{ fontSize: 11, fontWeight: 600, color: '#6B7280' }}>{label}</label>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F0F4F8', padding: '8px 12px', borderRadius: 8, cursor: 'pointer' }}>
+      <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F0F4F8', padding: '8px 12px', borderRadius: 8, cursor: 'pointer', border: isActive ? '1px solid #FF5A1F' : '1px solid transparent' }}>
         <span style={{ fontSize: 13, color: '#111827', fontWeight: 500 }}>{value}</span>
         <MaterialIcon icon="expand_more" className="text-[16px] text-gray-400" />
       </div>
+      {isActive && (
+        <>
+          <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 100 }} />
+          <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 101, minWidth: '100%', padding: 4 }}>
+            {options.map(opt => (
+              <div 
+                key={opt} 
+                onClick={() => { onChange(opt); onClose(); }} 
+                style={{ padding: '8px 12px', fontSize: 13, cursor: 'pointer', borderRadius: 6, background: value === opt ? '#F3F4F6' : 'transparent', color: '#111827', fontWeight: value === opt ? 600 : 400 }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#F9FAFB'}
+                onMouseLeave={(e) => e.currentTarget.style.background = value === opt ? '#F3F4F6' : 'transparent'}
+              >
+                {opt}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -50,6 +68,35 @@ const TABLE_DATA = [
 ];
 
 export default function History() {
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [dateRange, setDateRange] = useState('All');
+  const [electionType, setElectionType] = useState('All');
+  const [region, setRegion] = useState('All States');
+  const [metricFocus, setMetricFocus] = useState('Turnout');
+
+  const filteredData = TABLE_DATA.filter(row => {
+    let match = true;
+    if (dateRange !== 'All') {
+      const [start, end] = dateRange.split(' - ').map(Number);
+      const y = Number(row.cycle);
+      if (y < start || y > end) match = false;
+    }
+    if (electionType !== 'All' && row.type !== electionType) match = false;
+    return match;
+  });
+
+  const handleExportCSV = () => {
+    const headers = ['CYCLE', 'TYPE', 'TOTAL VOTES', 'VALID VOTES', 'REJECTED', 'TURNOUT %', 'WINNING PARTY', 'CHANGE VS PREV', 'STATUS'];
+    const rows = filteredData.map(r => [r.cycle, r.type, `"${r.total}"`, `"${r.valid}"`, `"${r.rejected}"`, `"${r.turnout}"`, r.party, `"${r.change}"`, r.status]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "historical_analysis_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 40 }}>
       
@@ -60,7 +107,7 @@ export default function History() {
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Retrospective insights and trend analysis for previous election cycles.</p>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button style={{ height: 36, padding: '0 16px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={handleExportCSV} style={{ height: 36, padding: '0 16px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
             <MaterialIcon icon="file_download" className="text-[16px]" />
             Export Report
           </button>
@@ -72,11 +119,11 @@ export default function History() {
       </div>
 
       {/* Filters Container */}
-      <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E5E7EB', display: 'flex', gap: 16, alignItems: 'flex-end' }}>
-        <DropdownFilter label="Date Range" value="2019 - 2023" />
-        <DropdownFilter label="Election Type" value="General" />
-        <DropdownFilter label="Region" value="All States" />
-        <DropdownFilter label="Metric Focus" value="Turnout" />
+      <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E5E7EB', display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <DropdownFilter label="Date Range" options={['All', '2019 - 2023', '2011 - 2015']} value={dateRange} onChange={setDateRange} isActive={activeDropdown === 'date'} onClick={() => setActiveDropdown(activeDropdown === 'date' ? null : 'date')} onClose={() => setActiveDropdown(null)} />
+        <DropdownFilter label="Election Type" options={['All', 'General', 'Gubernatorial', 'Local']} value={electionType} onChange={setElectionType} isActive={activeDropdown === 'type'} onClick={() => setActiveDropdown(activeDropdown === 'type' ? null : 'type')} onClose={() => setActiveDropdown(null)} />
+        <DropdownFilter label="Region" options={['All States', 'Lagos', 'Kano', 'Abuja (FCT)']} value={region} onChange={setRegion} isActive={activeDropdown === 'region'} onClick={() => setActiveDropdown(activeDropdown === 'region' ? null : 'region')} onClose={() => setActiveDropdown(null)} />
+        <DropdownFilter label="Metric Focus" options={['Turnout', 'Incidents', 'Votes Cast']} value={metricFocus} onChange={setMetricFocus} isActive={activeDropdown === 'metric'} onClick={() => setActiveDropdown(activeDropdown === 'metric' ? null : 'metric')} onClose={() => setActiveDropdown(null)} />
         <button style={{ height: 38, padding: '0 16px', borderRadius: 8, border: 'none', background: '#DBEAFE', color: '#1E40AF', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flexShrink: 0 }}>
           <MaterialIcon icon="filter_list" className="text-[16px]" />
           Filters
@@ -84,14 +131,30 @@ export default function History() {
       </div>
 
       {/* Active Filters */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: -12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 999, fontSize: 12, color: '#374151' }}>
-          <span style={{ color: '#6B7280' }}>Date:</span> 2019 - 2023
-          <MaterialIcon icon="close" className="text-[14px] text-gray-400 cursor-pointer hover:text-gray-600" style={{ marginLeft: 4 }} />
-        </div>
-        <button style={{ background: 'none', border: 'none', fontSize: 12, fontWeight: 600, color: '#D97706', cursor: 'pointer' }}>
-          Clear Filters
-        </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: -12, minHeight: 26 }}>
+        {dateRange !== 'All' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 999, fontSize: 12, color: '#374151' }}>
+            <span style={{ color: '#6B7280' }}>Date:</span> {dateRange}
+            <MaterialIcon icon="close" onClick={() => setDateRange('All')} className="text-[14px] text-gray-400 cursor-pointer hover:text-gray-600" style={{ marginLeft: 4 }} />
+          </div>
+        )}
+        {electionType !== 'All' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 999, fontSize: 12, color: '#374151' }}>
+            <span style={{ color: '#6B7280' }}>Type:</span> {electionType}
+            <MaterialIcon icon="close" onClick={() => setElectionType('All')} className="text-[14px] text-gray-400 cursor-pointer hover:text-gray-600" style={{ marginLeft: 4 }} />
+          </div>
+        )}
+        {region !== 'All States' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 999, fontSize: 12, color: '#374151' }}>
+            <span style={{ color: '#6B7280' }}>Region:</span> {region}
+            <MaterialIcon icon="close" onClick={() => setRegion('All States')} className="text-[14px] text-gray-400 cursor-pointer hover:text-gray-600" style={{ marginLeft: 4 }} />
+          </div>
+        )}
+        {(dateRange !== 'All' || electionType !== 'All' || region !== 'All States') && (
+          <button onClick={() => { setDateRange('All'); setElectionType('All'); setRegion('All States'); }} style={{ background: 'none', border: 'none', fontSize: 12, fontWeight: 600, color: '#D97706', cursor: 'pointer' }}>
+            Clear Filters
+          </button>
+        )}
       </div>
 
       {/* Stats Grid */}
@@ -127,7 +190,12 @@ export default function History() {
               { year: '2015', h: '43.6%', color: '#E0E7FF' },
               { year: '2019', h: '34.7%', color: '#E0E7FF' },
               { year: '2023', h: '26.7%', color: '#FF8A4C', label: '27%' }
-            ].map(b => (
+            ].filter(b => {
+              if (dateRange === 'All') return true;
+              const [start, end] = dateRange.split(' - ').map(Number);
+              const y = Number(b.year);
+              return y >= start && y <= end;
+            }).map(b => (
               <div key={b.year} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1 }}>
                 <div style={{ width: '100%', maxWidth: 40, height: `calc(${b.h} * 1.7)`, background: b.color, position: 'relative' }}>
                   {b.label && <div style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', fontSize: 10, fontWeight: 700, color: '#EA580C' }}>{b.label}</div>}
@@ -215,8 +283,8 @@ export default function History() {
               </tr>
             </thead>
             <tbody>
-              {TABLE_DATA.map((row, i) => (
-                <tr key={row.cycle} style={{ borderBottom: i === TABLE_DATA.length - 1 ? 'none' : '1px solid #F9FAFB' }}>
+              {filteredData.map((row, i) => (
+                <tr key={row.cycle} style={{ borderBottom: i === filteredData.length - 1 ? 'none' : '1px solid #F9FAFB' }}>
                   <td style={{ padding: '16px 24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: row.cycle === '2023' ? '#FF8A4C' : '#DBEAFE' }} />
@@ -244,7 +312,7 @@ export default function History() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderTop: '1px solid #F3F4F6' }}>
-          <span style={{ fontSize: 11, color: '#9CA3AF' }}>Showing 4 of 4 cycles</span>
+          <span style={{ fontSize: 11, color: '#9CA3AF' }}>Showing {filteredData.length} of {TABLE_DATA.length} cycles</span>
           <div style={{ display: 'flex', gap: 8 }}>
             <MaterialIcon icon="chevron_left" className="text-[16px] text-gray-300 cursor-not-allowed" />
             <MaterialIcon icon="chevron_right" className="text-[16px] text-gray-300 cursor-not-allowed" />
