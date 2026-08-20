@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import CompareCyclesDrawer from '../components/organisms/CompareCyclesDrawer';
+import HistoryFilterDrawer from '../components/organisms/HistoryFilterDrawer';
 
 /* ── UI Components ── */
 function DropdownFilter({ label, value, options, onChange, isActive, onClick, onClose }) {
@@ -71,9 +72,11 @@ const TABLE_DATA = [
 export default function History() {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
+  const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
   const [dateRange, setDateRange] = useState('All');
   const [electionType, setElectionType] = useState('All');
   const [region, setRegion] = useState('All States');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [metricFocus, setMetricFocus] = useState('Turnout');
   const [selectedCycles, setSelectedCycles] = useState([]);
 
@@ -85,6 +88,7 @@ export default function History() {
       if (y < start || y > end) match = false;
     }
     if (electionType !== 'All' && row.type !== electionType) match = false;
+    if (statusFilter !== 'All' && row.status !== statusFilter) match = false;
     return match;
   });
 
@@ -145,14 +149,14 @@ export default function History() {
         <DropdownFilter label="Election Type" options={['All', 'General', 'Gubernatorial', 'Local']} value={electionType} onChange={setElectionType} isActive={activeDropdown === 'type'} onClick={() => setActiveDropdown(activeDropdown === 'type' ? null : 'type')} onClose={() => setActiveDropdown(null)} />
         <DropdownFilter label="Region" options={['All States', 'Lagos', 'Kano', 'Abuja (FCT)']} value={region} onChange={setRegion} isActive={activeDropdown === 'region'} onClick={() => setActiveDropdown(activeDropdown === 'region' ? null : 'region')} onClose={() => setActiveDropdown(null)} />
         <DropdownFilter label="Metric Focus" options={['Turnout', 'Incidents', 'Votes Cast']} value={metricFocus} onChange={setMetricFocus} isActive={activeDropdown === 'metric'} onClick={() => setActiveDropdown(activeDropdown === 'metric' ? null : 'metric')} onClose={() => setActiveDropdown(null)} />
-        <button style={{ height: 38, padding: '0 16px', borderRadius: 8, border: 'none', background: '#DBEAFE', color: '#1E40AF', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flexShrink: 0 }}>
+        <button onClick={() => setIsAdvancedFilterOpen(true)} style={{ height: 38, padding: '0 16px', borderRadius: 8, border: 'none', background: '#DBEAFE', color: '#1E40AF', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flexShrink: 0 }}>
           <MaterialIcon icon="filter_list" className="text-[16px]" />
           Filters
         </button>
       </div>
 
       {/* Active Filters */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: -12, minHeight: 26 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: -12, minHeight: 26, flexWrap: 'wrap' }}>
         {dateRange !== 'All' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 999, fontSize: 12, color: '#374151' }}>
             <span style={{ color: '#6B7280' }}>Date:</span> {dateRange}
@@ -171,8 +175,14 @@ export default function History() {
             <MaterialIcon icon="close" onClick={() => setRegion('All States')} className="text-[14px] text-gray-400 cursor-pointer hover:text-gray-600" style={{ marginLeft: 4 }} />
           </div>
         )}
-        {(dateRange !== 'All' || electionType !== 'All' || region !== 'All States') && (
-          <button onClick={() => { setDateRange('All'); setElectionType('All'); setRegion('All States'); }} style={{ background: 'none', border: 'none', fontSize: 12, fontWeight: 600, color: '#D97706', cursor: 'pointer' }}>
+        {statusFilter !== 'All' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 999, fontSize: 12, color: '#374151' }}>
+            <span style={{ color: '#6B7280' }}>Status:</span> {statusFilter}
+            <MaterialIcon icon="close" onClick={() => setStatusFilter('All')} className="text-[14px] text-gray-400 cursor-pointer hover:text-gray-600" style={{ marginLeft: 4 }} />
+          </div>
+        )}
+        {(dateRange !== 'All' || electionType !== 'All' || region !== 'All States' || statusFilter !== 'All') && (
+          <button onClick={() => { setDateRange('All'); setElectionType('All'); setRegion('All States'); setStatusFilter('All'); }} style={{ background: 'none', border: 'none', fontSize: 12, fontWeight: 600, color: '#D97706', cursor: 'pointer' }}>
             Clear Filters
           </button>
         )}
@@ -365,6 +375,18 @@ export default function History() {
         isOpen={isCompareOpen} 
         onClose={() => setIsCompareOpen(false)} 
         data={cyclesToCompare} 
+      />
+
+      <HistoryFilterDrawer 
+        isOpen={isAdvancedFilterOpen} 
+        onClose={() => setIsAdvancedFilterOpen(false)} 
+        currentFilters={{ dateRange, electionType, region, status: statusFilter }}
+        onApply={(newFilters) => {
+          setDateRange(newFilters.dateRange);
+          setElectionType(newFilters.electionType);
+          setRegion(newFilters.region);
+          setStatusFilter(newFilters.status);
+        }}
       />
     </div>
   );
