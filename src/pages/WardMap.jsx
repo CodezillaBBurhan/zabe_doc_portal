@@ -90,7 +90,7 @@ export default function WardMap() {
   const wardOptions = ['All Wards', 'Ward 1', 'Ward 2', 'Ward 3', 'Ward 4'];
 
   return (
-    <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 16, flexShrink: 0 }}>

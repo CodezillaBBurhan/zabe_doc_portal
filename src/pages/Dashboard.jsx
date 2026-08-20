@@ -2,7 +2,7 @@ import MaterialIcon from '../components/atoms/MaterialIcon';
 
 export default function Dashboard() {
   return (
-    <div className="max-w-[1400px] mx-auto w-full">
+    <div className="flex flex-col w-full pb-10">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 
 export default function TeamPermissions() {
+  const [isAssignDrawerOpen, setIsAssignDrawerOpen] = useState(false);
+
   return (
     <div className="flex flex-col w-full pb-10">
       
@@ -19,10 +21,13 @@ export default function TeamPermissions() {
             <MaterialIcon icon="settings" className="mr-2 text-[18px]" />
             Manage Permissions
           </button>
-          <Link to="/members" className="flex items-center text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md px-4 py-2 transition-colors shadow-sm">
+          <button 
+            onClick={() => setIsAssignDrawerOpen(true)}
+            className="flex items-center text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md px-4 py-2 transition-colors shadow-sm"
+          >
             <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
             Assign Member
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -313,6 +318,135 @@ export default function TeamPermissions() {
         </div>
 
       </div>
+
+      {/* Drawer Overlay */}
+      {isAssignDrawerOpen && (
+        <div 
+          className="fixed inset-0 bg-gray-900/40 z-[100] transition-opacity"
+          onClick={() => setIsAssignDrawerOpen(false)}
+        ></div>
+      )}
+
+      {/* Drawer Panel */}
+      <div 
+        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[110] shadow-2xl flex flex-col transition-transform duration-300 transform ${
+          isAssignDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-[#e4e7ec] flex items-start justify-between shrink-0">
+          <div>
+            <h2 className="text-[20px] font-bold text-[#0f1c2d] mb-1">Assign Member</h2>
+            <p className="text-[13px] text-gray-500">Create a new user and assign their role and public access link.</p>
+          </div>
+          <button onClick={() => setIsAssignDrawerOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100">
+            <MaterialIcon icon="close" className="text-[22px]" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+          
+          {/* Select Member */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[11px] font-bold text-[#475467] uppercase tracking-wider">SELECT MEMBER</label>
+              <button className="text-[11px] font-semibold text-[#ff8c42] hover:text-[#ff7a22] flex items-center">
+                <MaterialIcon icon="add" className="text-[12px] mr-0.5" />
+                Create Member
+              </button>
+            </div>
+            <div className="relative">
+              <select className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer">
+                <option>Select Existing Member</option>
+                <option>John Doe</option>
+                <option>Jane Smith</option>
+              </select>
+              <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Designation */}
+          <div>
+            <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">DESIGNATION</label>
+            <div className="relative">
+              <select className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer">
+                <option>Select Designation</option>
+                <option>DEO</option>
+                <option>Returning Officer</option>
+              </select>
+              <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Role Level */}
+          <div>
+            <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-3">ROLE LEVEL</label>
+            <div className="flex flex-col gap-4">
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <div className="pt-0.5">
+                  <input type="radio" name="role_level" defaultChecked className="w-4 h-4 text-[#ff8c42] border-gray-300 focus:ring-[#ff8c42] cursor-pointer" />
+                </div>
+                <div>
+                  <div className="text-[14px] font-bold text-[#0f1c2d] mb-0.5">Level 1 (L1)</div>
+                  <div className="text-[12px] text-gray-500">Basic data entry and viewing.</div>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <div className="pt-0.5">
+                  <input type="radio" name="role_level" className="w-4 h-4 text-[#ff8c42] border-gray-300 focus:ring-[#ff8c42] cursor-pointer" />
+                </div>
+                <div>
+                  <div className="text-[14px] font-bold text-[#0f1c2d] mb-0.5">Level 2 (L2)</div>
+                  <div className="text-[12px] text-gray-500">Regional oversight and approvals.</div>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <div className="pt-0.5">
+                  <input type="radio" name="role_level" className="w-4 h-4 text-[#ff8c42] border-gray-300 focus:ring-[#ff8c42] cursor-pointer" />
+                </div>
+                <div>
+                  <div className="text-[14px] font-bold text-[#0f1c2d] mb-0.5">Level 3 (L3)</div>
+                  <div className="text-[12px] text-gray-500">Full administrative access.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Public Link Assignment */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[11px] font-bold text-[#475467] uppercase tracking-wider">PUBLIC LINK ASSIGNMENT</label>
+              <button className="text-[11px] font-semibold text-[#ff8c42] hover:text-[#ff7a22] flex items-center">
+                <MaterialIcon icon="add" className="text-[12px] mr-0.5" />
+                Create Public Link
+              </button>
+            </div>
+            <div className="relative">
+              <select className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer">
+                <option>Select Existing Link</option>
+                <option>Kano North</option>
+                <option>Lagos Central</option>
+              </select>
+              <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
+
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-[#e4e7ec] bg-white shrink-0 flex items-center justify-end gap-3">
+          <button onClick={() => setIsAssignDrawerOpen(false)} className="px-4 py-2 text-[14px] font-medium text-gray-500 hover:text-gray-900 transition-colors">
+            Cancel
+          </button>
+          <button className="px-5 py-2 text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md transition-colors shadow-sm">
+            Create Member
+          </button>
+        </div>
+      </div>
+
     </div>
   );
 }

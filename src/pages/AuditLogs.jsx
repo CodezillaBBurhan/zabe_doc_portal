@@ -26,7 +26,7 @@ export default function AuditLogs() {
   }));
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto pb-10">
+    <div className="flex flex-col gap-6 w-full pb-10">
       
       {/* Page Header */}
       <div className="flex justify-between items-start">

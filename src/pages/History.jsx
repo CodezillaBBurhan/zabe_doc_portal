@@ -123,7 +123,7 @@ export default function History() {
     document.body.removeChild(link);
   };
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 40 }}>
+    <div style={{ width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 40 }}>
       
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>

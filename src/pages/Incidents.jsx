@@ -109,7 +109,7 @@ export default function Incidents() {
   });
 
   return (
-    <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%', minWidth: 0 }}>
+    <div style={{ width: '100%', minWidth: 0 }}>
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 20 }}>
