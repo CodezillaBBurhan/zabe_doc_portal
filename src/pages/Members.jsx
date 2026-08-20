@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
+import GlobalTable from '../components/organisms/GlobalTable';
 
 // Mock initial data
 const initialMembers = [
@@ -273,8 +274,7 @@ export default function Members() {
 
       {/* Table Section */}
       <div className="bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col w-full mb-6">
-        <div className="overflow-x-auto w-full rounded-xl">
-          <table className="w-full min-w-[900px] text-left text-[14px]">
+        <GlobalTable minWidth="900px" wrapperClassName="rounded-xl">
             <thead>
               <tr className="border-b border-[#e4e7ec] bg-white text-[13px] font-medium text-gray-500 tracking-wide">
                 <th className="px-6 py-5">User</th>
@@ -346,8 +346,7 @@ export default function Members() {
                 ))
               )}
             </tbody>
-          </table>
-        </div>
+          </GlobalTable>
       </div>
 
       {/* Pagination / Footer */}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import ReportIncidentDrawer from '../components/organisms/ReportIncidentDrawer';
 import IncidentDetailDrawer from '../components/organisms/IncidentDetailDrawer';
+import GlobalTable from '../components/organisms/GlobalTable';
 
 /* ── Data ── */
 const INCIDENTS = [
@@ -253,8 +254,7 @@ export default function Incidents() {
             </div>
 
             {/* Table */}
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', minWidth: '900px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+            <GlobalTable minWidth="900px" tableLayout="fixed">
                 <thead>
                   <tr>
                     <th style={{ ...hd, width: '13%' }}>Incident ID ↕</th>
@@ -316,8 +316,7 @@ export default function Incidents() {
                     </tr>
                   )}
                 </tbody>
-              </table>
-            </div>
+              </GlobalTable>
 
             {/* Pagination */}
             <div style={{ padding: '12px 16px', borderTop: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

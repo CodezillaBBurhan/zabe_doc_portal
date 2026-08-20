@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronDown, Plus, X, Copy, Edit, Trash2 } from 'lucide-react';
+import GlobalTable from '../components/organisms/GlobalTable';
 import { useNavigate } from 'react-router-dom';
 
 const PublicLinks = () => {
@@ -201,8 +202,7 @@ const PublicLinks = () => {
 
       {/* Table */}
       <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <GlobalTable className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container font-label-md text-label-md text-secondary">
                 <th className="py-4 px-6 font-medium">Link Name</th>
@@ -252,8 +252,7 @@ const PublicLinks = () => {
                 </tr>
               )}
             </tbody>
-          </table>
-        </div>
+          </GlobalTable>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import MaterialIcon from '../atoms/MaterialIcon';
+import GlobalTable from '../organisms/GlobalTable';
 
 export default function CompareCyclesDrawer({ isOpen, onClose, data }) {
   if (!isOpen) return null;
@@ -55,8 +56,7 @@ export default function CompareCyclesDrawer({ isOpen, onClose, data }) {
               {/* Metric 2: Total vs Valid vs Rejected */}
               <div>
                 <h3 style={{ fontSize: 13, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 16 }}>Vote Distribution</h3>
-                <div style={{ border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: 500 }}>
+                <GlobalTable minWidth="500px" style={{ border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
                     <thead style={{ background: '#F9FAFB' }}>
                       <tr>
                         <th style={{ padding: '12px 16px', fontSize: 11, fontWeight: 600, color: '#6B7280' }}>METRIC</th>
@@ -79,8 +79,7 @@ export default function CompareCyclesDrawer({ isOpen, onClose, data }) {
                         {data.map(cycle => <td key={cycle.cycle} style={{ padding: '14px 16px', fontSize: 13, color: '#DC2626', fontWeight: 600 }}>{cycle.rejected}</td>)}
                       </tr>
                     </tbody>
-                  </table>
-                </div>
+                  </GlobalTable>
               </div>
 
               {/* Metric 3: Party Performance & Margin */}

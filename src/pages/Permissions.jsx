@@ -1,5 +1,6 @@
 import React from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
+import GlobalTable from '../components/organisms/GlobalTable';
 
 export default function Permissions() {
   return (
@@ -138,8 +139,7 @@ export default function Permissions() {
         </div>
 
         {/* Table Container */}
-        <div className="overflow-x-auto w-full">
-          <table className="w-full text-left text-[14px] min-w-[800px]">
+        <GlobalTable minWidth="800px" className="text-[14px]">
             <thead>
               <tr className="bg-[#f9fafb] border-b border-[#e4e7ec] text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                 <th className="px-5 py-4 w-[50px] text-center">
@@ -272,8 +272,7 @@ export default function Permissions() {
               </tr>
 
             </tbody>
-          </table>
-        </div>
+          </GlobalTable>
 
         {/* Footer & Pagination */}
         <div className="flex flex-col sm:flex-row items-center justify-between p-5 border-t border-[#e4e7ec] bg-white gap-4 w-full">

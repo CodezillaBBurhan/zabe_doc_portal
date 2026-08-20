@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import MaterialIcon from '../components/atoms/MaterialIcon';
+import GlobalTable from '../components/organisms/GlobalTable';
 
 export default function TeamPermissions() {
   const [isAssignDrawerOpen, setIsAssignDrawerOpen] = useState(false);
@@ -55,8 +56,7 @@ export default function TeamPermissions() {
           </div>
 
           {/* Table Wrapper (Scrollable) */}
-          <div className="overflow-x-auto w-full">
-            <table className="w-full min-w-[700px] text-left text-[14px]">
+          <GlobalTable minWidth="700px">
               <thead>
                 <tr className="border-b border-t border-[#e4e7ec] text-[11px] font-bold text-gray-500 uppercase tracking-wider bg-white">
                   <th className="px-5 py-4 w-[280px]">NAME & EMAIL</th>
@@ -180,8 +180,7 @@ export default function TeamPermissions() {
                 </tr>
 
               </tbody>
-            </table>
-          </div>
+            </GlobalTable>
 
           {/* Table Footer / Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-t border-[#e4e7ec]">

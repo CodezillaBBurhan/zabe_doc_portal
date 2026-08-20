@@ -2,6 +2,7 @@ import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import CompareCyclesDrawer from '../components/organisms/CompareCyclesDrawer';
 import HistoryFilterDrawer from '../components/organisms/HistoryFilterDrawer';
+import GlobalTable from '../components/organisms/GlobalTable';
 
 /* ── UI Components ── */
 function DropdownFilter({ label, value, options, onChange, isActive, onClick, onClose }) {
@@ -302,8 +303,7 @@ export default function History() {
           </div>
         </div>
         
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <GlobalTable>
             <thead>
               <tr>
                 <th style={{ padding: '12px 16px 12px 24px', borderBottom: '1px solid #F3F4F6', width: 40 }}>
@@ -355,8 +355,7 @@ export default function History() {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </GlobalTable>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderTop: '1px solid #F3F4F6' }}>
           <span style={{ fontSize: 11, color: '#9CA3AF' }}>Showing {filteredData.length} of {TABLE_DATA.length} cycles</span>

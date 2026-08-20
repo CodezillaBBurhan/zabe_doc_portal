@@ -1,5 +1,6 @@
 import React from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
+import GlobalTable from '../components/organisms/GlobalTable';
 
 export default function AuditLogs() {
   const auditData = [
@@ -103,248 +104,251 @@ export default function AuditLogs() {
       </div>
 
       {/* Main Content Layout */}
-      <div className="flex flex-col xl:flex-row gap-6">
+      <div className="flex flex-col gap-6 w-full">
         
-        {/* Left Column (Table & Chart) */}
-        <div className="flex-1 flex flex-col gap-6 min-w-0">
-          
-          {/* Audit Log Table Card */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-[13px]">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-500 font-semibold tracking-wider text-[11px] uppercase">
-                    <th className="px-5 py-4">TIMESTAMP</th>
-                    <th className="px-5 py-4">USER</th>
-                    <th className="px-5 py-4">ROLE</th>
-                    <th className="px-5 py-4">ACTION</th>
-                    <th className="px-5 py-4">MODULE</th>
-                    <th className="px-5 py-4">TARGET</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {auditData.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50 text-gray-600">
-                      <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.time}</td>
-                      <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.user}</td>
-                      <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.role}</td>
-                      <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.action}</td>
-                      <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.module}</td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <span className="font-mono text-[12px] text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
-                          {row.target}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            {/* Pagination */}
-            <div className="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[13px] text-gray-500 bg-gray-50/50 gap-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                <span>Showing 1-25 of 1,248</span>
-                <div className="flex items-center gap-2">
-                  <span>Rows per page:</span>
-                  <div className="relative">
-                    <select className="appearance-none bg-transparent pr-5 font-medium text-gray-700 focus:outline-none cursor-pointer">
-                      <option>25</option>
-                      <option>50</option>
-                      <option>100</option>
-                    </select>
-                    <MaterialIcon icon="expand_more" className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 text-[16px] pointer-events-none" />
+        {/* Top Row (Chart & Cards) */}
+        <div className="flex flex-col xl:flex-row gap-6 w-full">
+          {/* Left: Chart Section */}
+          <div className="flex-1 min-w-0 flex flex-col h-full">
+            {/* Chart Section */}
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 h-full flex flex-col">
+              <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-6">AUDIT ACTIVITY — LAST 24 HOURS</h3>
+              
+              <div className="h-64 flex items-end justify-between gap-1 mb-6 border-b border-gray-100 pb-2">
+                {actualBars.map((bar, i) => (
+                  <div key={i} className="w-full flex flex-col justify-end h-full relative group">
+                    <div 
+                      className={`w-full rounded-t-sm transition-all ${bar.isCritical ? 'bg-red-50' : 'bg-[#f0f5fc]'}`} 
+                      style={{ height: bar.height }}
+                    >
+                      {bar.isCritical && (
+                        <div className="w-full h-1 bg-red-500 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
+                      )}
+                      {!bar.isCritical && bar.topBlue && (
+                        <div className="w-full h-1 bg-blue-400 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
+                      )}
+                      {!bar.isCritical && !bar.topBlue && (
+                        <div className="w-full h-1 bg-blue-300 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
               
-              <div className="flex flex-wrap items-center gap-1">
-                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 disabled:opacity-50">Prev</button>
-                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 bg-gray-100 font-medium">1</button>
-                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">2</button>
-                <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">3</button>
-                <span className="px-1 sm:px-2">...</span>
-                <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">50</button>
-                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">Next</button>
+              <div className="flex justify-between text-[11px] text-gray-400 font-medium">
+                <span>12:00 PM (Yesterday)</span>
+                <span>12:00 AM</span>
+                <span>12:00 PM (Today)</span>
               </div>
             </div>
+            
           </div>
 
-          {/* Chart Section */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
-            <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-6">AUDIT ACTIVITY — LAST 24 HOURS</h3>
+          {/* Right Column (Cards) */}
+          <div className="w-full xl:w-[320px] flex flex-col gap-6 shrink-0">
             
-            <div className="h-40 flex items-end justify-between gap-1 mb-2 border-b border-gray-100 pb-2">
-              {actualBars.map((bar, i) => (
-                <div key={i} className="w-full flex flex-col justify-end h-full relative group">
-                  <div 
-                    className={`w-full rounded-t-sm transition-all ${bar.isCritical ? 'bg-red-50' : 'bg-[#f0f5fc]'}`} 
-                    style={{ height: bar.height }}
-                  >
-                    {bar.isCritical && (
-                      <div className="w-full h-1 bg-red-500 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
-                    )}
-                    {!bar.isCritical && bar.topBlue && (
-                      <div className="w-full h-1 bg-blue-400 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
-                    )}
-                    {!bar.isCritical && !bar.topBlue && (
-                      <div className="w-full h-1 bg-blue-300 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
-                    )}
+            {/* Today's Activity */}
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
+              <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-4">TODAY'S ACTIVITY</h3>
+              
+              <div className="mb-5">
+                <div className="text-[13px] text-gray-500 mb-1">Total Events</div>
+                <div className="flex items-baseline gap-3">
+                  <div className="text-[36px] font-bold text-gray-900 leading-none">1,248</div>
+                  <div className="flex items-center text-[#12B76A] text-[13px] font-medium">
+                    <MaterialIcon icon="trending_up" className="text-[16px] mr-0.5" />
+                    +12%
                   </div>
                 </div>
-              ))}
+              </div>
+              
+              <div className="border-t border-gray-100 pt-5 flex justify-between">
+                <div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">FAILED</div>
+                  <div className="text-[20px] font-bold text-[#d92d20]">14</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">BLOCKED</div>
+                  <div className="text-[20px] font-bold text-[#d92d20]">3</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">CRITICAL</div>
+                  <div className="text-[20px] font-bold text-[#d92d20]">8</div>
+                </div>
+              </div>
             </div>
             
-            <div className="flex justify-between text-[11px] text-gray-400 font-medium">
-              <span>12:00 PM (Yesterday)</span>
-              <span>12:00 AM</span>
-              <span>12:00 PM (Today)</span>
+            {/* Critical Events */}
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <MaterialIcon icon="warning_amber" className="text-[#d92d20] text-[20px]" />
+                <h3 className="text-[11px] font-bold text-[#d92d20] uppercase tracking-wider">CRITICAL EVENTS</h3>
+              </div>
+              
+              <div className="flex flex-col">
+                {/* Event 1 */}
+                <div className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
+                  <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
+                  <div className="flex justify-between items-start mb-1">
+                    <div className="font-semibold text-[13px] text-gray-900">Override Configuration</div>
+                    <div className="text-[11px] text-gray-500 mt-0.5">10:38 AM</div>
+                  </div>
+                  <div className="text-[12px] text-gray-500 leading-relaxed">
+                    A. Mitchell attempted Core_Routing override.
+                  </div>
+                </div>
+                
+                {/* Event 2 */}
+                <div className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
+                  <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
+                  <div className="flex justify-between items-start mb-1">
+                    <div className="font-semibold text-[13px] text-gray-900">DB Connection Failed</div>
+                    <div className="text-[11px] text-gray-500 mt-0.5">08:14 AM</div>
+                  </div>
+                  <div className="text-[12px] text-gray-500 leading-relaxed">
+                    System_Service failed to connect to Replica_3.
+                  </div>
+                </div>
+                
+                {/* Event 3 */}
+                <div className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
+                  <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
+                  <div className="flex justify-between items-start mb-1">
+                    <div className="font-semibold text-[13px] text-gray-900">Mass Permission Alter</div>
+                    <div className="text-[11px] text-gray-500 mt-0.5">02:11 AM</div>
+                  </div>
+                  <div className="text-[12px] text-gray-500 leading-relaxed">
+                    S. Vance modified 42 user roles in batch.
+                  </div>
+                </div>
+              </div>
             </div>
+            
+            {/* Most Active Users */}
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <MaterialIcon icon="group" className="text-gray-500 text-[20px]" />
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">MOST ACTIVE USERS</h3>
+              </div>
+              
+              <div className="flex flex-col gap-4">
+                {/* User 1 */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#e6eeff] text-[#005fb0] flex items-center justify-center text-[14px] font-bold shrink-0">
+                      SS
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-semibold text-gray-900">System_Service</div>
+                      <div className="text-[11px] text-gray-500">Automation</div>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-gray-500 flex flex-col items-end">
+                    <span className="font-semibold text-gray-700 text-[13px]">842</span>
+                    acts
+                  </div>
+                </div>
+                
+                {/* User 2 */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#ffeddf] text-[#9b4500] flex items-center justify-center text-[14px] font-bold shrink-0">
+                      SV
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-semibold text-gray-900">S. Vance</div>
+                      <div className="text-[11px] text-gray-500">Admin</div>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-gray-500 flex flex-col items-end">
+                    <span className="font-semibold text-gray-700 text-[13px]">156</span>
+                    acts
+                  </div>
+                </div>
+                
+                {/* User 3 */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#f3e8ff] text-[#6b21a8] flex items-center justify-center text-[14px] font-bold shrink-0">
+                      AM
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-semibold text-gray-900">A. Mitchell</div>
+                      <div className="text-[11px] text-gray-500">Lead Ops</div>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-gray-500 flex flex-col items-end">
+                    <span className="font-semibold text-gray-700 text-[13px]">89</span>
+                    acts
+                  </div>
+                </div>
+              </div>
+            </div>
+            
           </div>
-          
         </div>
-        
-        {/* Right Column (Cards) */}
-        <div className="w-full lg:w-[320px] flex flex-col gap-6 shrink-0">
-          
-          {/* Today's Activity */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
-            <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-4">TODAY'S ACTIVITY</h3>
-            
-            <div className="mb-5">
-              <div className="text-[13px] text-gray-500 mb-1">Total Events</div>
-              <div className="flex items-baseline gap-3">
-                <div className="text-[36px] font-bold text-gray-900 leading-none">1,248</div>
-                <div className="flex items-center text-[#12B76A] text-[13px] font-medium">
-                  <MaterialIcon icon="trending_up" className="text-[16px] mr-0.5" />
-                  +12%
-                </div>
-              </div>
-            </div>
-            
-            <div className="border-t border-gray-100 pt-5 flex justify-between">
-              <div>
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">FAILED</div>
-                <div className="text-[20px] font-bold text-[#d92d20]">14</div>
-              </div>
-              <div>
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">BLOCKED</div>
-                <div className="text-[20px] font-bold text-[#d92d20]">3</div>
-              </div>
-              <div>
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">CRITICAL</div>
-                <div className="text-[20px] font-bold text-[#d92d20]">8</div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Critical Events */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <MaterialIcon icon="warning_amber" className="text-[#d92d20] text-[20px]" />
-              <h3 className="text-[11px] font-bold text-[#d92d20] uppercase tracking-wider">CRITICAL EVENTS</h3>
-            </div>
-            
-            <div className="flex flex-col">
-              {/* Event 1 */}
-              <div className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
-                <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
-                <div className="flex justify-between items-start mb-1">
-                  <div className="font-semibold text-[13px] text-gray-900">Override Configuration</div>
-                  <div className="text-[11px] text-gray-500 mt-0.5">10:38 AM</div>
-                </div>
-                <div className="text-[12px] text-gray-500 leading-relaxed">
-                  A. Mitchell attempted Core_Routing override.
-                </div>
-              </div>
+
+        {/* Bottom Row (Table) */}
+        <div className="w-full flex flex-col">
+            {/* Audit Log Table Card */}
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+              <GlobalTable className="text-[13px]">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-500 font-semibold tracking-wider text-[11px] uppercase">
+                      <th className="px-5 py-4">TIMESTAMP</th>
+                      <th className="px-5 py-4">USER</th>
+                      <th className="px-5 py-4">ROLE</th>
+                      <th className="px-5 py-4">ACTION</th>
+                      <th className="px-5 py-4">MODULE</th>
+                      <th className="px-5 py-4">TARGET</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {auditData.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50 text-gray-600">
+                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.time}</td>
+                        <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.user}</td>
+                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.role}</td>
+                        <td className="px-5 py-4 whitespace-nowrap font-semibold text-gray-900">{row.action}</td>
+                        <td className="px-5 py-4 whitespace-nowrap text-gray-500">{row.module}</td>
+                        <td className="px-5 py-4 whitespace-nowrap">
+                          <span className="font-mono text-[12px] text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
+                            {row.target}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </GlobalTable>
               
-              {/* Event 2 */}
-              <div className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
-                <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
-                <div className="flex justify-between items-start mb-1">
-                  <div className="font-semibold text-[13px] text-gray-900">DB Connection Failed</div>
-                  <div className="text-[11px] text-gray-500 mt-0.5">08:14 AM</div>
-                </div>
-                <div className="text-[12px] text-gray-500 leading-relaxed">
-                  System_Service failed to connect to Replica_3.
-                </div>
-              </div>
-              
-              {/* Event 3 */}
-              <div className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
-                <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
-                <div className="flex justify-between items-start mb-1">
-                  <div className="font-semibold text-[13px] text-gray-900">Mass Permission Alter</div>
-                  <div className="text-[11px] text-gray-500 mt-0.5">02:11 AM</div>
-                </div>
-                <div className="text-[12px] text-gray-500 leading-relaxed">
-                  S. Vance modified 42 user roles in batch.
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Most Active Users */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <MaterialIcon icon="group" className="text-gray-500 text-[20px]" />
-              <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">MOST ACTIVE USERS</h3>
-            </div>
-            
-            <div className="flex flex-col gap-4">
-              {/* User 1 */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#e6eeff] text-[#005fb0] flex items-center justify-center text-[14px] font-bold shrink-0">
-                    SS
-                  </div>
-                  <div>
-                    <div className="text-[13px] font-semibold text-gray-900">System_Service</div>
-                    <div className="text-[11px] text-gray-500">Automation</div>
+              {/* Pagination */}
+              <div className="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[13px] text-gray-500 bg-gray-50/50 gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                  <span>Showing 1-25 of 1,248</span>
+                  <div className="flex items-center gap-2">
+                    <span>Rows per page:</span>
+                    <div className="relative">
+                      <select className="appearance-none bg-transparent pr-5 font-medium text-gray-700 focus:outline-none cursor-pointer">
+                        <option>25</option>
+                        <option>50</option>
+                        <option>100</option>
+                      </select>
+                      <MaterialIcon icon="expand_more" className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 text-[16px] pointer-events-none" />
+                    </div>
                   </div>
                 </div>
-                <div className="text-[11px] text-gray-500 flex flex-col items-end">
-                  <span className="font-semibold text-gray-700 text-[13px]">842</span>
-                  acts
-                </div>
-              </div>
-              
-              {/* User 2 */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#ffeddf] text-[#9b4500] flex items-center justify-center text-[14px] font-bold shrink-0">
-                    SV
-                  </div>
-                  <div>
-                    <div className="text-[13px] font-semibold text-gray-900">S. Vance</div>
-                    <div className="text-[11px] text-gray-500">Admin</div>
-                  </div>
-                </div>
-                <div className="text-[11px] text-gray-500 flex flex-col items-end">
-                  <span className="font-semibold text-gray-700 text-[13px]">156</span>
-                  acts
-                </div>
-              </div>
-              
-              {/* User 3 */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#f3e8ff] text-[#6b21a8] flex items-center justify-center text-[14px] font-bold shrink-0">
-                    AM
-                  </div>
-                  <div>
-                    <div className="text-[13px] font-semibold text-gray-900">A. Mitchell</div>
-                    <div className="text-[11px] text-gray-500">Lead Ops</div>
-                  </div>
-                </div>
-                <div className="text-[11px] text-gray-500 flex flex-col items-end">
-                  <span className="font-semibold text-gray-700 text-[13px]">89</span>
-                  acts
+                
+                <div className="flex flex-wrap items-center gap-1">
+                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 disabled:opacity-50">Prev</button>
+                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 bg-gray-100 font-medium">1</button>
+                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">2</button>
+                  <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">3</button>
+                  <span className="px-1 sm:px-2">...</span>
+                  <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">50</button>
+                  <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">Next</button>
                 </div>
               </div>
             </div>
-          </div>
-          
         </div>
       </div>
     </div>

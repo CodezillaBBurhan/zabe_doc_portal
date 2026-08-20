@@ -8,3 +8,13 @@
     font-family: 'Inter', sans-serif;
   }
 }
+
+@layer components {
+  .global-table-container thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f9fafb; /* default header background */
+    background-clip: padding-box;
+  }
+}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import ManualEntryDrawer from '../components/organisms/ManualEntryDrawer';
 import RequestDetailDrawer from '../components/organisms/RequestDetailDrawer';
+import GlobalTable from '../components/organisms/GlobalTable';
 
 /* ─────────────────────────────────────────
    DATA
@@ -338,8 +339,7 @@ export default function Requests() {
         )}
 
         {/* ── Table ── */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <GlobalTable minWidth="1000px" tableLayout="fixed">
             <thead>
               <colgroup>
                 <col style={{ width: 44 }} />
@@ -496,8 +496,7 @@ export default function Requests() {
                 </tr>
               )}
             </tbody>
-          </table>
-        </div>
+          </GlobalTable>
 
         {/* ── Pagination Footer ── */}
         <div className="px-5 py-3 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white gap-3">
