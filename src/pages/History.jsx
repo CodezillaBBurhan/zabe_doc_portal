@@ -75,6 +75,7 @@ export default function History() {
   const [electionType, setElectionType] = useState('All');
   const [region, setRegion] = useState('All States');
   const [metricFocus, setMetricFocus] = useState('Turnout');
+  const [selectedCycles, setSelectedCycles] = useState([]);
 
   const filteredData = TABLE_DATA.filter(row => {
     let match = true;
@@ -86,6 +87,24 @@ export default function History() {
     if (electionType !== 'All' && row.type !== electionType) match = false;
     return match;
   });
+
+  const toggleCycle = (cycle) => {
+    setSelectedCycles(prev => 
+      prev.includes(cycle) ? prev.filter(c => c !== cycle) : [...prev, cycle]
+    );
+  };
+
+  const toggleAll = () => {
+    if (selectedCycles.length === filteredData.length) {
+      setSelectedCycles([]);
+    } else {
+      setSelectedCycles(filteredData.map(r => r.cycle));
+    }
+  };
+
+  const cyclesToCompare = selectedCycles.length > 0 
+    ? filteredData.filter(r => selectedCycles.includes(r.cycle)) 
+    : filteredData;
 
   const handleExportCSV = () => {
     const headers = ['CYCLE', 'TYPE', 'TOTAL VOTES', 'VALID VOTES', 'REJECTED', 'TURNOUT %', 'WINNING PARTY', 'CHANGE VS PREV', 'STATUS'];
@@ -277,6 +296,14 @@ export default function History() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr>
+                <th style={{ padding: '12px 16px 12px 24px', borderBottom: '1px solid #F3F4F6', width: 40 }}>
+                  <input 
+                    type="checkbox" 
+                    checked={filteredData.length > 0 && selectedCycles.length === filteredData.length}
+                    onChange={toggleAll}
+                    style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#FF5A1F' }}
+                  />
+                </th>
                 {['CYCLE', 'TOTAL VOTES', 'VALID VOTES', 'REJECTED', 'TURNOUT %', 'WINNING PARTY', 'CHANGE VS PREV', 'STATUS'].map((h, i) => (
                   <th key={h} style={{ padding: '12px 24px', fontSize: 10, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #F3F4F6' }}>
                     {h}
@@ -286,7 +313,15 @@ export default function History() {
             </thead>
             <tbody>
               {filteredData.map((row, i) => (
-                <tr key={row.cycle} style={{ borderBottom: i === filteredData.length - 1 ? 'none' : '1px solid #F9FAFB' }}>
+                <tr key={row.cycle} style={{ borderBottom: i === filteredData.length - 1 ? 'none' : '1px solid #F9FAFB', background: selectedCycles.includes(row.cycle) ? '#FFF7F5' : 'transparent' }}>
+                  <td style={{ padding: '16px 16px 16px 24px' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedCycles.includes(row.cycle)}
+                      onChange={() => toggleCycle(row.cycle)}
+                      style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#FF5A1F' }}
+                    />
+                  </td>
                   <td style={{ padding: '16px 24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: row.cycle === '2023' ? '#FF8A4C' : '#DBEAFE' }} />
@@ -329,7 +364,7 @@ export default function History() {
       <CompareCyclesDrawer 
         isOpen={isCompareOpen} 
         onClose={() => setIsCompareOpen(false)} 
-        data={filteredData} 
+        data={cyclesToCompare} 
       />
     </div>
   );
