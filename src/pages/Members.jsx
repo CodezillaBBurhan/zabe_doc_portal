@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 
 // Mock initial data
@@ -8,11 +8,27 @@ const initialMembers = [
   { id: 3, name: 'Sarah Williams', email: 'sarah.williams@election.gov', designation: 'DEO', role: 'L3', publicLink: 'Lagos Mainland', status: 'Active', createdDate: 'Oct 22, 2023' },
 ];
 
+const PAGE_SIZE = 10;
+
 export default function Members() {
   const [members, setMembers] = useState(initialMembers);
+  
+  // Drawer State
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerMode, setDrawerMode] = useState('add'); // 'add' | 'edit'
+  const [drawerMode, setDrawerMode] = useState('add'); // 'add' | 'edit' | 'view'
   const [selectedMember, setSelectedMember] = useState(null);
+
+  // Delete Modal State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState(null);
+
+  // Filter State
+  const [filterRole, setFilterRole] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [filterPublicLink, setFilterPublicLink] = useState('All');
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -24,6 +40,45 @@ export default function Members() {
   });
   const [errors, setErrors] = useState({});
 
+  // Filter Options
+  const roleOptions = ['All', 'L1', 'L2', 'L3'];
+  const statusOptions = ['All', 'Active', 'Inactive'];
+  const publicLinkOptions = ['All', ...new Set(members.map(m => m.publicLink).filter(link => link !== '-'))];
+
+  // Apply Filters
+  const filteredMembers = members.filter(member => {
+    const matchesRole = filterRole === 'All' || member.role === filterRole;
+    const matchesStatus = filterStatus === 'All' || member.status === filterStatus;
+    const matchesPublicLink = filterPublicLink === 'All' || member.publicLink === filterPublicLink;
+    return matchesRole && matchesStatus && matchesPublicLink;
+  });
+
+  const hasActiveFilters = filterRole !== 'All' || filterStatus !== 'All' || filterPublicLink !== 'All';
+
+  const clearFilters = () => {
+    setFilterRole('All');
+    setFilterStatus('All');
+    setFilterPublicLink('All');
+    setCurrentPage(1);
+  };
+
+  // Calculate Pagination
+  const totalPages = Math.ceil(filteredMembers.length / PAGE_SIZE) || 1;
+  const paginatedMembers = filteredMembers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // Sync currentPage if out of bounds after filtering or deletion
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const handleFilterChange = (setter, value) => {
+    setter(value);
+    setCurrentPage(1); // Reset pagination on filter change
+  };
+
+  // Drawer Handlers
   const handleOpenAdd = () => {
     setDrawerMode('add');
     setSelectedMember(null);
@@ -43,7 +98,7 @@ export default function Members() {
     setSelectedMember(member);
     setFormData({
       name: member.name,
-      email: member.email,
+      email: member.email || '',
       designation: member.designation,
       role: member.role === 'L1' ? 'Level 1 (L1)' : member.role === 'L2' ? 'Level 2 (L2)' : 'Level 3 (L3)',
       publicLink: member.publicLink
@@ -52,10 +107,25 @@ export default function Members() {
     setDrawerOpen(true);
   };
 
-  const handleClose = () => {
+  const handleOpenView = (member) => {
+    setDrawerMode('view');
+    setSelectedMember(member);
+    setFormData({
+      name: member.name,
+      email: member.email || '',
+      designation: member.designation,
+      role: member.role === 'L1' ? 'Level 1 (L1)' : member.role === 'L2' ? 'Level 2 (L2)' : 'Level 3 (L3)',
+      publicLink: member.publicLink
+    });
+    setErrors({});
+    setDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
     setDrawerOpen(false);
   };
 
+  // Validation & Submit
   const validate = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Full name is required.';
@@ -72,12 +142,10 @@ export default function Members() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (drawerMode === 'view') return;
     if (!validate()) return;
 
-    // Convert role formatting back to code for table display (L1, L2, L3)
     const roleCode = formData.role.includes('L1') ? 'L1' : formData.role.includes('L2') ? 'L2' : 'L3';
-    
-    // Format date for mock data
     const today = new Date();
     const dateStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -93,7 +161,7 @@ export default function Members() {
         createdDate: dateStr
       };
       setMembers([...members, newMember]);
-    } else {
+    } else if (drawerMode === 'edit') {
       setMembers(members.map(m => m.id === selectedMember.id ? {
         ...m,
         name: formData.name,
@@ -103,7 +171,21 @@ export default function Members() {
         publicLink: formData.publicLink === 'Select Existing Link' ? '-' : formData.publicLink
       } : m));
     }
-    handleClose();
+    handleCloseDrawer();
+  };
+
+  // Delete Handlers
+  const handleDeleteClick = (member) => {
+    setMemberToDelete(member);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (memberToDelete) {
+      setMembers(members.filter(m => m.id !== memberToDelete.id));
+    }
+    setDeleteModalOpen(false);
+    setMemberToDelete(null);
   };
 
   const getInitials = (name) => {
@@ -133,24 +215,65 @@ export default function Members() {
       </div>
 
       {/* Filters Section */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
-        <button className="flex justify-between items-center w-full sm:w-[160px] text-[14px] font-medium text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2.5 hover:bg-gray-50 transition-colors shadow-sm">
-          <span>Role: All</span>
-          <MaterialIcon icon="expand_more" className="text-gray-400 text-[18px]" />
-        </button>
-        <button className="flex justify-between items-center w-full sm:w-[160px] text-[14px] font-medium text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2.5 hover:bg-gray-50 transition-colors shadow-sm">
-          <span>Status: All</span>
-          <MaterialIcon icon="expand_more" className="text-gray-400 text-[18px]" />
-        </button>
-        <button className="flex justify-between items-center w-full sm:w-[200px] text-[14px] font-medium text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2.5 hover:bg-gray-50 transition-colors shadow-sm">
-          <span>Public Link: All</span>
-          <MaterialIcon icon="expand_more" className="text-gray-400 text-[18px]" />
-        </button>
+      <div className="flex flex-col sm:flex-row items-center gap-4 mb-8 flex-wrap">
+        
+        {/* Role Filter */}
+        <div className="relative w-full sm:w-[160px]">
+          <select
+            value={filterRole}
+            onChange={(e) => handleFilterChange(setFilterRole, e.target.value)}
+            className="w-full pl-4 pr-10 py-2.5 text-[14px] font-medium text-gray-700 bg-white border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] appearance-none shadow-sm cursor-pointer"
+          >
+            {roleOptions.map(opt => (
+              <option key={opt} value={opt}>Role: {opt}</option>
+            ))}
+          </select>
+          <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[18px]" />
+        </div>
+
+        {/* Status Filter */}
+        <div className="relative w-full sm:w-[160px]">
+          <select
+            value={filterStatus}
+            onChange={(e) => handleFilterChange(setFilterStatus, e.target.value)}
+            className="w-full pl-4 pr-10 py-2.5 text-[14px] font-medium text-gray-700 bg-white border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] appearance-none shadow-sm cursor-pointer"
+          >
+            {statusOptions.map(opt => (
+              <option key={opt} value={opt}>Status: {opt}</option>
+            ))}
+          </select>
+          <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[18px]" />
+        </div>
+
+        {/* Public Link Filter */}
+        <div className="relative w-full sm:w-[200px]">
+          <select
+            value={filterPublicLink}
+            onChange={(e) => handleFilterChange(setFilterPublicLink, e.target.value)}
+            className="w-full pl-4 pr-10 py-2.5 text-[14px] font-medium text-gray-700 bg-white border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] appearance-none shadow-sm cursor-pointer"
+          >
+            {publicLinkOptions.map(opt => (
+              <option key={opt} value={opt}>Public Link: {opt}</option>
+            ))}
+          </select>
+          <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[18px]" />
+        </div>
+
+        {/* Clear Filters Button */}
+        {hasActiveFilters && (
+          <button 
+            onClick={clearFilters}
+            className="flex items-center justify-center text-[13px] font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 border border-transparent rounded-md px-3 py-2.5 transition-colors"
+          >
+            <MaterialIcon icon="filter_alt_off" className="mr-1.5 text-[16px]" />
+            Clear Filters
+          </button>
+        )}
       </div>
 
       {/* Table Section */}
-      <div className="bg-white border border-[#e4e7ec] rounded-xl shadow-sm overflow-hidden flex flex-col w-full mb-6">
-        <div className="overflow-x-auto w-full">
+      <div className="bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col w-full mb-6">
+        <div className="overflow-x-auto w-full rounded-xl">
           <table className="w-full min-w-[900px] text-left text-[14px]">
             <thead>
               <tr className="border-b border-[#e4e7ec] bg-white text-[13px] font-medium text-gray-500 tracking-wide">
@@ -164,47 +287,64 @@ export default function Members() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e4e7ec]">
-              {members.map(member => (
-                <tr key={member.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-[#f0f5fc] text-[#475467] font-bold text-[13px] flex items-center justify-center shrink-0">
-                        {getInitials(member.name)}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-semibold text-[#0f1c2d] truncate">{member.name}</div>
-                        {member.email && <div className="text-[13px] text-gray-500 truncate hidden">{member.email}</div>}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600">{member.designation}</td>
-                  <td className="px-6 py-4 text-gray-600">{member.role}</td>
-                  <td className="px-6 py-4 text-gray-600">{member.publicLink}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center text-[14px] text-[#027a48]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#12b76a] mr-2"></span>
-                      {member.status}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600">{member.createdDate}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-3 text-gray-400">
-                      <button className="hover:text-gray-600 transition-colors">
-                        <MaterialIcon icon="visibility" className="text-[20px]" />
-                      </button>
-                      <button 
-                        onClick={() => handleOpenEdit(member)}
-                        className="hover:text-gray-600 transition-colors"
-                      >
-                        <MaterialIcon icon="edit" className="text-[18px]" />
-                      </button>
-                      <button className="hover:text-gray-600 transition-colors">
-                        <MaterialIcon icon="more_vert" className="text-[20px]" />
-                      </button>
-                    </div>
+              {paginatedMembers.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-12 text-center text-[14px] text-gray-500">
+                    No members found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paginatedMembers.map(member => (
+                  <tr key={member.id} className="hover:bg-gray-50 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-[#f0f5fc] text-[#475467] font-bold text-[13px] flex items-center justify-center shrink-0">
+                          {getInitials(member.name)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-semibold text-[#0f1c2d] truncate">{member.name}</div>
+                          {member.email && <div className="text-[13px] text-gray-500 truncate hidden">{member.email}</div>}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">{member.designation}</td>
+                    <td className="px-6 py-4 text-gray-600">{member.role}</td>
+                    <td className="px-6 py-4 text-gray-600">{member.publicLink}</td>
+                    <td className="px-6 py-4">
+                      <div className={`flex items-center text-[14px] ${member.status === 'Active' ? 'text-[#027a48]' : 'text-gray-500'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full mr-2 ${member.status === 'Active' ? 'bg-[#12b76a]' : 'bg-gray-400'}`}></span>
+                        {member.status}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600">{member.createdDate}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-3 text-gray-400 relative">
+                        <button 
+                          onClick={() => handleOpenView(member)}
+                          className="hover:text-[#005fb0] transition-colors" 
+                          title="View"
+                        >
+                          <MaterialIcon icon="visibility" className="text-[20px]" />
+                        </button>
+                        <button 
+                          onClick={() => handleOpenEdit(member)}
+                          className="hover:text-gray-600 transition-colors"
+                          title="Edit"
+                        >
+                          <MaterialIcon icon="edit" className="text-[18px]" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteClick(member)}
+                          className="hover:text-red-500 transition-colors"
+                          title="Delete"
+                        >
+                          <MaterialIcon icon="delete" className="text-[18px]" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -213,23 +353,58 @@ export default function Members() {
       {/* Pagination / Footer */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
         <div className="text-[13px] text-gray-500">
-          Showing 1 to {members.length} of {members.length} entries
+          Showing {filteredMembers.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, filteredMembers.length)} of {filteredMembers.length} entries
         </div>
         <div className="flex items-center gap-1.5">
-          <button className="flex items-center justify-center w-7 h-7 rounded border border-[#e4e7ec] text-gray-400 bg-white hover:bg-gray-50 disabled:opacity-50 cursor-not-allowed" disabled>
+          <button 
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={`flex items-center justify-center w-7 h-7 rounded border border-[#e4e7ec] bg-white transition-colors ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed opacity-70' : 'text-gray-500 hover:bg-gray-50'}`}
+          >
             <MaterialIcon icon="chevron_left" className="text-[18px]" />
           </button>
-          <button className="flex items-center justify-center w-7 h-7 rounded border border-[#e4e7ec] text-gray-400 bg-white hover:bg-gray-50 disabled:opacity-50 cursor-not-allowed" disabled>
+          <button 
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage >= totalPages}
+            className={`flex items-center justify-center w-7 h-7 rounded border border-[#e4e7ec] bg-white transition-colors ${currentPage >= totalPages ? 'text-gray-300 cursor-not-allowed opacity-70' : 'text-gray-500 hover:bg-gray-50'}`}
+          >
             <MaterialIcon icon="chevron_right" className="text-[18px]" />
           </button>
         </div>
       </div>
 
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-gray-900/40" onClick={() => setDeleteModalOpen(false)}></div>
+          <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 relative z-10">
+            <h3 className="text-[18px] font-bold text-[#0f1c2d] mb-2">Delete Member?</h3>
+            <p className="text-[14px] text-gray-500 mb-6 leading-relaxed">
+              Are you sure you want to delete <span className="font-semibold text-gray-700">{memberToDelete?.name}</span>? This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button 
+                onClick={() => setDeleteModalOpen(false)}
+                className="px-4 py-2 rounded-md text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Drawer Overlay */}
       {drawerOpen && (
         <div 
           className="fixed inset-0 bg-gray-900/40 z-40 transition-opacity"
-          onClick={handleClose}
+          onClick={handleCloseDrawer}
         ></div>
       )}
 
@@ -243,16 +418,18 @@ export default function Members() {
         <div className="flex items-start justify-between p-6 pb-4 border-b border-[#e4e7ec] shrink-0">
           <div>
             <h2 className="text-[20px] font-bold text-[#0f1c2d] mb-1">
-              {drawerMode === 'add' ? 'Add New Member' : 'Edit Member'}
+              {drawerMode === 'add' ? 'Add New Member' : drawerMode === 'edit' ? 'Edit Member' : 'Member Details'}
             </h2>
             <p className="text-[13px] text-gray-500">
               {drawerMode === 'add' 
                 ? 'Create a new user and assign their role and public access link.' 
-                : 'Update user details, role and public access link.'}
+                : drawerMode === 'edit' 
+                ? 'Update user details, role and public access link.'
+                : 'Review user profile and access configuration.'}
             </p>
           </div>
           <button 
-            onClick={handleClose}
+            onClick={handleCloseDrawer}
             className="text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
             <MaterialIcon icon="close" className="text-[22px]" />
@@ -272,8 +449,9 @@ export default function Members() {
                 type="text"
                 placeholder="Enter full name"
                 value={formData.name}
+                disabled={drawerMode === 'view'}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
-                className={`w-full px-3 py-2.5 text-[14px] border ${errors.name ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 placeholder:text-gray-400`}
+                className={`w-full px-3 py-2.5 text-[14px] border ${errors.name ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 placeholder:text-gray-400 ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
               />
               {errors.name && <p className="text-red-500 text-[12px] mt-1">{errors.name}</p>}
             </div>
@@ -287,8 +465,9 @@ export default function Members() {
                 type="email"
                 placeholder="email@example.com"
                 value={formData.email}
+                disabled={drawerMode === 'view'}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className={`w-full px-3 py-2.5 text-[14px] border ${errors.email ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 placeholder:text-gray-400`}
+                className={`w-full px-3 py-2.5 text-[14px] border ${errors.email ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 placeholder:text-gray-400 ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
               />
               {errors.email && <p className="text-red-500 text-[12px] mt-1">{errors.email}</p>}
             </div>
@@ -302,8 +481,9 @@ export default function Members() {
                 type="text"
                 placeholder="e.g. DEO"
                 value={formData.designation}
+                disabled={drawerMode === 'view'}
                 onChange={(e) => setFormData({...formData, designation: e.target.value})}
-                className={`w-full px-3 py-2.5 text-[14px] border ${errors.designation ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 placeholder:text-gray-400`}
+                className={`w-full px-3 py-2.5 text-[14px] border ${errors.designation ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 placeholder:text-gray-400 ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
               />
               {errors.designation && <p className="text-red-500 text-[12px] mt-1">{errors.designation}</p>}
             </div>
@@ -316,14 +496,15 @@ export default function Members() {
               <div className="relative">
                 <select 
                   value={formData.role}
+                  disabled={drawerMode === 'view'}
                   onChange={(e) => setFormData({...formData, role: e.target.value})}
-                  className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 appearance-none bg-white"
+                  className={`w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 appearance-none bg-white ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
                 >
                   <option>Level 1 (L1)</option>
                   <option>Level 2 (L2)</option>
                   <option>Level 3 (L3)</option>
                 </select>
-                <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                {drawerMode !== 'view' && <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />}
               </div>
             </div>
 
@@ -335,15 +516,18 @@ export default function Members() {
               <div className="relative">
                 <select 
                   value={formData.publicLink}
+                  disabled={drawerMode === 'view'}
                   onChange={(e) => setFormData({...formData, publicLink: e.target.value})}
-                  className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 appearance-none bg-white"
+                  className={`w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 appearance-none bg-white ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
                 >
                   <option>Select Existing Link</option>
-                  <option>Kano North</option>
-                  <option>Abuja Central</option>
-                  <option>Lagos Mainland</option>
+                  {/* Map distinct active options that are not '-' */}
+                  {publicLinkOptions.filter(opt => opt !== 'All').map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                  <option value="New Territory">New Territory</option>
                 </select>
-                <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                {drawerMode !== 'view' && <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />}
               </div>
             </div>
 
@@ -352,20 +536,32 @@ export default function Members() {
 
         {/* Drawer Footer */}
         <div className="p-6 border-t border-[#e4e7ec] flex items-center justify-end gap-3 bg-white shrink-0">
-          <button 
-            type="button"
-            onClick={handleClose}
-            className="px-4 py-2 rounded-md text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button 
-            type="submit"
-            form="member-form"
-            className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] transition-colors shadow-sm"
-          >
-            {drawerMode === 'add' ? 'Create Member' : 'Save Changes'}
-          </button>
+          {drawerMode === 'view' ? (
+            <button 
+              type="button"
+              onClick={handleCloseDrawer}
+              className="px-6 py-2 rounded-md text-[14px] font-semibold text-white bg-gray-600 hover:bg-gray-700 transition-colors"
+            >
+              Close
+            </button>
+          ) : (
+            <>
+              <button 
+                type="button"
+                onClick={handleCloseDrawer}
+                className="px-4 py-2 rounded-md text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                form="member-form"
+                className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] transition-colors shadow-sm"
+              >
+                {drawerMode === 'add' ? 'Create Member' : 'Save Changes'}
+              </button>
+            </>
+          )}
         </div>
 
       </div>
