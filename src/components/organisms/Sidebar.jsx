@@ -1,7 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import MaterialIcon from '../atoms/MaterialIcon';
 
 export default function Sidebar() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
     <nav className="w-[230px] h-screen fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface flex flex-col py-4 z-50">
       <div className="px-6 mb-8 flex items-center gap-3">
@@ -13,55 +16,55 @@ export default function Sidebar() {
           <p className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px]">NATIONAL COMMAND</p>
         </div>
       </div>
-      
+
       <div className="px-4 mb-4">
         <div className="bg-surface-bright rounded px-3 py-2 flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-[#12B76A] animate-pulse"></div>
           <span className="font-label-md text-label-md text-secondary">System Operational</span>
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto px-3 space-y-1 custom-scrollbar">
         <div className="mb-2 px-3 pt-2">
           <span className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px] font-semibold">OPERATIONS</span>
         </div>
-        
-        <SidebarLink icon="dashboard" label="Overview" />
-        <SidebarLink icon="inbox" label="Requests" />
-        <SidebarLink icon="fact_check" label="Approvals" />
-        <SidebarLink icon="report_problem" label="Incidents" />
-        
+
+        <SidebarLink icon="dashboard" label="Overview" to="/dashboard" active={currentPath === '/dashboard'} />
+        <SidebarLink icon="inbox" label="Requests" to="/requests" active={currentPath === '/requests'} />
+        {/* <SidebarLink icon="fact_check" label="Approvals" to="/approvals" active={currentPath === '/approvals'} /> */}
+        <SidebarLink icon="report_problem" label="Incidents" to="/incidents" active={currentPath === '/incidents'} />
+
         <div className="mb-2 mt-6 px-3 pt-2">
           <span className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px] font-semibold">INTELLIGENCE</span>
         </div>
-        
-        <SidebarLink icon="analytics" label="Analytics" />
-        <SidebarLink icon="map" label="Ward/LGA Map" />
-        <SidebarLink icon="psychology" label="AI Draft" />
-        <SidebarLink icon="history" label="Historical Analysis" />
-        
+
+        {/* <SidebarLink icon="analytics" label="Analytics" to="/analytics" active={currentPath === '/analytics'} /> */}
+        <SidebarLink icon="map" label="Ward/LGA Map" to="/map" active={currentPath === '/map'} />
+        {/* <SidebarLink icon="psychology" label="AI Draft" to="/ai" active={currentPath === '/ai'} /> */}
+        <SidebarLink icon="history" label="Historical Analysis" to="/history" active={currentPath === '/history'} />
+
         <div className="mb-2 mt-6 px-3 pt-2">
           <span className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px] font-semibold">SYSTEM</span>
         </div>
-        
-        <SidebarLink icon="settings_input_component" label="TV Control" />
-        <SidebarLink icon="link" label="Public Links" />
-        <SidebarLink icon="group" label="Team & Permissions" active />
-        <SidebarLink icon="list_alt" label="Audit Logs" />
-        <SidebarLink icon="settings" label="Settings" />
+
+        <SidebarLink icon="settings_input_component" label="TV Control" to="/tv" active={currentPath === '/tv'} />
+        <SidebarLink icon="link" label="Public Links" to="/links" active={currentPath === '/links'} />
+        <SidebarLink icon="group" label="Team & Permissions" to="/team" active={currentPath === '/team'} />
+        <SidebarLink icon="list_alt" label="Audit Logs" to="/logs" active={currentPath === '/logs'} />
+        <SidebarLink icon="settings" label="Settings" to="/settings" active={currentPath === '/settings'} />
       </div>
     </nav>
   );
 }
 
 function SidebarLink({ icon, label, active = false, to = "#" }) {
-  const activeClasses = active 
-    ? "bg-surface-container text-tertiary font-semibold opacity-80" 
-    : "text-secondary hover:text-on-surface hover:bg-surface-container-low";
+  const activeClasses = active
+    ? "bg-[#fff0eb] text-[#ff5a1f] font-bold border-l-[3px] border-[#ff5a1f]"
+    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-l-[3px] border-transparent font-medium";
 
   return (
-    <Link to={to} className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-label-md text-label-md ${activeClasses}`}>
-      <MaterialIcon icon={icon} />
+    <Link to={to} className={`flex items-center gap-3 pl-[21px] pr-3 py-2.5 transition-colors text-[13px] ${activeClasses}`}>
+      <MaterialIcon icon={icon} className="text-[20px]" />
       {label}
     </Link>
   );
