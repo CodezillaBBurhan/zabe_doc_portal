@@ -1,26 +1,33 @@
 import { Link, useLocation } from 'react-router-dom';
 import MaterialIcon from '../atoms/MaterialIcon';
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const currentPath = location.pathname;
 
   return (
-    <nav className="w-[230px] h-screen fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface flex flex-col py-4 z-50">
-      <div className="px-6 mb-8 flex items-center gap-3">
-        <div className="w-8 h-8 rounded bg-on-surface flex items-center justify-center">
-          <MaterialIcon icon="flag" className="text-white text-sm" />
+    <nav className={`w-[230px] h-screen fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface flex flex-col py-4 z-50 transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
+      <div className="px-4 lg:px-6 mb-8 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded bg-on-surface flex items-center justify-center shrink-0">
+            <MaterialIcon icon="flag" className="text-white text-sm" />
+          </div>
+          <div className="min-w-0">
+            <h1 className="font-headline-sm text-headline-sm font-bold text-on-surface leading-tight truncate">Election Center</h1>
+            <p className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px] truncate">NATIONAL COMMAND</p>
+          </div>
         </div>
-        <div>
-          <h1 className="font-headline-sm text-headline-sm font-bold text-on-surface leading-tight">Election Center</h1>
-          <p className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px]">NATIONAL COMMAND</p>
-        </div>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden text-secondary hover:text-primary p-1 -mr-2">
+            <MaterialIcon icon="close" />
+          </button>
+        )}
       </div>
 
       <div className="px-4 mb-4">
         <div className="bg-surface-bright rounded px-3 py-2 flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-[#12B76A] animate-pulse"></div>
-          <span className="font-label-md text-label-md text-secondary">System Operational</span>
+          <div className="w-2 h-2 rounded-full bg-[#12B76A] animate-pulse shrink-0"></div>
+          <span className="font-label-md text-label-md text-secondary truncate">System Operational</span>
         </div>
       </div>
 

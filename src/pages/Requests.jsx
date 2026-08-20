@@ -155,7 +155,7 @@ export default function Requests() {
     <div style={{ width: '100%', minWidth: 0 }}>
 
       {/* ── Page Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 20 }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: '#111827', letterSpacing: '-0.3px', margin: 0, lineHeight: 1.3 }}>
             Request Queue
@@ -191,7 +191,7 @@ export default function Requests() {
       </div>
 
       {/* ── KPI Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 20 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         {KPI_CARDS.map((c) => (
           <div
             key={c.title}
@@ -244,12 +244,9 @@ export default function Requests() {
       }}>
 
         {/* ── Tabs + Search bar ── */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 20px', borderBottom: '1px solid #F3F4F6', height: 50, gap: 16,
-        }}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between px-5 border-b border-gray-100 min-h-[50px] gap-4 py-2 md:py-0">
           {/* Tabs */}
-          <div style={{ display: 'flex', alignItems: 'center', height: '100%', gap: 2 }}>
+          <div className="flex items-center gap-1 overflow-x-auto w-full md:w-auto custom-scrollbar pb-1 md:pb-0 md:h-full">
             {Object.entries(TAB_COUNTS).map(([tab, count]) => {
               const isActive = activeTab === tab;
               return (
@@ -297,7 +294,7 @@ export default function Requests() {
           </div>
 
           {/* Search */}
-          <div style={{ position: 'relative', flex: 1, maxWidth: 340 }}>
+          <div className="relative w-full md:w-auto md:max-w-[340px] flex-1">
             <span style={{
               position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
               color: '#9CA3AF', fontSize: 17, display: 'flex', alignItems: 'center',
@@ -503,12 +500,7 @@ export default function Requests() {
         </div>
 
         {/* ── Pagination Footer ── */}
-        <div style={{
-          padding: '12px 20px',
-          borderTop: '1px solid #F3F4F6',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: '#fff',
-        }}>
+        <div className="px-5 py-3 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white gap-3">
           <span style={{ fontSize: 13, color: '#6B7280' }}>
             Showing <strong style={{ color: '#111827' }}>1 to {filtered.length}</strong> of{' '}
             <strong style={{ color: '#111827' }}>124</strong> requests

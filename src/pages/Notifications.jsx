@@ -6,7 +6,7 @@ export default function Notifications() {
     <div className="flex flex-col w-full pb-10">
       
       {/* Page Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-[28px] font-bold text-[#0f1c2d] leading-tight mb-2">Notifications</h1>
           <p className="text-[15px] text-gray-500">
@@ -20,20 +20,20 @@ export default function Notifications() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center border-b border-[#e4e7ec] mb-8">
-        <button className="px-1 py-3 text-[14px] font-semibold text-[#9b4500] border-b-2 border-[#9b4500] mr-6">
+      <div className="flex items-center border-b border-[#e4e7ec] mb-8 overflow-x-auto whitespace-nowrap">
+        <button className="px-1 py-3 text-[14px] font-semibold text-[#9b4500] border-b-2 border-[#9b4500] mr-6 shrink-0">
           All
         </button>
-        <button className="px-1 py-3 text-[14px] font-medium text-gray-500 hover:text-gray-700 mr-6">
+        <button className="px-1 py-3 text-[14px] font-medium text-gray-500 hover:text-gray-700 mr-6 shrink-0">
           Requests
         </button>
-        <button className="px-1 py-3 text-[14px] font-medium text-gray-500 hover:text-gray-700 mr-6">
+        <button className="px-1 py-3 text-[14px] font-medium text-gray-500 hover:text-gray-700 mr-6 shrink-0">
           Approvals
         </button>
-        <button className="px-1 py-3 text-[14px] font-medium text-gray-500 hover:text-gray-700 mr-6">
+        <button className="px-1 py-3 text-[14px] font-medium text-gray-500 hover:text-gray-700 mr-6 shrink-0">
           Incidents
         </button>
-        <button className="px-1 py-3 text-[14px] font-medium text-gray-500 hover:text-gray-700">
+        <button className="px-1 py-3 text-[14px] font-medium text-gray-500 hover:text-gray-700 shrink-0">
           System
         </button>
       </div>

@@ -112,7 +112,7 @@ export default function Incidents() {
     <div style={{ width: '100%', minWidth: 0 }}>
 
       {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 20 }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
         <div>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111827', letterSpacing: '-0.3px' }}>Incidents</h1>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Monitor, manage, and resolve election incidents in real-time.</p>
@@ -124,7 +124,7 @@ export default function Incidents() {
       </div>
 
       {/* ── KPI Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         {[
           { title: 'TOTAL INCIDENTS', value: '142', sub: '↑ 18% from last 24h', subColor: '#16A34A', icon: 'list_alt',    iconBg: '#EFF6FF', iconFg: '#3B82F6', spark: '#3B82F6', up: true  },
           { title: 'ACTIVE INCIDENTS', value: '12',  sub: '↓ 3 from last 24h',  subColor: '#EA580C', icon: 'bolt',        iconBg: '#FFF7ED', iconFg: '#F97316', spark: '#F97316', up: false },
@@ -149,160 +149,9 @@ export default function Incidents() {
         ))}
       </div>
 
-      {/* ── Main 2-column layout ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'start' }}>
-
-        {/* LEFT: Filter + Table */}
-        <div>
-          {/* Filter bar */}
-          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: '12px 16px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: 180 }}>
-              <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', display: 'flex', alignItems: 'center', pointerEvents: 'none', zIndex: 1 }}>
-                <MaterialIcon icon="search" className="text-[16px]" />
-              </span>
-              <input
-                value={search} onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search incidents by ID, detail or location..."
-                style={{ height: 34, paddingLeft: 34, paddingRight: 12, width: '100%', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', boxSizing: 'border-box', color: '#374151' }}
-              />
-            </div>
-            {[
-              { label: 'Severity', value: severity, set: setSeverity, opts: ['All', 'Critical', 'High', 'Medium', 'Low'] },
-              { label: 'Category', value: category, set: setCategory, opts: ['All', 'Security', 'Technical', 'Logistics', 'Results'] },
-              { label: 'Status', value: 'All', set: () => {}, opts: ['All', 'Active', 'Pending', 'Resolved'] },
-            ].map((f) => (
-              <div key={f.label} style={{ position: 'relative' }}>
-                <select value={f.value} onChange={(e) => f.set(e.target.value)} style={{ height: 34, padding: '0 28px 0 10px', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8, cursor: 'pointer', appearance: 'none', color: '#374151', background: '#fff', outline: 'none' }}>
-                  {f.opts.map((o) => <option key={o}>{f.label !== 'Status' || o === 'All' ? `${f.label}: ${o}` : o}</option>)}
-                </select>
-                <MaterialIcon icon="expand_more" className="text-[14px]" style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
-              </div>
-            ))}
-            <button style={{ height: 34, padding: '0 14px', border: '1px solid #E5E7EB', borderRadius: 8, background: '#fff', fontSize: 13, fontWeight: 500, color: '#374151', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-              <MaterialIcon icon="tune" className="text-[15px]" style={{ color: '#6B7280' }} />
-              More Filters
-            </button>
-          </div>
-
-          {/* Table card */}
-          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-            {/* Tabs */}
-            <div style={{ display: 'flex', borderBottom: '1px solid #F3F4F6', padding: '0 16px' }}>
-              {TABS.map((tab) => {
-                const active = activeTab === tab;
-                return (
-                  <button key={tab} onClick={() => setActiveTab(tab)} style={{ position: 'relative', padding: '12px 14px', fontSize: 13, fontWeight: active ? 600 : 500, color: active ? '#FF5A1F' : '#6B7280', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                    {tab}
-                    {active && <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: '#FF5A1F', borderRadius: '2px 2px 0 0' }} />}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Table */}
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-                <colgroup>
-                  <col style={{ width: '13%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '28%' }} />
-                  <col style={{ width: '13%' }} />
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '12%' }} />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th style={hd}>Incident ID ↕</th>
-                    <th style={hd}>Severity ↕</th>
-                    <th style={hd}>Category ↕</th>
-                    <th style={hd}>Detail ↕</th>
-                    <th style={hd}>Location ↕</th>
-                    <th style={hd}>Reported Time ↕</th>
-                    <th style={{ ...hd, textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((row) => {
-                    const sev  = SEVERITY[row.severity] || SEVERITY.Low;
-                    const cat  = CAT_ICON[row.category] || CAT_ICON.Others;
-                    return (
-                      <tr key={row.id} style={{ borderBottom: '1px solid #F9FAFB' }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#FAFAFA'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
-                      >
-                        <td style={{ ...cell, fontWeight: 600, color: '#374151' }}>{row.id}</td>
-                        <td style={cell}>
-                          <span style={{ fontSize: 11.5, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: sev.bg, color: sev.color, whiteSpace: 'nowrap' }}>
-                            {row.severity}
-                          </span>
-                        </td>
-                        <td style={cell}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                            <div style={{ width: 22, height: 22, borderRadius: 5, background: cat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                              <MaterialIcon icon={cat.icon} className="text-[11px]" style={{ color: cat.color }} />
-                            </div>
-                            <span style={{ fontSize: 12, fontWeight: 500, color: '#374151' }}>{row.category}</span>
-                          </div>
-                        </td>
-                        <td style={{ ...cell, color: '#374151', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {row.detail}
-                        </td>
-                        <td style={cell}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{row.location}</div>
-                          <div style={{ fontSize: 11, color: '#9CA3AF' }}>{row.sub}</div>
-                        </td>
-                        <td style={cell}>
-                          <div style={{ fontSize: 13, fontWeight: 500, color: '#111827' }}>{row.time}</div>
-                          <div style={{ fontSize: 11, color: '#9CA3AF' }}>Today</div>
-                        </td>
-                        <td style={{ ...cell, textAlign: 'right' }}>
-                          <button onClick={() => setDetailIncident(row)} style={{ height: 30, padding: '0 12px', border: '1px solid #FDBA74', borderRadius: 7, background: '#fff', fontSize: 12, fontWeight: 600, color: '#EA580C', cursor: 'pointer' }}>
-                            View Details
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {filtered.length === 0 && (
-                    <tr>
-                      <td colSpan={7} style={{ padding: '40px 0', textAlign: 'center', fontSize: 13, color: '#9CA3AF' }}>
-                        No incidents match your filter.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div style={{ padding: '12px 16px', borderTop: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 13, color: '#6B7280' }}>
-                Showing <strong style={{ color: '#111827' }}>1 to {filtered.length}</strong> of <strong style={{ color: '#111827' }}>142</strong> entries
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <button disabled style={{ height: 30, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 7, background: '#fff', fontSize: 12, color: '#D1D5DB', cursor: 'not-allowed' }}>
-                  ‹ Previous
-                </button>
-                {[1, 2, 3].map((n) => (
-                  <button key={n} style={{ width: 30, height: 30, border: n === 1 ? '1px solid #FF5A1F' : '1px solid #E5E7EB', borderRadius: 7, background: n === 1 ? '#FFF5F2' : '#fff', fontSize: 12, fontWeight: n === 1 ? 700 : 400, color: n === 1 ? '#FF5A1F' : '#374151', cursor: 'pointer' }}>
-                    {n}
-                  </button>
-                ))}
-                <span style={{ fontSize: 13, color: '#9CA3AF', padding: '0 4px' }}>…</span>
-                <button style={{ width: 30, height: 30, border: '1px solid #E5E7EB', borderRadius: 7, background: '#fff', fontSize: 12, color: '#374151', cursor: 'pointer' }}>20</button>
-                <button style={{ height: 30, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 7, background: '#fff', fontSize: 12, color: '#374151', cursor: 'pointer' }}>
-                  Next ›
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT: Sidebar widgets */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-
-          {/* Incidents by Severity */}
+            {/* ── Top Charts & Widgets ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5 w-full">
+        {/* Incidents by Severity */}
           <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: 18, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#111827', marginBottom: 14 }}>Incidents by Severity</div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -354,9 +203,145 @@ export default function Incidents() {
               </button>
             ))}
           </div>
-
-        </div>
       </div>
+
+      {/* ── Bottom: Filter + Table ── */}
+      <div className="w-full min-w-0 flex flex-col gap-4">
+          {/* Filter bar */}
+          <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4 flex flex-col sm:flex-row sm:items-center flex-wrap gap-3">
+            <div style={{ position: 'relative', flex: 1, minWidth: 180 }}>
+              <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', display: 'flex', alignItems: 'center', pointerEvents: 'none', zIndex: 1 }}>
+                <MaterialIcon icon="search" className="text-[16px]" />
+              </span>
+              <input
+                value={search} onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search incidents by ID, detail or location..."
+                style={{ height: 34, paddingLeft: 34, paddingRight: 12, width: '100%', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', boxSizing: 'border-box', color: '#374151' }}
+              />
+            </div>
+            {[
+              { label: 'Severity', value: severity, set: setSeverity, opts: ['All', 'Critical', 'High', 'Medium', 'Low'] },
+              { label: 'Category', value: category, set: setCategory, opts: ['All', 'Security', 'Technical', 'Logistics', 'Results'] },
+              { label: 'Status', value: 'All', set: () => {}, opts: ['All', 'Active', 'Pending', 'Resolved'] },
+            ].map((f) => (
+              <div key={f.label} style={{ position: 'relative' }}>
+                <select value={f.value} onChange={(e) => f.set(e.target.value)} style={{ height: 34, padding: '0 28px 0 10px', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8, cursor: 'pointer', appearance: 'none', color: '#374151', background: '#fff', outline: 'none' }}>
+                  {f.opts.map((o) => <option key={o}>{f.label !== 'Status' || o === 'All' ? `${f.label}: ${o}` : o}</option>)}
+                </select>
+                <MaterialIcon icon="expand_more" className="text-[14px]" style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
+              </div>
+            ))}
+            <button style={{ height: 34, padding: '0 14px', border: '1px solid #E5E7EB', borderRadius: 8, background: '#fff', fontSize: 13, fontWeight: 500, color: '#374151', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <MaterialIcon icon="tune" className="text-[15px]" style={{ color: '#6B7280' }} />
+              More Filters
+            </button>
+          </div>
+
+          {/* Table card */}
+          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+            {/* Tabs */}
+            <div className="flex overflow-x-auto border-b border-gray-100 px-4 custom-scrollbar">
+              {TABS.map((tab) => {
+                const active = activeTab === tab;
+                return (
+                  <button key={tab} onClick={() => setActiveTab(tab)} style={{ position: 'relative', padding: '12px 14px', fontSize: 13, fontWeight: active ? 600 : 500, color: active ? '#FF5A1F' : '#6B7280', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    {tab}
+                    {active && <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: '#FF5A1F', borderRadius: '2px 2px 0 0' }} />}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Table */}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', minWidth: '900px', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                <thead>
+                  <tr>
+                    <th style={{ ...hd, width: '13%' }}>Incident ID ↕</th>
+                    <th style={{ ...hd, width: '10%' }}>Severity ↕</th>
+                    <th style={{ ...hd, width: '13%' }}>Category ↕</th>
+                    <th style={{ ...hd, width: '26%' }}>Detail ↕</th>
+                    <th style={{ ...hd, width: '14%' }}>Location ↕</th>
+                    <th style={{ ...hd, width: '12%' }}>Reported Time ↕</th>
+                    <th style={{ ...hd, width: '12%', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((row) => {
+                    const sev  = SEVERITY[row.severity] || SEVERITY.Low;
+                    const cat  = CAT_ICON[row.category] || CAT_ICON.Others;
+                    return (
+                      <tr key={row.id} style={{ borderBottom: '1px solid #F9FAFB' }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#FAFAFA'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
+                      >
+                        <td style={{ ...cell, fontWeight: 600, color: '#374151' }}>{row.id}</td>
+                        <td style={cell}>
+                          <span style={{ fontSize: 11.5, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: sev.bg, color: sev.color, whiteSpace: 'nowrap' }}>
+                            {row.severity}
+                          </span>
+                        </td>
+                        <td style={cell}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                            <div style={{ width: 22, height: 22, borderRadius: 5, background: cat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <MaterialIcon icon={cat.icon} className="text-[11px]" style={{ color: cat.color }} />
+                            </div>
+                            <span style={{ fontSize: 12, fontWeight: 500, color: '#374151' }}>{row.category}</span>
+                          </div>
+                        </td>
+                        <td style={{ ...cell, color: '#374151', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {row.detail}
+                        </td>
+                        <td style={cell}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{row.location}</div>
+                          <div style={{ fontSize: 11, color: '#9CA3AF' }}>{row.sub}</div>
+                        </td>
+                        <td style={cell}>
+                          <div style={{ fontSize: 13, fontWeight: 500, color: '#111827' }}>{row.time}</div>
+                          <div style={{ fontSize: 11, color: '#9CA3AF' }}>Today</div>
+                        </td>
+                        <td style={{ ...cell, textAlign: 'right' }}>
+                          <button onClick={() => setDetailIncident(row)} style={{ height: 30, padding: '0 12px', border: '1px solid #FDBA74', borderRadius: 7, background: '#fff', fontSize: 12, fontWeight: 600, color: '#EA580C', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '40px 0', textAlign: 'center', fontSize: 13, color: '#9CA3AF' }}>
+                        No incidents match your filter.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            <div style={{ padding: '12px 16px', borderTop: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 13, color: '#6B7280' }}>
+                Showing <strong style={{ color: '#111827' }}>1 to {filtered.length}</strong> of <strong style={{ color: '#111827' }}>142</strong> entries
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <button disabled style={{ height: 30, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 7, background: '#fff', fontSize: 12, color: '#D1D5DB', cursor: 'not-allowed' }}>
+                  ‹ Previous
+                </button>
+                {[1, 2, 3].map((n) => (
+                  <button key={n} style={{ width: 30, height: 30, border: n === 1 ? '1px solid #FF5A1F' : '1px solid #E5E7EB', borderRadius: 7, background: n === 1 ? '#FFF5F2' : '#fff', fontSize: 12, fontWeight: n === 1 ? 700 : 400, color: n === 1 ? '#FF5A1F' : '#374151', cursor: 'pointer' }}>
+                    {n}
+                  </button>
+                ))}
+                <span style={{ fontSize: 13, color: '#9CA3AF', padding: '0 4px' }}>…</span>
+                <button style={{ width: 30, height: 30, border: '1px solid #E5E7EB', borderRadius: 7, background: '#fff', fontSize: 12, color: '#374151', cursor: 'pointer' }}>20</button>
+                <button style={{ height: 30, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 7, background: '#fff', fontSize: 12, color: '#374151', cursor: 'pointer' }}>
+                  Next ›
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
       {/* ── Drawers ── */}
       <ReportIncidentDrawer open={reportOpen} onClose={() => setReportOpen(false)} />

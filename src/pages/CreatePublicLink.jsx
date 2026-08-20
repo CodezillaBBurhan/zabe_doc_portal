@@ -60,8 +60,7 @@ const CreatePublicLink = () => {
 
         {/* Preview Area */}
         <div
-          className="relative w-full py-16 px-8 flex items-center justify-center overflow-x-auto bg-cover bg-center min-h-[900px]"
-
+          className="relative w-full py-16 px-4 sm:px-8 flex items-center xl:justify-center overflow-x-auto bg-cover bg-center min-h-[900px]"
         >
           {/* Glass Overlay */}
           <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>

@@ -111,7 +111,7 @@ const PublicLinks = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
         {/* Active Links */}
         <div className="bg-surface-container-lowest rounded-xl shadow-sm p-6 flex flex-col">
           <h3 className="font-body-sm text-body-sm text-secondary uppercase tracking-wider mb-2">Active Links</h3>
@@ -156,7 +156,7 @@ const PublicLinks = () => {
           )}
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto overflow-visible relative">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto overflow-visible relative">
           {Object.keys(filterOptions).map((filter) => (
             <div key={filter} className="relative">
               <button 

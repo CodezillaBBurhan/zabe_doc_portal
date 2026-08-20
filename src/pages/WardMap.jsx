@@ -93,7 +93,7 @@ export default function WardMap() {
     <div style={{ width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 16, flexShrink: 0 }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 shrink-0">
         <div>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111827', letterSpacing: '-0.3px' }}>Ward / LGA Map</h1>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Explore collation progress and election activity by geography.</p>
@@ -108,9 +108,9 @@ export default function WardMap() {
       </div>
 
       {/* ── Filter Bar ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 16, flexShrink: 0 }}>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 shrink-0">
         {/* Breadcrumbs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#F9FAFB', padding: '6px 12px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12, fontWeight: 500 }}>
+        <div className="flex flex-wrap items-center gap-1 md:gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium w-full md:w-auto">
           <span style={{ color: '#374151', display: 'flex', alignItems: 'center', padding: '2px 0' }}>Nigeria</span>
           <MaterialIcon icon="chevron_right" className="text-[14px] mx-[2px] text-gray-400" />
           
@@ -124,7 +124,7 @@ export default function WardMap() {
         </div>
 
         {/* Search */}
-        <div style={{ position: 'relative', width: 280 }}>
+        <div className="relative w-full md:w-[280px]">
           <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
             <MaterialIcon icon="search" className="text-[16px]" />
           </span>
@@ -137,10 +137,10 @@ export default function WardMap() {
       </div>
 
       {/* ── Main Layout: Map (Top) + Data (Bottom) ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', background: '#F8FAFC' }}>
+      <div className="flex-1 flex flex-col min-h-0 border border-gray-200 rounded-xl overflow-hidden bg-slate-50">
         
         {/* Map Area */}
-        <div style={{ flex: '1 1 50%', minHeight: 450, position: 'relative', overflow: 'hidden', zIndex: 0 }}>
+        <div className="flex-[1_1_50%] min-h-[300px] md:min-h-[450px] relative overflow-hidden z-0">
           <MapContainer center={[9.0820, 8.6753]} zoom={6} zoomControl={false} style={{ width: '100%', height: '100%', minHeight: 450, background: '#E0E8F0' }}>
             <TileLayer
               url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
@@ -216,7 +216,7 @@ export default function WardMap() {
         </div>
 
         {/* Data Area */}
-        <div style={{ background: '#F8FAFC', padding: '24px 32px', flexShrink: 0, borderTop: '1px solid #E5E7EB', overflowY: 'auto' }}>
+        <div className="bg-slate-50 p-4 sm:p-6 md:p-8 shrink-0 border-t border-gray-200 overflow-y-auto">
           
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>SELECTED REGION:</span>
@@ -229,7 +229,7 @@ export default function WardMap() {
           </div>
 
           {/* KPI Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <KPICard icon="person" title="REGISTERED" value="7.1M" iconBg="#F0F9FF" iconColor="#0284C7" />
             <KPICard icon="how_to_vote" title="TURNOUT EST." value="42.5%" iconBg="#F0FDF4" iconColor="#16A34A" />
             <KPICard icon="fact_check" title="OVERALL COLLATION" value="68%" valueColor="#026AA2" iconBg="#EFF6FF" iconColor="#2563EB" progress={68} sub="16,420 / 24,148 Wards Received" />
@@ -243,7 +243,7 @@ export default function WardMap() {
               <span style={{ fontSize: 13, fontWeight: 600, color: '#0284C7', cursor: 'pointer' }}>View All</span>
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px 48px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-5">
               <LGARow name="Ikeja" pct={92} color="#026AA2" />
               <LGARow name="Surulere" pct={85} color="#026AA2" />
               <LGARow name="Lagos Island" pct={78} color="#026AA2" />

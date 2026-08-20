@@ -16,14 +16,14 @@ export default function TeamPermissions() {
             Manage access control and user roles for the Election Center.
           </p>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
-          <button className="flex items-center text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2 hover:bg-gray-50 transition-colors shadow-sm">
+        <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
+          <button className="flex-1 sm:flex-none justify-center flex items-center text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2 hover:bg-gray-50 transition-colors shadow-sm">
             <MaterialIcon icon="settings" className="mr-2 text-[18px]" />
             Manage Permissions
           </button>
           <button 
             onClick={() => setIsAssignDrawerOpen(true)}
-            className="flex items-center text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md px-4 py-2 transition-colors shadow-sm"
+            className="flex-1 sm:flex-none justify-center flex items-center text-[14px] font-semibold text-white bg-[#ff8c42] hover:bg-[#ff7a22] rounded-md px-4 py-2 transition-colors shadow-sm"
           >
             <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
             Assign Member
@@ -32,7 +32,7 @@ export default function TeamPermissions() {
       </div>
 
       {/* Main Content Layout */}
-      <div className="flex flex-col lg:flex-row gap-6 w-full items-start">
+      <div className="flex flex-col xl:flex-row gap-6 w-full items-start">
         
         {/* Left Column (Table) */}
         <div className="flex-1 min-w-0 bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col overflow-hidden w-full">
@@ -184,7 +184,7 @@ export default function TeamPermissions() {
           </div>
 
           {/* Table Footer / Pagination */}
-          <div className="flex items-center justify-between p-5 border-t border-[#e4e7ec]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-t border-[#e4e7ec]">
             <div className="text-[14px] text-gray-600 font-medium">
               Showing 1 to 3 of 24 entries
             </div>
@@ -201,7 +201,7 @@ export default function TeamPermissions() {
         </div>
 
         {/* Right Column (Details Panel) */}
-        <div className="w-full lg:w-[360px] xl:w-[400px] shrink-0 flex flex-col gap-6">
+        <div className="w-full xl:w-[400px] shrink-0 flex flex-col gap-6">
           <div className="bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col overflow-hidden">
             
             {/* Profile Header */}

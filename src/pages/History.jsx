@@ -126,7 +126,7 @@ export default function History() {
     <div style={{ width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 40 }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#111827', letterSpacing: '-0.5px' }}>Historical Analysis</h1>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Retrospective insights and trend analysis for previous election cycles.</p>
@@ -189,7 +189,7 @@ export default function History() {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard icon="group" value="64.2%" title="Historical Turnout" badgeText="↑ +2.1% Avg" badgeType="green" />
         <StatCard icon="how_to_vote" value="93.4M" title="Total Registered Voters" badgeText="↑ +11.4M vs 2019" badgeType="green" />
         <StatCard icon="warning_amber" value="2.4%" title="Incident Rate Trends" badgeText="↓ -12% vs 2019" badgeType="green" />
@@ -197,7 +197,7 @@ export default function History() {
       </div>
 
       {/* Charts Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         
         {/* Bar Chart */}
         <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #E5E7EB' }}>

@@ -29,17 +29,17 @@ export default function AuditLogs() {
     <div className="flex flex-col gap-6 w-full pb-10">
       
       {/* Page Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-[28px] font-bold text-[#111827] leading-tight">Audit Logs</h1>
           <p className="text-[14px] text-gray-500 mt-1">Track every important action performed across the Election Center.</p>
         </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <div className="flex gap-3 w-full sm:w-auto">
+          <button className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 flex">
             <MaterialIcon icon="filter_list" className="text-gray-500 text-[20px]" />
             Filter
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#ff8c42] hover:bg-[#ff7a22] text-white rounded-md shadow-sm text-sm font-medium">
+          <button className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-[#ff8c42] hover:bg-[#ff7a22] text-white rounded-md shadow-sm text-sm font-medium flex">
             <MaterialIcon icon="download" className="text-white text-[20px]" />
             Export
           </button>
@@ -49,7 +49,7 @@ export default function AuditLogs() {
       {/* Filter Section */}
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-4 mb-4">
-          <div className="relative flex-1 min-w-[280px]">
+          <div className="relative flex-1 min-w-[200px] w-full">
             <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" />
             <input 
               type="text" 
@@ -57,24 +57,24 @@ export default function AuditLogs() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-brand-orange"
             />
           </div>
-          <div className="relative">
-            <select className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer">
+          <div className="relative w-full xs:w-auto flex-1 min-w-[150px]">
+            <select className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer">
               <option>Date Range: Last 24h</option>
             </select>
             <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
           </div>
-          <div className="relative">
-            <select className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer">
+          <div className="relative w-full xs:w-auto flex-1 min-w-[150px]">
+            <select className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer">
               <option>User: All</option>
             </select>
             <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
           </div>
-          <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 ml-auto font-medium">
+          <button className="hidden sm:flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 ml-auto font-medium">
             <MaterialIcon icon="close" className="text-[18px]" />
             Clear Filters
           </button>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="relative">
             <select className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer">
               <option>Severity: All</option>
@@ -103,7 +103,7 @@ export default function AuditLogs() {
       </div>
 
       {/* Main Content Layout */}
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col xl:flex-row gap-6">
         
         {/* Left Column (Table & Chart) */}
         <div className="flex-1 flex flex-col gap-6 min-w-0">
@@ -142,8 +142,8 @@ export default function AuditLogs() {
             </div>
             
             {/* Pagination */}
-            <div className="border-t border-gray-200 px-5 py-3 flex items-center justify-between text-[13px] text-gray-500 bg-gray-50/50">
-              <div className="flex items-center gap-4">
+            <div className="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[13px] text-gray-500 bg-gray-50/50 gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
                 <span>Showing 1-25 of 1,248</span>
                 <div className="flex items-center gap-2">
                   <span>Rows per page:</span>
@@ -158,14 +158,14 @@ export default function AuditLogs() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-1">
-                <button className="px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 disabled:opacity-50">Prev</button>
-                <button className="px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 bg-gray-100 font-medium">1</button>
-                <button className="px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">2</button>
-                <button className="px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">3</button>
-                <span className="px-2">...</span>
-                <button className="px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">50</button>
-                <button className="px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">Next</button>
+              <div className="flex flex-wrap items-center gap-1">
+                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 disabled:opacity-50">Prev</button>
+                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50 bg-gray-100 font-medium">1</button>
+                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">2</button>
+                <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">3</button>
+                <span className="px-1 sm:px-2">...</span>
+                <button className="hidden sm:inline-block px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">50</button>
+                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-gray-50">Next</button>
               </div>
             </div>
           </div>

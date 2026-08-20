@@ -22,7 +22,7 @@ export default function Dashboard() {
       </div>
 
       {/* KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-6">
         <KpiCard 
           icon="group" 
           iconBg="bg-blue-50 text-blue-600" 
@@ -63,14 +63,14 @@ export default function Dashboard() {
       </div>
 
       {/* Middle Section */}
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col xl:flex-row gap-6">
         {/* Left Col (Geographic Distribution) */}
         <div className="flex-[2] bg-white rounded-xl border border-gray-100 shadow-[0_2px_10px_rgb(0,0,0,0.02)] p-6 flex flex-col min-h-[500px]">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h3 className="text-[18px] font-bold text-gray-900">Geographic Distribution</h3>
-            <div className="flex bg-gray-50 rounded-md border border-gray-200 p-0.5">
-              <button className="px-3 py-1.5 bg-white text-gray-900 text-[12px] font-semibold rounded shadow-sm border border-gray-200/50">Turnout %</button>
-              <button className="px-3 py-1.5 text-gray-500 text-[12px] font-medium hover:text-gray-700">Total Votes</button>
+            <div className="flex bg-gray-50 rounded-md border border-gray-200 p-0.5 w-full sm:w-auto">
+              <button className="flex-1 sm:flex-none px-3 py-1.5 bg-white text-gray-900 text-[12px] font-semibold rounded shadow-sm border border-gray-200/50">Turnout %</button>
+              <button className="flex-1 sm:flex-none px-3 py-1.5 text-gray-500 text-[12px] font-medium hover:text-gray-700">Total Votes</button>
             </div>
           </div>
           
