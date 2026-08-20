@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Requests from './pages/Requests';
 import Incidents from './pages/Incidents';
+import WardMap from './pages/WardMap';
 import MainLayout from './components/templates/MainLayout';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/requests" element={<Requests />} />
           <Route path="/incidents" element={<Incidents />} />
+          <Route path="/map" element={<WardMap />} />
           {/* Add all other internal pages here */}
         </Route>
       </Routes>
