@@ -486,7 +486,7 @@ export default function Members() {
                 {drawerMode !== 'view' && (
                   <Link to="/permissions" className="text-[11px] font-semibold text-[#ea580c] hover:text-[#c2410c] flex items-center">
                     <MaterialIcon icon="add" className="text-[12px] mr-0.5" />
-                    Create Role
+                    Create Designation
                   </Link>
                 )}
               </div>
