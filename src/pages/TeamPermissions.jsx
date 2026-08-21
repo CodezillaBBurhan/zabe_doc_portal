@@ -58,7 +58,7 @@ export default function TeamPermissions() {
       ...prev,
       memberId: memId,
       designation: mem ? mem.role : '',
-      // name: mem ? mem.name : ''
+      name: ''
     }));
   };
 
@@ -608,8 +608,8 @@ export default function TeamPermissions() {
                 className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none text-gray-500 appearance-none bg-gray-50 cursor-not-allowed"
               >
                 <option value="">Select Designation</option>
-                {allRoles.map(r => (
-                  <option key={r.id} value={r.name}>{r.name}</option>
+                {[...new Set([...allRoles.map(r => r.name), ...members.map(m => m.role).filter(Boolean)])].map(roleName => (
+                  <option key={roleName} value={roleName}>{roleName}</option>
                 ))}
               </select>
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -618,13 +618,12 @@ export default function TeamPermissions() {
 
           {/* Name Input */}
           <div>
-            <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">View To</label>
+            <label className=" text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">View To</label>
             <input
               type="text"
               value={assignForm.name}
-              readOnly
-              disabled
-              className="w-full px-3 py-2.5 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none text-gray-500 bg-gray-50 cursor-not-allowed"
+              onChange={(e) => setAssignForm({ ...assignForm, name: e.target.value })}
+              className="w-full px-3 py-2.5 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 bg-white"
             />
           </div>
 
