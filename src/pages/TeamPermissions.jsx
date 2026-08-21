@@ -16,7 +16,7 @@ const PERMISSIONS_DEF = [
 
 export default function TeamPermissions() {
   const navigate = useNavigate();
-  
+
   // Data State
   const [members, setMembers] = useState([]);
   const [allRoles, setAllRoles] = useState([]);
@@ -37,11 +37,30 @@ export default function TeamPermissions() {
   const [isAssignDrawerOpen, setIsAssignDrawerOpen] = useState(false);
   const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState(null);
-  
+
   // Edit Permissions State
   const [isEditing, setIsEditing] = useState(false);
   const [editedPermissions, setEditedPermissions] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+
+  // Assign Member Form State
+  const [assignForm, setAssignForm] = useState({
+    memberId: '',
+    name: '',
+    designation: '',
+    publicLink: ''
+  });
+
+  const handleAssignMemberSelect = (e) => {
+    const memId = e.target.value;
+    const mem = members.find(m => m.id.toString() === memId);
+    setAssignForm(prev => ({
+      ...prev,
+      memberId: memId,
+      designation: mem ? mem.role : '',
+      // name: mem ? mem.name : ''
+    }));
+  };
 
   useEffect(() => {
     fetchMembers();
@@ -77,7 +96,7 @@ export default function TeamPermissions() {
         avatar: m.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=random`
       }));
       setMembers(initialized);
-      
+
       // Auto-select first if none selected
       if (initialized.length > 0 && !selectedMemberId) {
         setSelectedMemberId(initialized[0].id);
@@ -134,7 +153,7 @@ export default function TeamPermissions() {
   const handleTogglePermission = (key, adminOnly) => {
     if (!isEditing) return;
     if (adminOnly && selectedMember?.role !== 'Admin') return; // Enforce admin check
-    
+
     setEditedPermissions(prev => ({
       ...prev,
       [key]: !prev[key]
@@ -175,7 +194,7 @@ export default function TeamPermissions() {
 
   return (
     <div className="flex flex-col w-full pb-10">
-      
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
@@ -186,7 +205,7 @@ export default function TeamPermissions() {
         </div>
         <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
 
-          <button 
+          <button
             onClick={() => setIsAssignDrawerOpen(true)}
             className="flex-1 sm:flex-none justify-center flex items-center text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md px-4 py-2 transition-colors shadow-sm"
           >
@@ -198,15 +217,15 @@ export default function TeamPermissions() {
 
       {/* Main Content Layout */}
       <div className="flex flex-col w-full items-start">
-        
+
         {/* Table */}
         <div className="w-full bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col overflow-hidden relative">
-          
+
           {/* Table Toolbar */}
           <div className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 relative z-20">
             <div className="relative w-full sm:w-[320px]">
               <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" />
-              <input 
+              <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -214,25 +233,25 @@ export default function TeamPermissions() {
                 className="w-full pl-10 pr-4 py-2 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700"
               />
             </div>
-            
+
             <div className="flex items-center gap-3">
               {(searchTerm || roleFilter !== 'All' || statusFilter !== 'All') && (
                 <button onClick={clearFilters} className="text-sm font-medium text-gray-500 hover:text-gray-800">Clear</button>
               )}
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowFilterDropdown(!showFilterDropdown)}
                   className={`flex justify-center items-center text-[14px] font-semibold text-gray-700 bg-white border rounded-md px-4 py-2 transition-colors shrink-0 ${showFilterDropdown ? 'border-[#ff8c42] ring-1 ring-[#ff8c42]' : 'border-[#e4e7ec] hover:bg-gray-50'}`}
                 >
                   <MaterialIcon icon="filter_list" className="mr-2 text-[18px]" />
                   Filter
                 </button>
-                
+
                 {showFilterDropdown && (
                   <div className="absolute right-0 top-[110%] w-64 bg-white border border-[#e4e7ec] shadow-lg rounded-xl z-50 p-4">
                     <div className="mb-4">
                       <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">Role</label>
-                      <select 
+                      <select
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value)}
                         className="w-full text-sm border border-gray-300 rounded-md p-2 outline-none focus:border-brand-orange"
@@ -242,7 +261,7 @@ export default function TeamPermissions() {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">Status</label>
-                      <select 
+                      <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="w-full text-sm border border-gray-300 rounded-md p-2 outline-none focus:border-brand-orange"
@@ -266,73 +285,73 @@ export default function TeamPermissions() {
             <EmptyState title="No members found" description="Adjust your search or filters to see more members." />
           ) : (
             <GlobalTable minWidth="700px">
-                <thead>
-                  <tr className="border-b border-t border-[#e4e7ec] text-[11px] font-bold text-gray-500 uppercase tracking-wider bg-white">
-                    <th className="px-5 py-4 w-[280px]">NAME & EMAIL</th>
-                    <th className="px-5 py-4 w-[160px]">ROLE</th>
-                    <th className="px-5 py-4 w-[100px]">STATUS</th>
-                    <th className="px-5 py-4 w-[140px]">LAST LOGIN</th>
-                    <th className="px-5 py-4 w-[120px] text-center">ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#e4e7ec]">
-                  {paginatedMembers.map((member) => {
-                    const isSelected = selectedMemberId === member.id;
-                    return (
-                      <tr 
-                        key={member.id}
-                        onClick={() => handleSelectMember(member)}
-                        className={`transition-colors group cursor-pointer border-l-2 ${isSelected ? 'bg-[#f0f5fc] border-l-[#005fb0]' : 'hover:bg-gray-50 border-l-transparent'}`}
-                      >
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0 overflow-hidden border border-gray-100">
-                              <img src={member.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="font-semibold text-[#0f1c2d] mb-0.5 truncate">{member.name}</div>
-                              <div className="text-[13px] text-gray-500 truncate">{member.email}</div>
-                            </div>
+              <thead>
+                <tr className="border-b border-t border-[#e4e7ec] text-[11px] font-bold text-gray-500 uppercase tracking-wider bg-white">
+                  <th className="px-5 py-4 w-[280px]">NAME & EMAIL</th>
+                  <th className="px-5 py-4 w-[160px]">ROLE</th>
+                  <th className="px-5 py-4 w-[100px]">STATUS</th>
+                  <th className="px-5 py-4 w-[140px]">LAST LOGIN</th>
+                  <th className="px-5 py-4 w-[120px] text-center">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#e4e7ec]">
+                {paginatedMembers.map((member) => {
+                  const isSelected = selectedMemberId === member.id;
+                  return (
+                    <tr
+                      key={member.id}
+                      onClick={() => handleSelectMember(member)}
+                      className={`transition-colors group cursor-pointer border-l-2 ${isSelected ? 'bg-[#f0f5fc] border-l-[#005fb0]' : 'hover:bg-gray-50 border-l-transparent'}`}
+                    >
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0 overflow-hidden border border-gray-100">
+                            <img src={member.avatar} alt="Avatar" className="w-full h-full object-cover" />
                           </div>
-                        </td>
-                        <td className="px-5 py-4 text-[#0f1c2d] font-medium">
-                          {member.role}
-                        </td>
-                        <td className="px-5 py-4">
-                          {member.status === 'Active' && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#ecfdf3] text-[#027a48] border border-[#abefc6]">Active</span>}
-                          {member.status === 'Inactive' && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#fef3f2] text-[#b42318] border border-[#fecdca]">Inactive</span>}
-                          {member.status === 'Pending' && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">Pending</span>}
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="text-[#0f1c2d]">{member.lastLogin}</div>
-                          <div className="text-[12px] text-gray-500">{member.lastLoginTime}</div>
-                        </td>
-                        <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
-                          <div className="flex items-center justify-center gap-2">
-                            <button 
-                              onClick={() => handleSelectMember(member)}
-                              className="flex items-center justify-center w-8 h-8 rounded text-gray-500 border border-[#e4e7ec] bg-white hover:bg-gray-50"
-                              title="View"
-                            >
-                              <MaterialIcon icon="visibility" className="text-[16px]" />
-                            </button>
-                            <button 
-                              onClick={() => {
-                                handleSelectMember(member);
-                                setIsEditing(true);
-                              }}
-                              className="flex items-center justify-center w-8 h-8 rounded text-gray-500 border border-[#e4e7ec] bg-white hover:bg-gray-50"
-                              title="Edit Permissions"
-                            >
-                              <MaterialIcon icon="edit" className="text-[16px]" />
-                            </button>
+                          <div className="min-w-0">
+                            <div className="font-semibold text-[#0f1c2d] mb-0.5 truncate">{member.name}</div>
+                            <div className="text-[13px] text-gray-500 truncate">{member.email}</div>
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </GlobalTable>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 text-[#0f1c2d] font-medium">
+                        {member.role}
+                      </td>
+                      <td className="px-5 py-4">
+                        {member.status === 'Active' && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#ecfdf3] text-[#027a48] border border-[#abefc6]">Active</span>}
+                        {member.status === 'Inactive' && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#fef3f2] text-[#b42318] border border-[#fecdca]">Inactive</span>}
+                        {member.status === 'Pending' && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">Pending</span>}
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="text-[#0f1c2d]">{member.lastLogin}</div>
+                        <div className="text-[12px] text-gray-500">{member.lastLoginTime}</div>
+                      </td>
+                      <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => handleSelectMember(member)}
+                            className="flex items-center justify-center w-8 h-8 rounded text-gray-500 border border-[#e4e7ec] bg-white hover:bg-gray-50"
+                            title="View"
+                          >
+                            <MaterialIcon icon="visibility" className="text-[16px]" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleSelectMember(member);
+                              setIsEditing(true);
+                            }}
+                            className="flex items-center justify-center w-8 h-8 rounded text-gray-500 border border-[#e4e7ec] bg-white hover:bg-gray-50"
+                            title="Edit Permissions"
+                          >
+                            <MaterialIcon icon="edit" className="text-[16px]" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </GlobalTable>
           )}
 
           {/* Table Footer / Pagination */}
@@ -342,14 +361,14 @@ export default function TeamPermissions() {
                 Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, totalEntries)} of {totalEntries} entries
               </div>
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   className="px-4 py-1.5 rounded text-[13px] font-medium border border-[#e4e7ec] text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
-                <button 
+                <button
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   className="px-4 py-1.5 rounded text-[13px] font-medium border border-[#e4e7ec] text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed"
@@ -365,17 +384,16 @@ export default function TeamPermissions() {
 
       {/* Profile Drawer Overlay */}
       {isProfileDrawerOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-gray-900/40 z-[100] transition-opacity"
           onClick={() => setIsProfileDrawerOpen(false)}
         ></div>
       )}
 
       {/* Profile Drawer Panel */}
-      <div 
-        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[110] shadow-2xl flex flex-col transition-transform duration-300 transform overflow-y-auto ${
-          isProfileDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+      <div
+        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[110] shadow-2xl flex flex-col transition-transform duration-300 transform overflow-y-auto ${isProfileDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         <div className="p-6 border-b border-[#e4e7ec] flex items-center justify-between shrink-0 sticky top-0 bg-white z-20">
           <h2 className="text-[20px] font-bold text-[#0f1c2d]">User Profile</h2>
@@ -385,7 +403,7 @@ export default function TeamPermissions() {
         </div>
 
         <div className="flex-1 flex flex-col relative p-6">
-          
+
           {successMessage && (
             <div className="mb-4 w-full bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm font-medium flex items-center justify-between shadow-sm">
               <span className="flex items-center gap-2">
@@ -397,14 +415,14 @@ export default function TeamPermissions() {
               </button>
             </div>
           )}
-          
+
           <div className="flex flex-col h-full">
             {selectedMember ? (
               <>
                 {/* Profile Header */}
                 <div className="pb-6 border-b border-[#e4e7ec] relative">
                   {!isEditing && (
-                    <button 
+                    <button
                       onClick={() => navigate('/profile')}
                       className="absolute top-0 right-0 text-[13px] font-semibold text-[#005fb0] hover:text-[#004786]"
                     >
@@ -421,7 +439,7 @@ export default function TeamPermissions() {
                     </div>
                   </div>
                 </div>
-  
+
                 <div className="py-6 flex flex-col flex-1">
                   {/* Access Permissions Block */}
                   {!isEditing && (
@@ -432,7 +450,7 @@ export default function TeamPermissions() {
                       <div className="bg-[#f0f5fc] rounded-md py-2.5 px-4 text-center text-[11px] font-bold text-[#475467] tracking-wider mb-3">
                         {Object.values(selectedMember.permissions || {}).filter(Boolean).length} PERMISSIONS ASSIGNED
                       </div>
-                      <button 
+                      <button
                         onClick={() => setIsEditing(true)}
                         className="w-full flex items-center justify-center text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2 hover:bg-gray-50 transition-colors"
                       >
@@ -441,24 +459,23 @@ export default function TeamPermissions() {
                       </button>
                     </div>
                   )}
-  
+
                   {/* Assigned Permissions Summary */}
                   <div>
                     <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-4">
                       {isEditing ? "EDIT PERMISSIONS" : "ASSIGNED PERMISSIONS SUMMARY"}
                     </div>
                     <div className="flex flex-col gap-3">
-                      
+
                       {PERMISSIONS_DEF.map(perm => {
                         const adminDisabled = perm.adminOnly && selectedMember.role !== 'Admin';
                         const isChecked = editedPermissions ? !!editedPermissions[perm.key] : false;
-                        
+
                         return (
-                          <div 
-                            key={perm.key} 
-                            className={`border rounded-lg p-3 flex items-start gap-3 transition-colors ${
-                              adminDisabled ? 'bg-[#f9fafb] opacity-75 border-[#e4e7ec]' : 'bg-white border-[#e4e7ec]'
-                            } ${isEditing && !adminDisabled ? 'hover:border-gray-300 cursor-pointer' : ''}`}
+                          <div
+                            key={perm.key}
+                            className={`border rounded-lg p-3 flex items-start gap-3 transition-colors ${adminDisabled ? 'bg-[#f9fafb] opacity-75 border-[#e4e7ec]' : 'bg-white border-[#e4e7ec]'
+                              } ${isEditing && !adminDisabled ? 'hover:border-gray-300 cursor-pointer' : ''}`}
                             onClick={() => {
                               if (isEditing && !adminDisabled) {
                                 handleTogglePermission(perm.key, perm.adminOnly);
@@ -466,14 +483,13 @@ export default function TeamPermissions() {
                             }}
                           >
                             <div className="pt-0.5">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={isChecked}
-                                onChange={() => {}} // handled by parent div onClick
+                                onChange={() => { }} // handled by parent div onClick
                                 disabled={!isEditing || adminDisabled}
-                                className={`rounded focus:ring-[#ff8c42] w-4 h-4 cursor-pointer ${
-                                  !isEditing || adminDisabled ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-not-allowed' : 'border-gray-300 text-[#ff8c42]'
-                                }`} 
+                                className={`rounded focus:ring-[#ff8c42] w-4 h-4 cursor-pointer ${!isEditing || adminDisabled ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-not-allowed' : 'border-gray-300 text-[#ff8c42]'
+                                  }`}
                               />
                             </div>
                             <div>
@@ -492,22 +508,22 @@ export default function TeamPermissions() {
                           </div>
                         );
                       })}
-                      
+
                     </div>
                   </div>
                 </div>
-  
+
                 {/* Panel Footer */}
                 {isEditing && (
                   <div className="pt-5 border-t border-[#e4e7ec] bg-white flex items-center justify-end gap-3 mt-auto sticky bottom-0">
-                    <button 
+                    <button
                       onClick={handleCancelPermissions}
                       disabled={isSaving}
                       className="px-4 py-2 rounded-md text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 transition-colors disabled:opacity-50"
                     >
                       Cancel
                     </button>
-                    <button 
+                    <button
                       onClick={handleSavePermissions}
                       disabled={isSaving}
                       className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] transition-colors shadow-sm disabled:opacity-75 flex items-center"
@@ -525,7 +541,7 @@ export default function TeamPermissions() {
                 <p className="text-[14px] text-gray-500">Select a member from the table to view or manage their permissions.</p>
               </div>
             )}
-            
+
           </div>
         </div>
 
@@ -533,17 +549,16 @@ export default function TeamPermissions() {
 
       {/* Drawer Overlay */}
       {isAssignDrawerOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-gray-900/40 z-[100] transition-opacity"
           onClick={() => setIsAssignDrawerOpen(false)}
         ></div>
       )}
 
       {/* Drawer Panel */}
-      <div 
-        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[110] shadow-2xl flex flex-col transition-transform duration-300 transform ${
-          isAssignDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+      <div
+        className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[110] shadow-2xl flex flex-col transition-transform duration-300 transform ${isAssignDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         {/* Header */}
         <div className="p-6 border-b border-[#e4e7ec] flex items-start justify-between shrink-0">
@@ -558,7 +573,7 @@ export default function TeamPermissions() {
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-          
+
           {/* Select Member */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -569,47 +584,48 @@ export default function TeamPermissions() {
               </Link>
             </div>
             <div className="relative">
-              <select className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer">
-                <option>Select Existing Member</option>
+              <select
+                value={assignForm.memberId}
+                onChange={handleAssignMemberSelect}
+                className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer"
+              >
+                <option value="">Select Existing Member</option>
                 {members.map(m => (
-                  <option key={m.id}>{m.name}</option>
+                  <option key={m.id} value={m.id}>{m.name}</option>
                 ))}
               </select>
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
           </div>
 
-          {/* Designation */}
+          {/* Designation (Role) */}
           <div>
             <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">DESIGNATION</label>
             <div className="relative">
-              <select className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer">
-                <option>Select Designation</option>
-                <option>DEO</option>
-                <option>Returning Officer</option>
+              <select
+                value={assignForm.designation}
+                disabled
+                className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none text-gray-500 appearance-none bg-gray-50 cursor-not-allowed"
+              >
+                <option value="">Select Designation</option>
+                {allRoles.map(r => (
+                  <option key={r.id} value={r.name}>{r.name}</option>
+                ))}
               </select>
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
           </div>
 
-          {/* Role Assignment */}
+          {/* Name Input */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-[11px] font-bold text-[#475467] uppercase tracking-wider">ASSIGN ROLE</label>
-              <Link to="/permissions" className="text-[11px] font-semibold text-[#ea580c] hover:text-[#c2410c] flex items-center">
-                <MaterialIcon icon="add" className="text-[12px] mr-0.5" />
-                Manage Roles
-              </Link>
-            </div>
-            <div className="relative">
-              <select className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer">
-                <option value="">Select a Role</option>
-                {allRoles.map(r => (
-                  <option key={r.id} value={r.name}>{r.name} - {r.description}</option>
-                ))}
-              </select>
-              <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-            </div>
+            <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">View To</label>
+            <input
+              type="text"
+              value={assignForm.name}
+              readOnly
+              disabled
+              className="w-full px-3 py-2.5 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none text-gray-500 bg-gray-50 cursor-not-allowed"
+            />
           </div>
 
           {/* Public Link Assignment */}

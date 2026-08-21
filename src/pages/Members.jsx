@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MembersAPI } from '../mocks/api';
+import { MembersAPI, RolesAPI } from '../mocks/api';
 import Spinner from '../components/atoms/Spinner';
 import EmptyState from '../components/molecules/EmptyState';
 import ConfirmDialog from '../components/organisms/ConfirmDialog';
@@ -12,11 +12,22 @@ const PAGE_SIZE = 10;
 
 export default function Members() {
   const [members, setMembers] = useState([]);
+  const [rolesList, setRolesList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     fetchMembers();
+    fetchRoles();
   }, []);
+
+  const fetchRoles = async () => {
+    try {
+      const data = await RolesAPI.getAll();
+      setRolesList(data.map(r => r.name));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchMembers = async () => {
     setIsLoading(true);
@@ -51,12 +62,12 @@ export default function Members() {
     name: '',
     email: '',
     designation: '',
-    role: 'Level 1 (L1)'
+    role: ''
   });
   const [errors, setErrors] = useState({});
 
   // Filter Options
-  const roleOptions = ['All', 'L1', 'L2', 'L3'];
+  const roleOptions = ['All', ...rolesList];
   const statusOptions = ['All', 'Active', 'Inactive'];
 
   // Apply Filters
@@ -97,8 +108,8 @@ export default function Members() {
     setFormData({
       name: '',
       email: '',
-      designation: '',
-      role: 'Level 1 (L1)'
+      designation: rolesList.length > 0 ? rolesList[0] : '',
+      role: rolesList.length > 0 ? rolesList[0] : ''
     });
     setErrors({});
     setDrawerOpen(true);
@@ -110,8 +121,8 @@ export default function Members() {
     setFormData({
       name: member.name,
       email: member.email || '',
-      designation: member.designation,
-      role: member.role === 'L1' ? 'Level 1 (L1)' : member.role === 'L2' ? 'Level 2 (L2)' : 'Level 3 (L3)'
+      designation: member.role || '',
+      role: member.role || ''
     });
     setErrors({});
     setDrawerOpen(true);
@@ -123,8 +134,8 @@ export default function Members() {
     setFormData({
       name: member.name,
       email: member.email || '',
-      designation: member.designation,
-      role: member.role === 'L1' ? 'Level 1 (L1)' : member.role === 'L2' ? 'Level 2 (L2)' : 'Level 3 (L3)'
+      designation: member.role || '',
+      role: member.role || ''
     });
     setErrors({});
     setDrawerOpen(true);
@@ -154,7 +165,6 @@ export default function Members() {
     if (drawerMode === 'view') return;
     if (!validate()) return;
 
-    const roleCode = formData.role.includes('L1') ? 'L1' : formData.role.includes('L2') ? 'L2' : 'L3';
     const today = new Date();
     const dateStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -165,7 +175,7 @@ export default function Members() {
           name: formData.name,
           email: formData.email,
           designation: formData.designation,
-          role: roleCode,
+          role: formData.designation,
           status: 'Active',
           addedOn: dateStr // renamed from createdDate based on mock db structure
         });
@@ -175,7 +185,7 @@ export default function Members() {
           name: formData.name,
           email: formData.email,
           designation: formData.designation,
-          role: roleCode
+          role: formData.designation
         });
         setMembers(members.map(m => m.id === selectedMember.id ? updatedMember : m));
       }
@@ -219,7 +229,7 @@ export default function Members() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-[32px] font-bold text-[#0f1c2d] leading-tight mb-2">Members</h1>
+          <h1 className="text-[32px] font-bold text-[#0f1c2d] leading-tight mb-2">Users</h1>
           <p className="text-[15px] text-gray-500">
             Manage users and roles.
           </p>
@@ -230,7 +240,7 @@ export default function Members() {
             className="flex items-center text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md px-4 py-2 transition-colors shadow-sm"
           >
             <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
-            Add Member
+            Add User
           </button>
         </div>
       </div>
@@ -301,7 +311,7 @@ export default function Members() {
               ) : paginatedMembers.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="px-6 py-12">
-                    <EmptyState title="No members found" description="There are no members matching your current filters." />
+                    <EmptyState title="No users found" description="There are no users matching your current filters." />
                   </td>
                 </tr>
               ) : (
@@ -387,7 +397,7 @@ export default function Members() {
         isOpen={deleteModalOpen} 
         onClose={() => setDeleteModalOpen(false)} 
         onConfirm={confirmDelete}
-        title="Delete Member?"
+        title="Delete User?"
         message={`Are you sure you want to delete ${memberToDelete?.name}? This action cannot be undone.`}
         confirmText="Delete"
         confirmColor="red"
@@ -413,7 +423,7 @@ export default function Members() {
         <div className="flex items-start justify-between p-6 pb-4 border-b border-[#e4e7ec] shrink-0">
           <div>
             <h2 className="text-[20px] font-bold text-[#0f1c2d] mb-1">
-              {drawerMode === 'add' ? 'Add New Member' : drawerMode === 'edit' ? 'Edit Member' : 'Member Details'}
+              {drawerMode === 'add' ? 'Add New User' : drawerMode === 'edit' ? 'Edit User' : 'User Details'}
             </h2>
             <p className="text-[13px] text-gray-500">
               {drawerMode === 'add' 
@@ -469,25 +479,9 @@ export default function Members() {
 
             {/* Designation */}
             <div>
-              <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">
-                DESIGNATION
-              </label>
-              <input 
-                type="text"
-                placeholder="e.g. DEO"
-                value={formData.designation}
-                disabled={drawerMode === 'view'}
-                onChange={(e) => setFormData({...formData, designation: e.target.value})}
-                className={`w-full px-3 py-2.5 text-[14px] border ${errors.designation ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 placeholder:text-gray-400 ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
-              />
-              {errors.designation && <p className="text-red-500 text-[12px] mt-1">{errors.designation}</p>}
-            </div>
-
-            {/* Role Selection */}
-            <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-[11px] font-bold text-[#475467] uppercase tracking-wider">
-                  ROLE SELECTION
+                <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider">
+                  DESIGNATION
                 </label>
                 {drawerMode !== 'view' && (
                   <Link to="/permissions" className="text-[11px] font-semibold text-[#ea580c] hover:text-[#c2410c] flex items-center">
@@ -498,17 +492,19 @@ export default function Members() {
               </div>
               <div className="relative">
                 <select 
-                  value={formData.role}
+                  value={formData.designation}
                   disabled={drawerMode === 'view'}
-                  onChange={(e) => setFormData({...formData, role: e.target.value})}
-                  className={`w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 appearance-none bg-white ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
+                  onChange={(e) => setFormData({...formData, designation: e.target.value, role: e.target.value})}
+                  className={`w-full px-3 py-2.5 pr-10 text-[14px] border ${errors.designation ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 appearance-none bg-white ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
                 >
-                  <option>Level 1 (L1)</option>
-                  <option>Level 2 (L2)</option>
-                  <option>Level 3 (L3)</option>
+                  <option value="">Select Designation</option>
+                  {rolesList.map(role => (
+                    <option key={role} value={role}>{role}</option>
+                  ))}
                 </select>
                 {drawerMode !== 'view' && <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />}
               </div>
+              {errors.designation && <p className="text-red-500 text-[12px] mt-1">{errors.designation}</p>}
             </div>
 
 
@@ -540,7 +536,7 @@ export default function Members() {
                 form="member-form"
                 className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] transition-colors shadow-sm"
               >
-                {drawerMode === 'add' ? 'Create Member' : 'Save Changes'}
+                {drawerMode === 'add' ? 'Create User' : 'Save Changes'}
               </button>
             </>
           )}
