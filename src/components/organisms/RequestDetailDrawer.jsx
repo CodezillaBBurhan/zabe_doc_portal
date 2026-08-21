@@ -15,6 +15,8 @@ const S_COLORS = {
   Assigned:      { bg: '#DBEAFE', color: '#2563EB' },
   'In Progress': { bg: '#EDE9FE', color: '#7C3AED' },
   Resolved:      { bg: '#DCFCE7', color: '#16A34A' },
+  Approved:      { bg: '#DCFCE7', color: '#16A34A' },
+  Rejected:      { bg: '#FEE2E2', color: '#DC2626' },
 };
 
 /* ── Section header ── */
@@ -208,12 +210,29 @@ export default function RequestDetailDrawer({ request, onClose, onApprove, onRej
               </Link>
             </div>
             <div style={{ position: 'relative', marginTop: -4 }}>
-              <select style={{ width: '100%', padding: '10px 12px', paddingRight: 40, fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 10, outline: 'none', color: '#111827', appearance: 'none', background: '#FAFAFA', cursor: 'pointer', fontWeight: 500 }}>
-                <option value="">Select Existing Link...</option>
+              <select 
+                value={request.publicLink || ""}
+                disabled={!!request.publicLink}
+                onChange={() => {}} // dummy
+                style={{ 
+                  width: '100%', padding: '10px 12px', paddingRight: 40, fontSize: 13, 
+                  border: request.publicLink ? '1px solid #BFDBFE' : '1px solid #E5E7EB', 
+                  borderRadius: 10, outline: 'none', 
+                  color: request.publicLink ? '#2563EB' : '#111827', 
+                  appearance: 'none', 
+                  background: request.publicLink ? '#EFF6FF' : '#FAFAFA', 
+                  cursor: request.publicLink ? 'default' : 'pointer', 
+                  fontWeight: 500 
+                }}
+              >
+                {!request.publicLink && <option value="">Select Existing Link...</option>}
+                {request.publicLink && <option value={request.publicLink}>🔗 {request.publicLink}</option>}
                 <option value="kano">Kano North</option>
                 <option value="lagos">Lagos Central</option>
               </select>
-              <MaterialIcon icon="expand_more" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none', fontSize: 18 }} />
+              {!request.publicLink && (
+                <MaterialIcon icon="expand_more" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none', fontSize: 18 }} />
+              )}
             </div>
           </div>
 
@@ -250,18 +269,29 @@ export default function RequestDetailDrawer({ request, onClose, onApprove, onRej
 
         {/* ── Footer actions ── */}
         <div style={{ padding: '14px 22px', borderTop: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, flexShrink: 0, background: '#fff' }}>
-          <button
-            onClick={() => { onReject && onReject(request); onClose(); }}
-            style={{ height: 36, padding: '0 20px', borderRadius: 8, border: '1px solid #FCA5A5', background: '#fff', fontSize: 13, fontWeight: 600, color: '#DC2626', cursor: 'pointer' }}
-          >
-            Reject
-          </button>
-          <button
-            onClick={() => { onApprove && onApprove(request); onClose(); }}
-            style={{ height: 36, padding: '0 20px', borderRadius: 8, border: 'none', background: '#FF5A1F', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 1px 3px rgba(255,90,31,0.35)' }}
-          >
-            Approve Request
-          </button>
+          {request.status === 'Pending' ? (
+            <>
+              <button
+                onClick={() => { onReject && onReject(request); onClose(); }}
+                style={{ height: 36, padding: '0 20px', borderRadius: 8, border: '1px solid #FCA5A5', background: '#fff', fontSize: 13, fontWeight: 600, color: '#DC2626', cursor: 'pointer' }}
+              >
+                Reject
+              </button>
+              <button
+                onClick={() => { onApprove && onApprove(request); onClose(); }}
+                style={{ height: 36, padding: '0 20px', borderRadius: 8, border: 'none', background: '#FF5A1F', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 1px 3px rgba(255,90,31,0.35)' }}
+              >
+                Approve Request
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={onClose}
+              style={{ height: 36, padding: '0 20px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer' }}
+            >
+              Close Details
+            </button>
+          )}
         </div>
       </div>
     </>

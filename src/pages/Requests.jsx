@@ -18,7 +18,6 @@ import { formatTime } from '../utils/formatters';
 /* ─────────────────────────────────────────
    DATA (now fetched from API)
 ───────────────────────────────────────── */
-const TAB_COUNTS = { All: 124, Pending: 89, Assigned: 28, Resolved: 7 };
 
 
 /* ─────────────────────────────────────────
@@ -89,15 +88,20 @@ export default function Requests() {
     try {
       const data = await RequestsAPI.getAll();
       // Map API data to component structure if needed
-      const mapped = data.map(r => ({
-        ...r,
-        typeIcon: r.type === 'Security' ? 'security' : r.type === 'Logistical' ? 'local_shipping' : 'computer',
-        locationSub: r.location,
-        requester: r.submitter,
-        time: formatTime(r.date),
-        timeSub: 'Today',
-        tab: r.status === 'Resolved' || r.status === 'Rejected' ? 'Resolved' : r.status === 'Pending' ? 'Pending' : 'Assigned'
-      }));
+      const mapped = data.map(r => {
+        const mappedStatus = r.status === 'Resolved' || r.status === 'Rejected' ? 'Resolved' : r.status === 'Pending' ? 'Pending' : 'Assigned';
+        const hasLink = mappedStatus === 'Assigned' || mappedStatus === 'Resolved';
+        return {
+          ...r,
+          typeIcon: r.type === 'Security' ? 'security' : r.type === 'Logistical' ? 'local_shipping' : 'computer',
+          locationSub: r.location,
+          requester: r.submitter,
+          time: formatTime(r.date),
+          timeSub: 'Today',
+          tab: mappedStatus,
+          publicLink: hasLink ? `zabe.app/req-${String(r.id).replace('REQ-', '').toLowerCase()}` : null
+        };
+      });
       setRequests(mapped);
     } catch (e) {
       console.error(e);
@@ -115,6 +119,13 @@ export default function Requests() {
       || String(r.type || '').toLowerCase().includes(q);
     return matchTab && matchSearch;
   });
+
+  const tabCounts = {
+    All: requests.length,
+    Pending: requests.filter(r => r.tab === 'Pending').length,
+    Assigned: requests.filter(r => r.tab === 'Assigned').length,
+    Resolved: requests.filter(r => r.tab === 'Resolved').length
+  };
 
   const allSelected = filtered.length > 0 && selected.length === filtered.length;
   const toggleAll = () => setSelected(allSelected ? [] : filtered.map((r) => r.id));
@@ -188,53 +199,34 @@ export default function Requests() {
       }}>
 
         {/* ── Tabs + Search bar ── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between px-5 border-b border-gray-100 min-h-[50px] gap-4 py-2 md:py-0">
+        <div className="flex flex-col md:flex-row md:items-center justify-between px-5 border-b border-gray-100 min-h-[60px] gap-4 py-3 md:py-0 bg-white">
           {/* Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto w-full md:w-auto custom-scrollbar pb-1 md:pb-0 md:h-full">
-            {Object.entries(TAB_COUNTS).map(([tab, count]) => {
-              const isActive = activeTab === tab;
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  style={{
-                    position: 'relative',
-                    height: '100%',
-                    padding: '0 14px',
-                    fontSize: 13,
-                    fontWeight: isActive ? 600 : 500,
-                    color: isActive ? '#FF5A1F' : '#6B7280',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    transition: 'color .15s',
-                  }}
-                >
-                  {tab}
-                  <span style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    lineHeight: 1,
-                    padding: '2px 6px',
-                    borderRadius: 999,
-                    background: isActive ? '#FF5A1F' : '#E5E7EB',
-                    color: isActive ? '#fff' : '#4B5563',
-                    transition: 'all .15s',
-                  }}>
-                    {count}
-                  </span>
-                  {isActive && (
-                    <span style={{
-                      position: 'absolute', bottom: 0, left: 0, right: 0,
-                      height: 2, background: '#FF5A1F', borderRadius: '2px 2px 0 0',
-                    }} />
-                  )}
-                </button>
-              );
-            })}
+          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto custom-scrollbar">
+            <div className="flex p-1 bg-gray-100/80 rounded-lg border border-gray-200/60">
+              {Object.entries(tabCounts).map(([tab, count]) => {
+                const isActive = activeTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`relative px-4 py-1.5 text-[13px] font-semibold rounded-md flex items-center gap-2.5 transition-all duration-200 ease-in-out shrink-0 group ${
+                      isActive 
+                        ? 'bg-white text-brand-orange shadow-sm ring-1 ring-gray-200/50' 
+                        : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
+                    }`}
+                  >
+                    {tab}
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+                      isActive 
+                        ? 'bg-orange-50 text-brand-orange ring-1 ring-brand-orange/20' 
+                        : 'bg-gray-200/70 text-gray-500 group-hover:bg-gray-300/50'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Search */}
@@ -276,12 +268,13 @@ export default function Requests() {
             <colgroup>
               <col style={{ width: 44 }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '28%' }} />
               <col style={{ width: '11%' }} />
+              <col style={{ width: '22%' }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '12%' }} />
+              <col style={{ width: '14%' }} />
+              <col style={{ width: '9%' }} />
               <col style={{ width: '10%' }} />
+              <col style={{ width: '14%' }} />
             </colgroup>
             <tr style={{ borderBottom: '1px solid #F3F4F6', background: '#FAFAFA' }}>
               <th style={th({ w: 44 })}>
@@ -296,6 +289,7 @@ export default function Requests() {
               <th style={th()}>TYPE</th>
               <th style={th()}>LOCATION</th>
               <th style={th()}>SUBMITTED</th>
+              <th style={th()}>ASSIGNED LINK</th>
               <th style={th()}>PRIORITY</th>
               <th style={th()}>STATUS</th>
               <th style={{ ...th(), textAlign: 'right' }}>ACTIONS</th>
@@ -375,6 +369,18 @@ export default function Requests() {
                     <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2 }}>{row.timeSub}</div>
                   </td>
 
+                  {/* Assigned Link */}
+                  <td style={td()}>
+                    {row.publicLink ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', padding: '3px 8px', borderRadius: 6, background: '#EFF6FF', color: '#2563EB', fontSize: 11, fontWeight: 500, border: '1px solid #BFDBFE' }}>
+                        <MaterialIcon icon="link" className="text-[12px] mr-1" />
+                        {row.publicLink}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 12, color: '#9CA3AF', fontStyle: 'italic' }}>Unassigned</span>
+                    )}
+                  </td>
+
                   {/* Priority Badge */}
                   <td style={td()}>
                     <Badge status={row.priority} />
@@ -387,13 +393,25 @@ export default function Requests() {
 
                   {/* Action */}
                   <td style={{ ...td(), textAlign: 'right', paddingRight: 20 }}>
-                    <Button 
-                      variant="ghost" 
-                      icon="open_in_new" 
-                      onClick={() => setDetailRequest(row)}
-                      title="View Detail"
-                      className="w-8 h-8 p-0 flex items-center justify-center text-gray-500 hover:text-brand-orange"
-                    />
+                    <div className="flex items-center justify-end gap-2 text-gray-500">
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => row.publicLink ? window.open(`https://${row.publicLink}`, '_blank') : null}
+                        title="Preview Link"
+                        className={`w-8 h-8 p-0 flex items-center justify-center transition-colors ${row.publicLink ? 'hover:text-blue-600 hover:bg-blue-50' : 'opacity-30 cursor-not-allowed'}`}
+                        disabled={!row.publicLink}
+                      >
+                        <MaterialIcon icon="open_in_new" className="text-[16px]" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => setDetailRequest(row)}
+                        title="View Detail"
+                        className="w-8 h-8 p-0 flex items-center justify-center hover:text-brand-orange hover:bg-orange-50 transition-colors"
+                      >
+                        <MaterialIcon icon="visibility" className="text-[16px]" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -413,7 +431,7 @@ export default function Requests() {
         <div className="px-5 py-3 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white gap-3">
           <span style={{ fontSize: 13, color: '#6B7280' }}>
             Showing <strong style={{ color: '#111827' }}>1 to {filtered.length}</strong> of{' '}
-            <strong style={{ color: '#111827' }}>124</strong> requests
+            <strong style={{ color: '#111827' }}>{filtered.length}</strong> requests
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Button variant="secondary" disabled>

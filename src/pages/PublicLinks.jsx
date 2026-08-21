@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, ChevronDown, Plus, X, Copy, Edit, Trash2 } from 'lucide-react';
+import { Search, ChevronDown, Plus, X, Copy, Edit, Trash2, ExternalLink } from 'lucide-react';
 import { PublicLinksAPI } from '../mocks/api';
 import Spinner from '../components/atoms/Spinner';
 import EmptyState from '../components/molecules/EmptyState';
@@ -238,13 +238,21 @@ const PublicLinks = () => {
                     <td className="py-4 px-6">{getStatusBadge(link.status)}</td>
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" className="p-1.5 h-auto text-secondary hover:text-brand-orange hover:bg-brand-orange/10" title="Copy Link">
+                        <Button 
+                          variant="ghost" 
+                          onClick={() => window.open('/preview', '_blank')} 
+                          className="p-1.5 h-auto text-secondary hover:text-green-600 hover:bg-green-50 transition-colors" 
+                          title="Preview Link"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" className="p-1.5 h-auto text-secondary hover:text-brand-orange hover:bg-brand-orange/10 transition-colors" title="Copy Link">
                           <Copy className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" className="p-1.5 h-auto text-secondary hover:text-blue-600 hover:bg-blue-50" title="Edit Link">
+                        <Button variant="ghost" className="p-1.5 h-auto text-secondary hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Edit Link">
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" onClick={() => { setLinkToDelete(link); setDeleteModalOpen(true); }} className="p-1.5 h-auto text-secondary hover:text-error hover:bg-error/10" title="Delete Link">
+                        <Button variant="ghost" onClick={() => { setLinkToDelete(link); setDeleteModalOpen(true); }} className="p-1.5 h-auto text-secondary hover:text-error hover:bg-error/10 transition-colors" title="Delete Link">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

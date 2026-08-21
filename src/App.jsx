@@ -17,6 +17,7 @@ import PublicLinks from './pages/PublicLinks';
 import CreatePublicLink from './pages/CreatePublicLink';
 import UserProfile from './pages/UserProfile';
 import ManagePermission from './pages/ManagePermission';
+import DashboardPreview from './pages/DashboardPreview';
 import NotFound from './pages/NotFound';
 import MainLayout from './components/templates/MainLayout';
 
@@ -28,6 +29,9 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        
+        {/* Public standalone links */}
+        <Route path="/preview" element={<DashboardPreview />} />
         
         {/* Protected Application Routes wrapped in MainLayout */}
         <Route element={<MainLayout />}>
