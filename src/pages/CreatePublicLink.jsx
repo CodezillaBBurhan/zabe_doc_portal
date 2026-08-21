@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, Eye, Plus, Minus, Save } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Eye, Plus, Minus, Save, ExternalLink } from 'lucide-react';
 import { PublicLinksAPI } from '../mocks/api';
 import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import Input from '../components/atoms/Input';
@@ -53,6 +53,11 @@ const CreatePublicLink = () => {
       }
       return w;
     }));
+  };
+
+  const handlePreview = () => {
+    localStorage.setItem('dashboard_preview', JSON.stringify({ linkName, widgets }));
+    window.open('/preview', '_blank');
   };
 
   const handleSave = async () => {
@@ -119,8 +124,18 @@ const CreatePublicLink = () => {
             <Eye className="w-4 h-4 text-secondary" />
             Operational Preview
           </div>
-          <div className="px-2.5 py-1 bg-secondary-container/50 text-secondary font-label-md text-[11px] uppercase tracking-wider rounded-md font-semibold">
-            Preview Mode
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              className="h-7 px-3 text-[11px] font-semibold text-brand-orange bg-orange-50 border border-orange-100/50 hover:bg-orange-100 flex items-center shadow-sm" 
+              onClick={handlePreview}
+            >
+              <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+              Preview in New Tab
+            </Button>
+            <div className="px-2.5 py-1 bg-secondary-container/50 text-secondary font-label-md text-[11px] uppercase tracking-wider rounded-md font-semibold">
+              Preview Mode
+            </div>
           </div>
         </div>
 

@@ -376,10 +376,10 @@ const PublicLinks = () => {
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" className="p-1.5 h-auto text-secondary hover:text-blue-600 hover:bg-blue-50" title="Edit Link">
+                        <Button variant="ghost" className="p-1.5 h-auto text-secondary hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Edit Link">
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" onClick={() => { setLinkToDelete(link); setDeleteModalOpen(true); }} className="p-1.5 h-auto text-secondary hover:text-error hover:bg-error/10" title="Delete Link">
+                        <Button variant="ghost" onClick={() => { setLinkToDelete(link); setDeleteModalOpen(true); }} className="p-1.5 h-auto text-secondary hover:text-error hover:bg-error/10 transition-colors" title="Delete Link">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

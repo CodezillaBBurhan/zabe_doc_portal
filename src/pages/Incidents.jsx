@@ -23,8 +23,6 @@ const CAT_ICON = {
   Others: { icon: 'more_horiz', color: '#6B7280', bg: '#F3F4F6' },
 };
 
-const TABS = ['All Incidents', 'Active', 'Critical', 'Pending', 'Resolved'];
-
 /* ── Tiny sparkline SVG ── */
 function Sparkline({ color, up }) {
   const pts = up
@@ -110,7 +108,8 @@ export default function Incidents() {
         sub: i.location.split(' - ')[1] || '',
         location: i.location.split(' - ')[0] || '',
         time: formatTime(i.time),
-        tab: i.status === 'Resolved' ? 'Resolved' : i.severity === 'Critical' ? 'Critical' : i.status === 'Open' ? 'Pending' : 'Active'
+        tab: i.status === 'Resolved' ? 'Resolved' : i.severity === 'Critical' ? 'Critical' : i.status === 'Open' ? 'Pending' : 'Active',
+        note: null // New field for internal notes
       }));
       setIncidents(mapped);
     } catch (e) {
@@ -128,6 +127,14 @@ export default function Incidents() {
     const matchSearch = !q || r.id.toLowerCase().includes(q) || r.detail.toLowerCase().includes(q) || r.location.toLowerCase().includes(q);
     return matchTab && matchSev && matchCat && matchSearch;
   });
+
+  const tabCounts = {
+    'All Incidents': incidents.length,
+    Active: incidents.filter(r => r.tab === 'Active').length,
+    Critical: incidents.filter(r => r.tab === 'Critical').length,
+    Pending: incidents.filter(r => r.tab === 'Pending').length,
+    Resolved: incidents.filter(r => r.tab === 'Resolved').length,
+  };
 
   return (
     <div style={{ width: '100%', minWidth: 0 }}>
@@ -254,16 +261,32 @@ export default function Incidents() {
         {/* Table card */}
         <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
           {/* Tabs */}
-          <div className="flex overflow-x-auto border-b border-gray-100 px-4 custom-scrollbar">
-            {TABS.map((tab) => {
-              const active = activeTab === tab;
-              return (
-                <button key={tab} onClick={() => setActiveTab(tab)} style={{ position: 'relative', padding: '12px 14px', fontSize: 13, fontWeight: active ? 600 : 500, color: active ? '#FF5A1F' : '#6B7280', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                  {tab}
-                  {active && <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: '#FF5A1F', borderRadius: '2px 2px 0 0' }} />}
-                </button>
-              );
-            })}
+          <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar p-3 border-b border-gray-100 bg-white">
+            <div className="flex p-1 bg-gray-100/80 rounded-lg border border-gray-200/60 w-max">
+              {Object.entries(tabCounts).map(([tab, count]) => {
+                const active = activeTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`relative px-4 py-1.5 text-[13px] font-semibold rounded-md flex items-center gap-2.5 transition-all duration-200 ease-in-out shrink-0 group ${
+                      active 
+                        ? 'bg-white text-brand-orange shadow-sm ring-1 ring-gray-200/50' 
+                        : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200/50'
+                    }`}
+                  >
+                    {tab}
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+                      active 
+                        ? 'bg-orange-50 text-brand-orange ring-1 ring-brand-orange/20' 
+                        : 'bg-gray-200/70 text-gray-500 group-hover:bg-gray-300/50'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Table */}
@@ -271,12 +294,13 @@ export default function Incidents() {
             <thead>
               <tr>
                 <th style={{ ...hd, width: '13%' }}>Incident ID ↕</th>
-                <th style={{ ...hd, width: '10%' }}>Severity ↕</th>
-                <th style={{ ...hd, width: '13%' }}>Category ↕</th>
-                <th style={{ ...hd, width: '26%' }}>Detail ↕</th>
-                <th style={{ ...hd, width: '14%' }}>Location ↕</th>
-                <th style={{ ...hd, width: '12%' }}>Reported Time ↕</th>
-                <th style={{ ...hd, width: '12%', textAlign: 'right' }}>Actions</th>
+                <th style={{ ...hd, width: '9%' }}>Severity ↕</th>
+                <th style={{ ...hd, width: '12%' }}>Category ↕</th>
+                <th style={{ ...hd, width: '18%' }}>Detail ↕</th>
+                <th style={{ ...hd, width: '15%' }}>Location ↕</th>
+                <th style={{ ...hd, width: '16%' }}>Notes ↕</th>
+                <th style={{ ...hd, width: '11%' }}>Reported Time ↕</th>
+                <th style={{ ...hd, width: '6%', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -319,12 +343,27 @@ export default function Incidents() {
                       <div style={{ fontSize: 11, color: '#9CA3AF' }}>{row.sub}</div>
                     </td>
                     <td style={cell}>
+                      {row.note ? (
+                        <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          <span style={{ fontWeight: 600, color: '#FF5A1F', marginRight: 4 }}>Note:</span>
+                          {row.note}
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: 12, color: '#9CA3AF', fontStyle: 'italic' }}>No notes added</span>
+                      )}
+                    </td>
+                    <td style={cell}>
                       <div style={{ fontSize: 13, fontWeight: 500, color: '#111827' }}>{row.time}</div>
                       <div style={{ fontSize: 11, color: '#9CA3AF' }}>Today</div>
                     </td>
                     <td style={{ ...cell, textAlign: 'right' }}>
-                      <Button variant="secondary" onClick={() => setDetailIncident(row)}>
-                        View Details
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => setDetailIncident(row)}
+                        title="View Detail"
+                        className="w-8 h-8 p-0 flex items-center justify-center hover:text-brand-orange hover:bg-orange-50 transition-colors ml-auto text-gray-500"
+                      >
+                        <MaterialIcon icon="visibility" className="text-[16px]" />
                       </Button>
                     </td>
                   </tr>
@@ -336,7 +375,7 @@ export default function Incidents() {
           {/* Pagination */}
           <div style={{ padding: '12px 16px', borderTop: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 13, color: '#6B7280' }}>
-              Showing <strong style={{ color: '#111827' }}>1 to {filtered.length}</strong> of <strong style={{ color: '#111827' }}>142</strong> entries
+              Showing <strong style={{ color: '#111827' }}>1 to {filtered.length}</strong> of <strong style={{ color: '#111827' }}>{filtered.length}</strong> entries
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <Button variant="secondary" disabled>
@@ -360,7 +399,13 @@ export default function Incidents() {
       {/* ── Drawers ── */}
       {/* ── Drawers ── */}
       <ReportIncidentDrawer open={reportOpen} onClose={() => setReportOpen(false)} onSubmit={fetchIncidents} />
-      <IncidentDetailDrawer incident={detailIncident} onClose={() => setDetailIncident(null)} />
+      <IncidentDetailDrawer 
+        incident={detailIncident} 
+        onClose={() => setDetailIncident(null)} 
+        onAddNote={(id, noteText) => {
+          setIncidents(prev => prev.map(inc => inc.id === id ? { ...inc, note: noteText } : inc));
+        }}
+      />
     </div>
   );
 }

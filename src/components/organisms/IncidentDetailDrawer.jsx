@@ -36,7 +36,7 @@ const FALLBACK = {
   critical: false, timeline: [], entities: [], coords: 'N/A',
 };
 
-export default function IncidentDetailDrawer({ incident, onClose }) {
+export default function IncidentDetailDrawer({ incident, onClose, onAddNote }) {
   const [note, setNote] = useState('');
   if (!incident) return null;
   const d = DETAILS_MAP[incident.id] || { ...FALLBACK, location: incident.location + ', ' + incident.sub, category: incident.category, reporter: 'Field Officer', time: incident.time + ' Today' };
@@ -160,7 +160,15 @@ export default function IncidentDetailDrawer({ incident, onClose }) {
                       placeholder="Add an internal note..."
                       style={{ flex: 1, height: 34, padding: '0 12px', fontSize: 12, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', color: '#374151' }}
                     />
-                    <button style={{ width: 34, height: 34, border: 'none', background: '#FF5A1F', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <button 
+                      onClick={() => {
+                        if (note.trim() && onAddNote) {
+                          onAddNote(incident.id, note);
+                          setNote('');
+                        }
+                      }}
+                      style={{ width: 34, height: 34, border: 'none', background: '#FF5A1F', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
                       <MaterialIcon icon="send" className="text-[14px]" style={{ color: '#fff' }} />
                     </button>
                   </div>

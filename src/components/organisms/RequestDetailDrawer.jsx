@@ -17,6 +17,8 @@ const S_COLORS = {
   Assigned:      { bg: '#DBEAFE', color: '#2563EB' },
   'In Progress': { bg: '#EDE9FE', color: '#7C3AED' },
   Resolved:      { bg: '#DCFCE7', color: '#16A34A' },
+  Approved:      { bg: '#DCFCE7', color: '#16A34A' },
+  Rejected:      { bg: '#FEE2E2', color: '#DC2626' },
 };
 
 /* ── Section header ── */
@@ -320,7 +322,7 @@ export default function RequestDetailDrawer({ request, onClose, onApprove, onRej
                   <MaterialIcon icon="add" style={{ fontSize: 12, marginRight: 2 }} />
                   {isCreating ? 'Creating...' : 'Create Public Link'}
                 </button>
-              )}
+=======
             </div>
             
             {(() => {
@@ -492,18 +494,29 @@ export default function RequestDetailDrawer({ request, onClose, onApprove, onRej
 
         {/* ── Footer actions ── */}
         <div style={{ padding: '14px 22px', borderTop: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, flexShrink: 0, background: '#fff' }}>
-          <button
-            onClick={() => { onReject && onReject(request); onClose(); }}
-            style={{ height: 36, padding: '0 20px', borderRadius: 8, border: '1px solid #FCA5A5', background: '#fff', fontSize: 13, fontWeight: 600, color: '#DC2626', cursor: 'pointer' }}
-          >
-            Reject
-          </button>
-          <button
-            onClick={() => { onApprove && onApprove(request); onClose(); }}
-            style={{ height: 36, padding: '0 20px', borderRadius: 8, border: 'none', background: '#FF5A1F', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 1px 3px rgba(255,90,31,0.35)' }}
-          >
-            Approve Request
-          </button>
+          {request.status === 'Pending' ? (
+            <>
+              <button
+                onClick={() => { onReject && onReject(request); onClose(); }}
+                style={{ height: 36, padding: '0 20px', borderRadius: 8, border: '1px solid #FCA5A5', background: '#fff', fontSize: 13, fontWeight: 600, color: '#DC2626', cursor: 'pointer' }}
+              >
+                Reject
+              </button>
+              <button
+                onClick={() => { onApprove && onApprove(request); onClose(); }}
+                style={{ height: 36, padding: '0 20px', borderRadius: 8, border: 'none', background: '#FF5A1F', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 1px 3px rgba(255,90,31,0.35)' }}
+              >
+                Approve Request
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={onClose}
+              style={{ height: 36, padding: '0 20px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer' }}
+            >
+              Close Details
+            </button>
+          )}
         </div>
       </div>
     </>
