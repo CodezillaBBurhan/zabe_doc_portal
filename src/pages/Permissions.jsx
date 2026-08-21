@@ -13,7 +13,7 @@ export default function Permissions() {
   // Roles State
   const [roles, setRoles] = useState([]);
   const [isLoadingRoles, setIsLoadingRoles] = useState(true);
-  
+
   // Permissions State
   const [permissions, setPermissions] = useState([]);
   const [isLoadingPermissions, setIsLoadingPermissions] = useState(true);
@@ -49,7 +49,7 @@ export default function Permissions() {
     } catch (e) { console.error(e); } finally { setIsLoadingPermissions(false); }
   };
 
-  const filteredRoles = roles.filter(r => 
+  const filteredRoles = roles.filter(r =>
     !search || r.name.toLowerCase().includes(search.toLowerCase()) || r.description.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -139,10 +139,10 @@ export default function Permissions() {
 
   return (
     <div className="flex flex-col w-full pb-10 relative min-h-screen">
-      
+
       {/* Breadcrumb */}
       <div className="flex items-center text-[13px] mb-4">
-        <span className="text-gray-500 hover:text-gray-700 cursor-pointer transition-colors">Team & Permissions</span>
+        <span className="text-gray-500 hover:text-gray-700 cursor-pointer transition-colors">Principal</span>
         <MaterialIcon icon="chevron_right" className="text-gray-400 mx-1 text-[18px]" />
         <span className="text-gray-900 font-semibold">Roles & Permissions</span>
       </div>
@@ -163,14 +163,14 @@ export default function Permissions() {
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200 mb-6 gap-6">
-        <button 
+        <button
           onClick={() => { setActiveTab('roles'); setSearch(''); }}
           className={`pb-3 text-[14px] font-semibold transition-colors relative ${activeTab === 'roles' ? 'text-[#ff5a1f]' : 'text-gray-500 hover:text-gray-800'}`}
         >
           Roles
           {activeTab === 'roles' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#ff5a1f] rounded-t" />}
         </button>
-        <button 
+        <button
           onClick={() => { setActiveTab('permissions'); setSearch(''); }}
           className={`pb-3 text-[14px] font-semibold transition-colors relative ${activeTab === 'permissions' ? 'text-[#ff5a1f]' : 'text-gray-500 hover:text-gray-800'}`}
         >
@@ -184,7 +184,7 @@ export default function Permissions() {
         <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-[#e4e7ec] gap-4 w-full">
           <div className="relative w-full sm:w-[320px]">
             <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" />
-            <input 
+            <input
               type="text" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder={activeTab === 'roles' ? "Search roles..." : "Search permissions..."}
               className="w-full pl-10 pr-4 py-2 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700"
@@ -291,9 +291,9 @@ export default function Permissions() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <ConfirmDialog 
-        isOpen={deleteModalOpen} 
-        onClose={() => setDeleteModalOpen(false)} 
+      <ConfirmDialog
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
         onConfirm={confirmDelete}
         title={`Delete ${activeTab === 'roles' ? 'Role' : 'Permission'}?`}
         message={`Are you sure you want to delete "${itemToDelete?.name || itemToDelete?.title}"? This action cannot be undone.`}
@@ -306,11 +306,11 @@ export default function Permissions() {
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setIsDrawerOpen(false)} />
           <div className="relative w-full max-w-md bg-white shadow-2xl h-full flex flex-col animate-slideInRight">
-            
+
             <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
               <h2 className="text-[20px] font-bold text-gray-900">
-                {editingItem 
-                  ? (activeTab === 'roles' ? 'Edit Role' : 'Edit Permission') 
+                {editingItem
+                  ? (activeTab === 'roles' ? 'Edit Role' : 'Edit Permission')
                   : (activeTab === 'roles' ? 'Create Role' : 'Create Permission')
                 }
               </h2>
@@ -320,29 +320,29 @@ export default function Permissions() {
             </div>
 
             <div className="p-6 flex-1 overflow-y-auto">
-              
+
               {activeTab === 'roles' ? (
                 <>
                   <div className="mb-5">
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Role Name</label>
-                    <input 
-                      value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})}
+                    <input
+                      value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
                       placeholder="e.g. Data Analyst"
                     />
                   </div>
                   <div className="mb-5">
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
-                    <textarea 
-                      value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})}
+                    <textarea
+                      value={formData.description || ''} onChange={e => setFormData({ ...formData, description: e.target.value })}
                       className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f] min-h-[80px]"
                       placeholder="Role description..."
                     />
                   </div>
                   <div className="mb-8">
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Status</label>
-                    <select 
-                      value={formData.status || 'Active'} onChange={e => setFormData({...formData, status: e.target.value})}
+                    <select
+                      value={formData.status || 'Active'} onChange={e => setFormData({ ...formData, status: e.target.value })}
                       className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
                     >
                       <option value="Active">Active</option>
@@ -373,24 +373,24 @@ export default function Permissions() {
                 <>
                   <div className="mb-5">
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Permission Title</label>
-                    <input 
-                      value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})}
+                    <input
+                      value={formData.title || ''} onChange={e => setFormData({ ...formData, title: e.target.value })}
                       className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
                       placeholder="e.g. Delete Reports"
                     />
                   </div>
                   <div className="mb-5">
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Permission Key</label>
-                    <input 
-                      value={formData.key || ''} onChange={e => setFormData({...formData, key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_')})}
+                    <input
+                      value={formData.key || ''} onChange={e => setFormData({ ...formData, key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })}
                       className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f] font-mono text-[13px]"
                       placeholder="e.g. delete_reports"
                     />
                   </div>
                   <div className="mb-5">
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Module</label>
-                    <select 
-                      value={formData.module || ''} onChange={e => setFormData({...formData, module: e.target.value})}
+                    <select
+                      value={formData.module || ''} onChange={e => setFormData({ ...formData, module: e.target.value })}
                       className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
                     >
                       <option value="Analytics">Analytics</option>
@@ -403,16 +403,16 @@ export default function Permissions() {
                   </div>
                   <div className="mb-5">
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
-                    <textarea 
-                      value={formData.desc || ''} onChange={e => setFormData({...formData, desc: e.target.value})}
+                    <textarea
+                      value={formData.desc || ''} onChange={e => setFormData({ ...formData, desc: e.target.value })}
                       className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f] min-h-[80px]"
                       placeholder="What does this permission allow?"
                     />
                   </div>
                   <div className="mb-8">
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Status</label>
-                    <select 
-                      value={formData.status || 'Active'} onChange={e => setFormData({...formData, status: e.target.value})}
+                    <select
+                      value={formData.status || 'Active'} onChange={e => setFormData({ ...formData, status: e.target.value })}
                       className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
                     >
                       <option value="Active">Active</option>

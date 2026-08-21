@@ -58,7 +58,7 @@ export default function Sidebar({ isOpen, onClose }) {
         <SidebarLink icon="link" label="Public Links" to="/links" active={currentPath === '/links'} />
         <SidebarLink icon="admin_panel_settings" label="Roles & Permissions" to="/permissions" active={currentPath === '/permissions'} />
         <SidebarLink icon="people" label="Users" to="/members" active={currentPath === '/members'} />
-        <SidebarLink icon="group" label="Team Members" to="/team" active={currentPath === '/team'} />
+        <SidebarLink icon="group" label="Principals" to="/team" active={currentPath === '/team'} />
 
         <SidebarLink icon="list_alt" label="Audit Logs" to="/logs" active={currentPath === '/logs'} />
         <SidebarLink icon="settings" label="Settings" to="/settings" active={currentPath === '/settings'} />
