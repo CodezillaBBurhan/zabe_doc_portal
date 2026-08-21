@@ -19,6 +19,7 @@ import UserProfile from './pages/UserProfile';
 import ManagePermission from './pages/ManagePermission';
 import NotFound from './pages/NotFound';
 import MainLayout from './components/templates/MainLayout';
+import ViewPublicLink from './pages/ViewPublicLink';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path="/tv" element={<SituationRoom />} />
           <Route path="/links" element={<PublicLinks />} />
           <Route path="/links/create" element={<CreatePublicLink />} />
+          <Route path="/links/view/:id" element={<ViewPublicLink />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/manage-permission" element={<ManagePermission />} />
           {/* Add all other internal pages here */}

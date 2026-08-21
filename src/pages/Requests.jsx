@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { RequestsAPI } from '../mocks/api';
 import Spinner from '../components/atoms/Spinner';
 import EmptyState from '../components/molecules/EmptyState';
@@ -84,6 +85,8 @@ const KPI_CARDS = [
 export default function Requests() {
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [publicLinks, setPublicLinks] = useState([]);
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
@@ -93,6 +96,7 @@ export default function Requests() {
 
   useEffect(() => {
     fetchRequests();
+    setPublicLinks(JSON.parse(localStorage.getItem('metabase_public_links') || '[]'));
   }, []);
 
   const fetchRequests = async () => {
@@ -390,7 +394,20 @@ export default function Requests() {
 
                   {/* Req ID */}
                   <td style={td()}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{row.id}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block' }}>{row.id}</span>
+                    {publicLinks.find(l => l.requestId === row.id) && (
+                      <span 
+                        onClick={() => {
+                          const link = publicLinks.find(l => l.requestId === row.id);
+                          navigate(`/links/view/${link.id}`, { state: { from: '/requests' } });
+                        }} 
+                        style={{ fontSize: 11, fontWeight: 500, color: '#FF5A1F', cursor: 'pointer', marginTop: 4, display: 'inline-block' }}
+                        onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                        onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                      >
+                        View Dashboard
+                      </span>
+                    )}
                   </td>
 
                   {/* Type */}
@@ -459,22 +476,24 @@ export default function Requests() {
 
                   {/* Action */}
                   <td style={{ ...td(), textAlign: 'right', paddingRight: 20 }}>
-                    <button
-                      style={{
-                        width: 32, height: 32,
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                        border: '1px solid #E5E7EB', borderRadius: 8,
-                        background: '#fff', color: '#6B7280',
-                        cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                        transition: 'all .15s',
-                      }}
-                      title="View Detail"
-                      onClick={() => setDetailRequest(row)}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = '#FF5A1F'; e.currentTarget.style.borderColor = '#FDBA74'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.borderColor = '#E5E7EB'; }}
-                    >
-                      <MaterialIcon icon="open_in_new" className="text-[14px]" />
-                    </button>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, alignItems: 'center' }}>
+                      <button
+                        style={{
+                          width: 32, height: 32,
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          border: '1px solid #E5E7EB', borderRadius: 8,
+                          background: '#fff', color: '#6B7280',
+                          cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                          transition: 'all .15s',
+                        }}
+                        title="View Detail"
+                        onClick={() => setDetailRequest(row)}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = '#FF5A1F'; e.currentTarget.style.borderColor = '#FDBA74'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.borderColor = '#E5E7EB'; }}
+                      >
+                        <MaterialIcon icon="open_in_new" className="text-[14px]" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -513,7 +532,10 @@ export default function Requests() {
       {/* ── Request Detail Drawer ── */}
       <RequestDetailDrawer
         request={detailRequest}
-        onClose={() => setDetailRequest(null)}
+        onClose={() => {
+          setDetailRequest(null);
+          setPublicLinks(JSON.parse(localStorage.getItem('metabase_public_links') || '[]'));
+        }}
         onApprove={(r) => console.log('Approved:', r.id)}
         onReject={(r) => console.log('Rejected:', r.id)}
       />

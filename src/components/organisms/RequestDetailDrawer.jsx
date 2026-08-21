@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import MaterialIcon from '../atoms/MaterialIcon';
+import { provisionDefaultDashboard } from '../../utils/metabase-api';
 
 /* ── Priority badge colours ── */
 const P_COLORS = {
@@ -86,6 +88,25 @@ const DETAILS = {
 };
 
 export default function RequestDetailDrawer({ request, onClose, onApprove, onReject }) {
+  const [links, setLinks] = useState([]);
+  const [selectedLink, setSelectedLink] = useState('');
+  const [isPastingLink, setIsPastingLink] = useState(false);
+  const [pastedLink, setPastedLink] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('metabase_public_links');
+    if (stored) {
+      setLinks(JSON.parse(stored));
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsPastingLink(false);
+    setPastedLink('');
+    setSelectedLink('');
+  }, [request?.id]);
+
   if (!request) return null;
 
   const pStyle  = P_COLORS[request.priority] || P_COLORS.Low;
@@ -202,19 +223,240 @@ export default function RequestDetailDrawer({ request, onClose, onApprove, onRej
           <div style={{ marginBottom: 22 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
               <Section title="PUBLIC LINK ASSIGNMENT" />
-              <Link to="/links/create" style={{ fontSize: 11, fontWeight: 600, color: '#EA580C', display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-                <MaterialIcon icon="add" style={{ fontSize: 12, marginRight: 2 }} />
-                Create Public Link
-              </Link>
+              {isPastingLink ? (
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <input
+                    type="text"
+                    placeholder="Paste Metabase Link..."
+                    value={pastedLink}
+                    onChange={(e) => setPastedLink(e.target.value)}
+                    style={{ fontSize: 11, padding: '4px 8px', border: '1px solid #E5E7EB', borderRadius: 4 }}
+                  />
+                  <button
+                    onClick={() => {
+                      if (pastedLink) {
+                        const pending = JSON.parse(localStorage.getItem('pending_metabase_dashboards') || '{}');
+                        let internalId = null;
+                        if (pending[request.id]) {
+                          internalId = pending[request.id];
+                          delete pending[request.id];
+                          localStorage.setItem('pending_metabase_dashboards', JSON.stringify(pending));
+                        }
+
+                        const existingIdx = links.findIndex(l => l.requestId === request.id);
+                        let updated = [...links];
+                        if (existingIdx >= 0) {
+                          updated[existingIdx] = { ...updated[existingIdx], url: pastedLink, ...(internalId ? { internalDashId: internalId } : {}) };
+                        } else {
+                          const newLink = {
+                            id: 'mb-' + Date.now(),
+                            name: `Dashboard for ${request.id}`,
+                            url: pastedLink,
+                            destination: `/requests/${request.id}`,
+                            createdBy: 'Current User',
+                            views: 0,
+                            created: new Date().toLocaleDateString(),
+                            expiry: 'Never',
+                            status: 'Active',
+                            isMetabase: true,
+                            requestId: request.id,
+                            internalDashId: internalId
+                          };
+                          updated = [newLink, ...updated];
+                        }
+                        setLinks(updated);
+                        localStorage.setItem('metabase_public_links', JSON.stringify(updated));
+                        
+                        setSelectedLink(pastedLink);
+                        setIsPastingLink(false);
+                        setPastedLink('');
+                      }
+                    }}
+                    style={{ fontSize: 11, background: '#EA580C', color: 'white', border: 'none', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsPastingLink(false);
+                      setPastedLink('');
+                    }}
+                    style={{ fontSize: 11, background: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 4, padding: '4px 8px', cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : links.find(l => l.requestId === request.id) ? null : (
+                <button
+                  onClick={async () => {
+                    setIsCreating(true);
+                    try {
+                      let dashId;
+                      const pending = JSON.parse(localStorage.getItem('pending_metabase_dashboards') || '{}');
+                      if (pending[request.id]) {
+                        dashId = pending[request.id];
+                      } else {
+                        const dashboardName = request.type && request.location 
+                          ? `${request.type} Analytics - ${request.location} (${request.id})`
+                          : `Analytics for Request ${request.id}`;
+                          
+                        const dash = await provisionDefaultDashboard(dashboardName);
+                        dashId = dash.id;
+                        pending[request.id] = dashId;
+                        localStorage.setItem('pending_metabase_dashboards', JSON.stringify(pending));
+                      }
+                      window.open(`http://localhost:3000/dashboard/${dashId}`, '_blank');
+                      setIsPastingLink(true);
+                    } catch (e) {
+                      console.error(e);
+                      alert("Failed to create dashboard. Is Metabase running?");
+                    } finally {
+                      setIsCreating(false);
+                    }
+                  }}
+                  disabled={isCreating}
+                  style={{ fontSize: 11, fontWeight: 600, color: '#EA580C', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  <MaterialIcon icon="add" style={{ fontSize: 12, marginRight: 2 }} />
+                  {isCreating ? 'Creating...' : 'Create Public Link'}
+                </button>
+              )}
             </div>
-            <div style={{ position: 'relative', marginTop: -4 }}>
-              <select style={{ width: '100%', padding: '10px 12px', paddingRight: 40, fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 10, outline: 'none', color: '#111827', appearance: 'none', background: '#FAFAFA', cursor: 'pointer', fontWeight: 500 }}>
-                <option value="">Select Existing Link...</option>
-                <option value="kano">Kano North</option>
-                <option value="lagos">Lagos Central</option>
-              </select>
-              <MaterialIcon icon="expand_more" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none', fontSize: 18 }} />
-            </div>
+            
+            {(() => {
+              const existingLink = links.find(l => l.requestId === request.id);
+              if (!isPastingLink && existingLink) {
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: 10, marginTop: -4 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                      <span style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 2 }}>Assigned Dashboard</span>
+                      <span style={{ fontSize: 13, color: '#111827', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: 10 }}>
+                        {existingLink.url}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {existingLink.internalDashId && (
+                        <button
+                          onClick={() => window.open(`http://localhost:3000/dashboard/${existingLink.internalDashId}`, '_blank')}
+                          style={{ fontSize: 12, color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: '4px 8px', borderRadius: 6 }}
+                        >
+                          Edit Dashboard
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          const updated = links.map(l => {
+                            if (l.requestId === request.id) {
+                              const newL = { ...l };
+                              delete newL.requestId;
+                              return newL;
+                            }
+                            return l;
+                          });
+                          setLinks(updated);
+                          localStorage.setItem('metabase_public_links', JSON.stringify(updated));
+                          setSelectedLink('');
+                        }}
+                        style={{ fontSize: 12, color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: '4px 8px', borderRadius: 6 }}
+                      >
+                        Remove
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsPastingLink(true);
+                          setPastedLink(existingLink.url);
+                        }}
+                        style={{ fontSize: 12, color: '#EA580C', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: '4px 8px', borderRadius: 6 }}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+              if (!isPastingLink && !existingLink) {
+                return (
+                  <div style={{ position: 'relative', marginTop: -4 }}>
+                    <select 
+                      value={selectedLink}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedLink(val);
+                        if (val) {
+                          const selectedExistingLink = links.find(l => l.url === val);
+                          let updated = [...links];
+
+                          const pending = JSON.parse(localStorage.getItem('pending_metabase_dashboards') || '{}');
+                          let internalId = null;
+                          if (pending[request.id]) {
+                            internalId = pending[request.id];
+                            delete pending[request.id];
+                            localStorage.setItem('pending_metabase_dashboards', JSON.stringify(pending));
+                          }
+
+                          if (selectedExistingLink) {
+                            // Unlink any currently assigned link for this request
+                            updated = updated.map(l => {
+                              if (l.requestId === request.id) {
+                                const newL = { ...l };
+                                delete newL.requestId;
+                                return newL;
+                              }
+                              return l;
+                            });
+                            // Assign the selected link to this request
+                            const linkIdx = updated.findIndex(l => l.id === selectedExistingLink.id);
+                            if (linkIdx >= 0) {
+                              updated[linkIdx] = { 
+                                ...updated[linkIdx], 
+                                requestId: request.id, 
+                                destination: `/requests/${request.id}`,
+                                ...(internalId ? { internalDashId: internalId } : {})
+                              };
+                            }
+                          } else {
+                            // Fallback for mocks
+                            const existingIdx = links.findIndex(l => l.requestId === request.id);
+                            if (existingIdx >= 0) {
+                              updated[existingIdx] = { ...updated[existingIdx], url: val, ...(internalId ? { internalDashId: internalId } : {}) };
+                            } else {
+                              const newLink = {
+                                id: 'mb-' + Date.now(),
+                                name: `Dashboard for ${request.id}`,
+                                url: val,
+                                destination: `/requests/${request.id}`,
+                                createdBy: 'Current User',
+                                views: 0,
+                                created: new Date().toLocaleDateString(),
+                                expiry: 'Never',
+                                status: 'Active',
+                                isMetabase: true,
+                                requestId: request.id,
+                                internalDashId: internalId
+                              };
+                              updated = [newLink, ...updated];
+                            }
+                          }
+                          setLinks(updated);
+                          localStorage.setItem('metabase_public_links', JSON.stringify(updated));
+                        }
+                      }}
+                      style={{ width: '100%', padding: '10px 12px', paddingRight: 40, fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 10, outline: 'none', color: '#111827', appearance: 'none', background: '#FAFAFA', cursor: 'pointer', fontWeight: 500 }}
+                    >
+                      <option value="">Select Existing Link...</option>
+                      {links.map((l) => (
+                        <option key={l.id} value={l.url}>{l.name}</option>
+                      ))}
+                      <option value="kano">Kano North (Mock)</option>
+                      <option value="lagos">Lagos Central (Mock)</option>
+                    </select>
+                    <MaterialIcon icon="expand_more" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none', fontSize: 18 }} />
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
           </div>
 
           {/* HISTORY */}

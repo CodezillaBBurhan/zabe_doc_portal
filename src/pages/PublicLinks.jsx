@@ -6,6 +6,7 @@ import EmptyState from '../components/molecules/EmptyState';
 import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import GlobalTable from '../components/organisms/GlobalTable';
 import { useNavigate } from 'react-router-dom';
+import { provisionDefaultDashboard, getDashboardDetailsFromUrl } from '../utils/metabase-api';
 
 const PublicLinks = () => {
   const navigate = useNavigate();
@@ -15,6 +16,10 @@ const PublicLinks = () => {
   // Delete state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState(null);
+  
+  // Save link state
+  const [showPasteLink, setShowPasteLink] = useState(false);
+  const [pastedLink, setPastedLink] = useState('');
 
   useEffect(() => {
     fetchLinks();
@@ -31,7 +36,11 @@ const PublicLinks = () => {
         created: link.createdOn || link.created,
         expiry: 'Never' // mock expiry
       }));
-      setLinksData(mapped);
+      
+      const localLinksStr = localStorage.getItem('metabase_public_links');
+      const localLinks = localLinksStr ? JSON.parse(localLinksStr) : [];
+      
+      setLinksData([...localLinks, ...mapped]);
     } catch (e) {
       console.error(e);
     } finally {
@@ -43,16 +52,25 @@ const PublicLinks = () => {
     if (linkToDelete) {
       setIsLoading(true);
       try {
-        await PublicLinksAPI.delete(linkToDelete.id);
+        if (!linkToDelete.isMetabase) {
+          await PublicLinksAPI.delete(linkToDelete.id);
+        } else {
+          const localStr = localStorage.getItem('metabase_public_links');
+          if (localStr) {
+            const localLinks = JSON.parse(localStr);
+            const updated = localLinks.filter((l) => l.id !== linkToDelete.id);
+            localStorage.setItem('metabase_public_links', JSON.stringify(updated));
+          }
+        }
         setLinksData(linksData.filter(l => l.id !== linkToDelete.id));
       } catch (err) {
         console.error(err);
       } finally {
         setIsLoading(false);
+        setDeleteModalOpen(false);
+        setLinkToDelete(null);
       }
     }
-    setDeleteModalOpen(false);
-    setLinkToDelete(null);
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -116,13 +134,110 @@ const PublicLinks = () => {
           <h1 className="font-display-lg text-display-lg text-on-surface mb-2">Public Links</h1>
           <p className="font-body-md text-body-md text-secondary">Manage secure public-facing election information links.</p>
         </div>
-        <button 
-          onClick={() => navigate('/links/create')}
-          className="flex items-center gap-2 bg-brand-orange hover:opacity-90 text-white px-4 py-2.5 rounded-lg font-label-md text-label-md transition-opacity shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Create Public Link
-        </button>
+        <div className="flex gap-2">
+          {showPasteLink ? (
+            <div className="flex items-center gap-2">
+              <input 
+                type="text" 
+                placeholder="Paste Metabase Link..." 
+                value={pastedLink}
+                onChange={(e) => setPastedLink(e.target.value)}
+                className="px-3 py-2 bg-surface-container-lowest shadow-sm rounded-lg font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-brand-orange border-none"
+              />
+              <button 
+                onClick={async () => {
+                  if (pastedLink) {
+                    const existing = localStorage.getItem('metabase_public_links');
+                    const parsed = existing ? JSON.parse(existing) : [];
+
+                    const isDuplicate = parsed.some(l => l.url === pastedLink);
+                    if (isDuplicate) {
+                      alert('This dashboard link already exists in the system.');
+                      return;
+                    }
+
+                    setIsLoading(true);
+                    let dashDetails = null;
+                    try {
+                      dashDetails = await getDashboardDetailsFromUrl(pastedLink);
+                    } catch(e) {
+                      console.error(e);
+                    }
+                    setIsLoading(false);
+
+                    const newLink = {
+                      id: 'mb-' + Date.now(),
+                      name: dashDetails?.name || `Public Dashboard - ${new Date().toLocaleString()}`,
+                      url: pastedLink,
+                      destination: '/dashboards/national',
+                      createdBy: 'Current User',
+                      views: 0,
+                      created: dashDetails?.created_at ? new Date(dashDetails.created_at).toLocaleDateString() : new Date().toLocaleDateString(),
+                      expiry: 'Never',
+                      status: 'Active',
+                      isMetabase: true
+                    };
+
+                    const pending = JSON.parse(localStorage.getItem('pending_metabase_dashboards') || '{}');
+                    if (pending['public_page_pending_dash']) {
+                      delete pending['public_page_pending_dash'];
+                      localStorage.setItem('pending_metabase_dashboards', JSON.stringify(pending));
+                    }
+
+                    localStorage.setItem('metabase_public_links', JSON.stringify([newLink, ...parsed]));
+                    setLinksData([newLink, ...linksData]);
+                    setShowPasteLink(false);
+                    setPastedLink('');
+                  }
+                }}
+                disabled={isLoading}
+                className={`bg-brand-orange text-white px-4 py-2.5 rounded-lg font-label-md transition-opacity shadow-sm ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              >
+                {isLoading ? 'Saving...' : 'Save'}
+              </button>
+              <button onClick={() => setShowPasteLink(false)} className="text-secondary px-2">Cancel</button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setShowPasteLink(true)}
+                className="flex items-center gap-2 bg-surface-container-lowest border border-surface-container-highest hover:bg-surface-container text-on-surface px-4 py-2.5 rounded-lg font-label-md text-label-md transition-colors shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+                Add Existing Link
+              </button>
+              <button 
+                onClick={async () => {
+                  setIsLoading(true);
+                  try {
+                    let dashId;
+                    const pending = JSON.parse(localStorage.getItem('pending_metabase_dashboards') || '{}');
+                    if (pending['public_page_pending_dash']) {
+                      dashId = pending['public_page_pending_dash'];
+                    } else {
+                      const shortId = Math.random().toString(36).substring(2, 6).toUpperCase();
+                      const dash = await provisionDefaultDashboard(`Public Dashboard (${shortId})`);
+                      dashId = dash.id;
+                      pending['public_page_pending_dash'] = dashId;
+                      localStorage.setItem('pending_metabase_dashboards', JSON.stringify(pending));
+                    }
+                    window.open(`http://localhost:3000/dashboard/${dashId}`, '_blank');
+                    setShowPasteLink(true);
+                  } catch (e) {
+                    console.error(e);
+                    alert("Failed to create dashboard. Is Metabase running?");
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
+                className="flex items-center gap-2 bg-brand-orange hover:opacity-90 text-white px-4 py-2.5 rounded-lg font-label-md text-label-md transition-opacity shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+                {isLoading ? 'Creating...' : 'Create Public Link'}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -241,7 +356,13 @@ const PublicLinks = () => {
                   <tr key={link.id} className="hover:bg-surface-container-lowest/50 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-headline-sm text-headline-sm text-on-surface leading-tight">{link.name}</div>
-                      <div className="font-body-sm text-body-sm text-secondary mt-1">{link.url}</div>
+                      <div className="font-body-sm text-body-sm text-secondary mt-1">
+                        {link.isMetabase ? (
+                          <span onClick={() => navigate(`/links/view/${link.id}`, { state: { from: '/links' } })} className="text-brand-orange hover:underline cursor-pointer font-medium">View Dashboard</span>
+                        ) : (
+                          <a href={link.url} target="_blank" rel="noreferrer" className="text-brand-orange hover:underline font-medium">View Dashboard</a>
+                        )}
+                      </div>
                     </td>
                     <td className="py-4 px-6 font-body-md text-body-md text-on-surface">{link.destination}</td>
                     <td className="py-4 px-6 font-body-md text-body-md text-on-surface">{link.createdBy}</td>
@@ -251,7 +372,14 @@ const PublicLinks = () => {
                     <td className="py-4 px-6">{getStatusBadge(link.status)}</td>
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-end gap-1">
-                        <button className="p-1.5 text-secondary hover:text-brand-orange hover:bg-brand-orange/10 rounded-md transition-colors" title="Copy Link">
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(link.url);
+                            alert('Link copied to clipboard!');
+                          }}
+                          className="p-1.5 text-secondary hover:text-brand-orange hover:bg-brand-orange/10 rounded-md transition-colors" 
+                          title="Copy Link"
+                        >
                           <Copy className="w-4 h-4" />
                         </button>
                         <button className="p-1.5 text-secondary hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Edit Link">
