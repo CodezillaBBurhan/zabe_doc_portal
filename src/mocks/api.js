@@ -56,11 +56,15 @@ export const RequestsAPI = new MockApiService('requests');
 export const IncidentsAPI = new MockApiService('incidents');
 export const AuditLogsAPI = new MockApiService('auditLogs');
 export const PublicLinksAPI = new MockApiService('publicLinks');
+export const RolesAPI = new MockApiService('roles');
+export const PermissionsAPI = new MockApiService('permissions');
 
 export default {
   Members: MembersAPI,
   Requests: RequestsAPI,
   Incidents: IncidentsAPI,
   AuditLogs: AuditLogsAPI,
-  PublicLinks: PublicLinksAPI
+  PublicLinks: PublicLinksAPI,
+  Roles: RolesAPI,
+  Permissions: PermissionsAPI
 };

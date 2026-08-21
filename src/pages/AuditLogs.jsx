@@ -17,19 +17,19 @@ const generateMockLogs = () => {
   const actions = ['Data_Sync', 'Override_Config', 'Export_Report', 'Modify_Perms', 'Health_Check', 'Login_Attempt', 'Purge_Logs'];
   const modules = ['Voter_DB', 'Core_Routing', 'Reports', 'Auth_Control', 'Infrastructure', 'System'];
   const targets = ['tbl_precinct', 'node_alpha_config', 'turnout_Q3_config', 'usr_grp_field', 'cluster_node', 'api_gateway', 'db_replica'];
-  
+
   const logs = [];
   const now = new Date();
-  
+
   for (let i = 0; i < 300; i++) {
     const user = users[Math.floor(Math.random() * users.length)];
     // Bias towards last 24h
-    const timeOffset = Math.random() > 0.4 
+    const timeOffset = Math.random() > 0.4
       ? Math.random() * 24 * 60 * 60 * 1000 // last 24h
       : Math.random() * 30 * 24 * 60 * 60 * 1000; // last 30d
-      
+
     const timestamp = new Date(now.getTime() - timeOffset);
-    
+
     // Create some logical correlation
     const isError = Math.random() > 0.85;
     const severity = isError ? (Math.random() > 0.5 ? 'Critical' : 'High') : (Math.random() > 0.5 ? 'Low' : 'Medium');
@@ -47,7 +47,7 @@ const generateMockLogs = () => {
       status
     });
   }
-  
+
   return logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 };
 
@@ -59,7 +59,7 @@ export default function AuditLogs() {
   // Filter States
   const [showFilters, setShowFilters] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState('24h'); // '24h', '7d', '30d', 'All'
+  const [dateFilter, setDateFilter] = useState('All'); // '24h', '7d', '30d', 'All'
   const [userFilter, setUserFilter] = useState('All');
   const [severityFilter, setSeverityFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -89,16 +89,16 @@ export default function AuditLogs() {
       // Search
       const s = searchTerm.toLowerCase();
       const searchMatch = !s || [log.user, log.action, log.module, log.target, log.role].some(val => val.toLowerCase().includes(s));
-      
+
       // User
       const userMatch = userFilter === 'All' || log.user === userFilter;
-      
+
       // Severity
       const severityMatch = severityFilter === 'All' || log.severity === severityFilter;
-      
+
       // Status
       const statusMatch = statusFilter === 'All' || log.status === statusFilter;
-      
+
       // Date
       const now = new Date();
       const logTime = new Date(log.timestamp);
@@ -173,7 +173,7 @@ export default function AuditLogs() {
   // Chart calculation (last 24h)
   const chartBars = useMemo(() => {
     const now = new Date();
-    const bars = Array.from({length: 24}).map((_, i) => {
+    const bars = Array.from({ length: 24 }).map((_, i) => {
       const bucketStart = new Date(now.getTime() - (24 - i) * 60 * 60 * 1000);
       const bucketEnd = new Date(now.getTime() - (23 - i) * 60 * 60 * 1000);
       const eventsInBucket = filteredLogs.filter(l => {
@@ -183,9 +183,9 @@ export default function AuditLogs() {
       const cCount = eventsInBucket.filter(l => l.severity === 'Critical').length;
       return { count: eventsInBucket.length, isCritical: cCount > 0 };
     });
-    
+
     const maxCount = Math.max(...bars.map(b => b.count), 1); // prevent /0
-    
+
     return bars.map(b => ({
       height: `${(b.count / maxCount) * 100}%`,
       isCritical: b.isCritical,
@@ -197,18 +197,23 @@ export default function AuditLogs() {
   const handleExportCSV = () => {
     const headers = ['Timestamp', 'User', 'Role', 'Action', 'Module', 'Target'];
     const rows = filteredLogs.map(log => [
-      new Date(log.timestamp).toLocaleString(),
-      log.user, log.role, log.action, log.module, log.target
+      `"${new Date(log.timestamp).toLocaleString()}"`,
+      `"${log.user}"`,
+      `"${log.role}"`,
+      `"${log.action}"`,
+      `"${log.module}"`,
+      `"${log.target}"`
     ]);
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
     link.setAttribute("download", "audit-logs.csv");
     document.body.appendChild(link);
     link.click();
     link.remove();
+    URL.revokeObjectURL(url);
     setExportMenuOpen(false);
   };
 
@@ -216,9 +221,9 @@ export default function AuditLogs() {
     setExportMenuOpen(false);
     const element = document.getElementById('audit-dashboard');
     if (!element) return;
-    
+
     try {
-      const canvas = await html2canvas(element, { 
+      const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false
@@ -227,7 +232,7 @@ export default function AuditLogs() {
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
+
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save('audit-logs-report.pdf');
     } catch (error) {
@@ -240,12 +245,12 @@ export default function AuditLogs() {
     const d = new Date(isoString);
     return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   };
-  
+
   const formatTimeWithSeconds = (isoString) => {
     const d = new Date(isoString);
     return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   };
-  
+
   const formatDateTime = (isoString) => {
     const d = new Date(isoString);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -266,7 +271,7 @@ export default function AuditLogs() {
 
   return (
     <div id="audit-dashboard" className="flex flex-col gap-6 w-full pb-10 bg-gray-50 min-h-screen">
-      
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -274,22 +279,22 @@ export default function AuditLogs() {
           <p className="text-[14px] text-gray-500 mt-1">Track every important action performed across the Election Center.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto relative" ref={exportMenuRef}>
-          <button 
+          {/* <button 
             onClick={() => setShowFilters(!showFilters)}
             className={`flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 border rounded-md shadow-sm text-sm font-medium flex transition-colors ${showFilters ? 'bg-gray-100 border-gray-300 text-gray-800' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`}
           >
             <MaterialIcon icon="filter_list" className="text-gray-500 text-[20px]" />
             Filter {activeFilters.length > 0 && <span className="ml-1 bg-brand-orange text-white text-[10px] px-1.5 py-0.5 rounded-full">{activeFilters.length}</span>}
-          </button>
-          
-          <button 
+          </button> */}
+
+          <button
             onClick={() => setExportMenuOpen(!exportMenuOpen)}
             className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-[#ff8c42] hover:bg-[#ff7a22] text-white rounded-md shadow-sm text-sm font-medium flex transition-colors"
           >
             <MaterialIcon icon="download" className="text-white text-[20px]" />
             Export
           </button>
-          
+
           {/* Export Dropdown */}
           {exportMenuOpen && (
             <div className="absolute right-0 top-[110%] w-48 bg-white border border-gray-200 shadow-xl rounded-md z-50 overflow-hidden">
@@ -310,17 +315,17 @@ export default function AuditLogs() {
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <div className="relative flex-1 w-full sm:w-[40%]">
               <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search users, actions, targets..." 
+                placeholder="Search users, actions, targets..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-brand-orange"
               />
             </div>
-            
+
             <div className="relative w-full sm:w-[20%]">
-              <select 
+              <select
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
                 className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer"
@@ -332,9 +337,9 @@ export default function AuditLogs() {
               </select>
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
             </div>
-            
+
             <div className="relative w-full sm:w-[20%]">
-              <select 
+              <select
                 value={userFilter}
                 onChange={(e) => setUserFilter(e.target.value)}
                 className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer"
@@ -345,8 +350,8 @@ export default function AuditLogs() {
               </select>
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
             </div>
-            
-            <button 
+
+            <button
               onClick={clearAllFilters}
               className="hidden sm:flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 ml-auto font-medium"
             >
@@ -354,10 +359,10 @@ export default function AuditLogs() {
               Clear Filters
             </button>
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-4">
             <div className="relative w-full sm:w-[20%]">
-              <select 
+              <select
                 value={severityFilter}
                 onChange={(e) => setSeverityFilter(e.target.value)}
                 className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer"
@@ -370,9 +375,9 @@ export default function AuditLogs() {
               </select>
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
             </div>
-            
+
             <div className="relative w-full sm:w-[20%]">
-              <select 
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="w-full appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-orange cursor-pointer"
@@ -385,29 +390,28 @@ export default function AuditLogs() {
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
             </div>
           </div>
-          
+
           {/* Active Filters */}
           {activeFilters.length > 0 && (
             <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
               {activeFilters.map(filter => (
-                <div 
-                  key={filter.type} 
-                  className={`flex items-center gap-1 px-3 py-1 border rounded-full text-xs font-medium ${
-                    filter.isRed 
-                      ? 'bg-red-50 border-red-100 text-red-700' 
+                <div
+                  key={filter.type}
+                  className={`flex items-center gap-1 px-3 py-1 border rounded-full text-xs font-medium ${filter.isRed
+                      ? 'bg-red-50 border-red-100 text-red-700'
                       : 'bg-gray-100 border-gray-200 text-gray-700'
-                  }`}
+                    }`}
                 >
                   {filter.label}
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => clearFilter(filter.type)}
                     className="flex items-center justify-center p-0.5 rounded-full hover:bg-black/5 transition-colors focus:outline-none"
                     aria-label="Remove filter"
                   >
-                    <MaterialIcon 
-                      icon="close" 
-                      className={`text-[14px] cursor-pointer ${filter.isRed ? 'hover:text-red-900' : 'hover:text-gray-900'}`} 
+                    <MaterialIcon
+                      icon="close"
+                      className={`text-[14px] cursor-pointer ${filter.isRed ? 'hover:text-red-900' : 'hover:text-gray-900'}`}
                     />
                   </button>
                 </div>
@@ -419,10 +423,10 @@ export default function AuditLogs() {
 
       {/* Main Content Layout */}
       <div className="flex flex-col xl:flex-row gap-6 w-full">
-        
+
         {/* Left Column (Table & Chart) */}
         <div className="flex-1 min-w-0 flex flex-col gap-6">
-          
+
           {/* Audit Log Table Card */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
             <GlobalTable className="text-[13px]">
@@ -463,7 +467,7 @@ export default function AuditLogs() {
                 )}
               </tbody>
             </GlobalTable>
-            
+
             {/* Pagination */}
             <div className="border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[13px] text-gray-500 bg-gray-50/50 gap-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
@@ -474,7 +478,7 @@ export default function AuditLogs() {
                 <div className="flex items-center gap-2">
                   <span className="ml-0 sm:ml-4">Rows per page:</span>
                   <div className="relative">
-                    <select 
+                    <select
                       value={rowsPerPage}
                       onChange={(e) => {
                         setRowsPerPage(Number(e.target.value));
@@ -491,23 +495,23 @@ export default function AuditLogs() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex flex-wrap items-center gap-1">
-                <button 
+                <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                   className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
                 >
                   Prev
                 </button>
-                
+
                 {/* Simplified page numbers rendering for brevity */}
                 <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-700 font-medium bg-gray-100">
                   {currentPage}
                 </button>
                 <span className="px-1 sm:px-2 text-gray-400">/ {totalPages}</span>
-                
-                <button 
+
+                <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages || totalPages === 0}
                   className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
@@ -521,25 +525,25 @@ export default function AuditLogs() {
           {/* Chart Section */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col">
             <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-6">AUDIT ACTIVITY — LAST 24 HOURS</h3>
-            
+
             <div className="h-48 flex items-end justify-between gap-1 mb-6 border-b border-gray-100 pb-2">
               {chartBars.map((bar, i) => (
                 <div key={i} className="w-full flex flex-col justify-end h-full relative group" title={`Events: ${bar.count}`}>
-                  <div 
-                    className={`w-full rounded-t-sm transition-all ${bar.isCritical ? 'bg-red-50' : 'bg-[#f0f5fc]'}`} 
+                  <div
+                    className={`w-full rounded-t-sm transition-all ${bar.isCritical ? 'bg-red-50' : 'bg-[#f0f5fc]'}`}
                     style={{ height: bar.height }}
                   >
                     {bar.isCritical && (
-                      <div className="w-full h-1 bg-red-500 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
+                      <div className="w-full h-1 bg-red-500 rounded-t-sm absolute top-0" style={{ top: `calc(100% - ${bar.height})` }}></div>
                     )}
                     {!bar.isCritical && bar.count > 0 && (
-                      <div className="w-full h-1 bg-blue-400 rounded-t-sm absolute top-0" style={{top: `calc(100% - ${bar.height})`}}></div>
+                      <div className="w-full h-1 bg-blue-400 rounded-t-sm absolute top-0" style={{ top: `calc(100% - ${bar.height})` }}></div>
                     )}
                   </div>
                 </div>
               ))}
             </div>
-            
+
             <div className="flex justify-between text-[11px] text-gray-400 font-medium">
               <span>12:00 PM (Yesterday)</span>
               <span>12:00 AM</span>
@@ -551,11 +555,11 @@ export default function AuditLogs() {
 
         {/* Right Column (Cards) */}
         <div className="w-full xl:w-[320px] flex flex-col gap-6 shrink-0">
-          
+
           {/* Log Summary */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
             <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-4">TODAY'S ACTIVITY</h3>
-            
+
             <div className="mb-5">
               <div className="text-[13px] text-gray-500 mb-1">Total Events</div>
               <div className="flex items-baseline gap-3">
@@ -566,7 +570,7 @@ export default function AuditLogs() {
                 </div>
               </div>
             </div>
-            
+
             <div className="border-t border-gray-100 pt-5 flex justify-between">
               <div>
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">FAILED</div>
@@ -582,14 +586,14 @@ export default function AuditLogs() {
               </div>
             </div>
           </div>
-          
+
           {/* Critical Events */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
               <MaterialIcon icon="warning_amber" className="text-[#d92d20] text-[20px]" />
               <h3 className="text-[11px] font-bold text-[#d92d20] uppercase tracking-wider">CRITICAL EVENTS</h3>
             </div>
-            
+
             <div className="flex flex-col">
               {latestCritical.length === 0 ? (
                 <div className="text-sm text-gray-500 italic py-4">No critical events found in current filter.</div>
@@ -609,14 +613,14 @@ export default function AuditLogs() {
               )}
             </div>
           </div>
-          
+
           {/* Most Active Users */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
               <MaterialIcon icon="group" className="text-gray-500 text-[20px]" />
               <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">MOST ACTIVE USERS</h3>
             </div>
-            
+
             <div className="flex flex-col gap-4">
               {userStats.length === 0 ? (
                 <div className="text-sm text-gray-500 italic py-2">No active users in current filter.</div>
@@ -641,7 +645,7 @@ export default function AuditLogs() {
               )}
             </div>
           </div>
-          
+
         </div>
       </div>
     </div>

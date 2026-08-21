@@ -56,8 +56,9 @@ export default function Sidebar({ isOpen, onClose }) {
 
         <SidebarLink icon="settings_input_component" label="TV Control" to="/tv" active={currentPath === '/tv'} />
         <SidebarLink icon="link" label="Public Links" to="/links" active={currentPath === '/links'} />
-        <SidebarLink icon="group" label="Team & Permissions" to="/team" active={currentPath === '/team'} />
         <SidebarLink icon="people" label="Members" to="/members" active={currentPath === '/members'} />
+        <SidebarLink icon="group" label="Team Members" to="/team" active={currentPath === '/team'} />
+        <SidebarLink icon="admin_panel_settings" label="Roles & Permissions" to="/permissions" active={currentPath === '/permissions'} />
         <SidebarLink icon="list_alt" label="Audit Logs" to="/logs" active={currentPath === '/logs'} />
         <SidebarLink icon="settings" label="Settings" to="/settings" active={currentPath === '/settings'} />
       </div>

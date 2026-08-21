@@ -47,17 +47,17 @@ export default function Header({ onMenuClick }) {
       </div>
       
       <div className="flex items-center gap-2 sm:gap-6 h-full">
-        <nav className="hidden md:flex h-full">
+        {/* <nav className="hidden md:flex h-full">
           <a href="#" className="h-full flex items-center px-4 font-body-md text-body-md text-secondary hover:text-primary transition-colors border-b-2 border-transparent">Reports</a>
           <a href="#" className="h-full flex items-center px-4 font-body-md text-body-md text-secondary hover:text-primary transition-colors border-b-2 border-transparent">Logs</a>
-        </nav>
+        </nav> */}
         
         <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-6 border-l sm:border-l-0 border-gray-200 h-8 sm:h-auto">
-          <button className="flex items-center gap-1.5 text-error font-label-md text-[10px] sm:text-label-md">
+          {/* <button className="flex items-center gap-1.5 text-error font-label-md text-[10px] sm:text-label-md">
             <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-error animate-pulse"></span>
             <span className="hidden xs:inline">LIVE STATUS</span>
             <span className="xs:hidden">LIVE</span>
-          </button>
+          </button> */}
           
           {/* Notifications Dropdown */}
           <div className="relative" ref={notifRef}>

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import MaterialIcon from '../atoms/MaterialIcon';
 
 /* ── Priority badge colours ── */
@@ -194,6 +195,25 @@ export default function RequestDetailDrawer({ request, onClose, onApprove, onRej
               {!details.incident && (
                 <div style={{ fontSize: 12, color: '#9CA3AF', fontStyle: 'italic' }}>No linked incidents</div>
               )}
+            </div>
+          </div>
+
+          {/* PUBLIC LINK ASSIGNMENT */}
+          <div style={{ marginBottom: 22 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <Section title="PUBLIC LINK ASSIGNMENT" />
+              <Link to="/links/create" style={{ fontSize: 11, fontWeight: 600, color: '#EA580C', display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+                <MaterialIcon icon="add" style={{ fontSize: 12, marginRight: 2 }} />
+                Create Public Link
+              </Link>
+            </div>
+            <div style={{ position: 'relative', marginTop: -4 }}>
+              <select style={{ width: '100%', padding: '10px 12px', paddingRight: 40, fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 10, outline: 'none', color: '#111827', appearance: 'none', background: '#FAFAFA', cursor: 'pointer', fontWeight: 500 }}>
+                <option value="">Select Existing Link...</option>
+                <option value="kano">Kano North</option>
+                <option value="lagos">Lagos Central</option>
+              </select>
+              <MaterialIcon icon="expand_more" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none', fontSize: 18 }} />
             </div>
           </div>
 

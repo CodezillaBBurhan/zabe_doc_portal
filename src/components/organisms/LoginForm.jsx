@@ -1,5 +1,5 @@
 import { Mail, Lock, Eye, ArrowRight, Shield } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FormLogo } from '../atoms/Logo';
 import FormField from '../molecules/FormField';
 import Checkbox from '../atoms/Checkbox';
@@ -49,9 +49,9 @@ export default function LoginForm() {
 
           <div className="flex items-center justify-between pt-1 pb-1">
             <Checkbox id="remember" label="Remember me" />
-            <a href="#" className="text-[13px] font-semibold text-[#2563eb] hover:text-blue-700">
+            <Link to="/forgot-password" className="text-[13px] font-semibold text-[#2563eb] hover:text-blue-700">
               Forgot Password?
-            </a>
+            </Link>
           </div>
 
           <InfoAlert message="This system requires 2FA verification. Have your secure token ready after continuing." />
@@ -62,18 +62,18 @@ export default function LoginForm() {
         </form>
       </div>
 
-      <Divider text="OR" className="my-6" />
+      {/* <Divider text="OR" className="my-6" />
 
       <Button variant="outline" className="py-3 text-[14px] font-semibold text-[#374151] border-gray-200 shadow-sm relative w-full group">
         <Shield className="w-5 h-5 absolute left-4 text-gray-400 group-hover:text-gray-600" strokeWidth={1.5} />
         Sign in with Secure Token
         <ArrowRight className="w-4 h-4 absolute right-4 text-gray-400 group-hover:text-gray-600" strokeWidth={2} />
-      </Button>
+      </Button> */}
 
-      <div className="mt-8 flex items-center justify-center text-[12px] font-medium text-gray-400">
+      {/* <div className="mt-8 flex items-center justify-center text-[12px] font-medium text-gray-400">
         <Lock className="w-3.5 h-3.5 mr-1.5" />
         All access is monitored and recorded for security purposes.
-      </div>
+      </div> */}
     </div>
   );
 }

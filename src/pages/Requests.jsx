@@ -84,7 +84,7 @@ const KPI_CARDS = [
 export default function Requests() {
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -105,7 +105,7 @@ export default function Requests() {
         typeIcon: r.type === 'Security' ? 'security' : r.type === 'Logistical' ? 'local_shipping' : 'computer',
         locationSub: r.location,
         requester: r.submitter,
-        time: new Date(r.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        time: new Date(r.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         timeSub: 'Today',
         tab: r.status === 'Resolved' || r.status === 'Rejected' ? 'Resolved' : r.status === 'Pending' ? 'Pending' : 'Assigned'
       }));
@@ -158,7 +158,7 @@ export default function Requests() {
             Filter
           </button>
           {/* Manual Entry button */}
-          <button onClick={() => setDrawerOpen(true)} style={{
+          {/* <button onClick={() => setDrawerOpen(true)} style={{
             height: 36, padding: '0 18px', borderRadius: 8,
             background: '#FF5A1F', color: '#fff',
             fontWeight: 600, fontSize: 13, border: 'none',
@@ -167,7 +167,7 @@ export default function Requests() {
           }}>
             <MaterialIcon icon="add" className="text-[16px]" />
             Manual Entry
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -320,175 +320,175 @@ export default function Requests() {
 
         {/* ── Table ── */}
         <GlobalTable minWidth="1000px" tableLayout="fixed">
-            <thead>
-              <colgroup>
-                <col style={{ width: 44 }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '12%' }} />
-                <col style={{ width: '28%' }} />
-                <col style={{ width: '11%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '12%' }} />
-                <col style={{ width: '10%' }} />
-              </colgroup>
-              <tr style={{ borderBottom: '1px solid #F3F4F6', background: '#FAFAFA' }}>
-                <th style={th({ w: 44 })}>
-                  <input
-                    type="checkbox"
-                    checked={allSelected}
-                    onChange={toggleAll}
-                    style={{ accentColor: '#FF5A1F', width: 15, height: 15, cursor: 'pointer' }}
-                  />
-                </th>
-                <th style={th()}>REQ ID</th>
-                <th style={th()}>TYPE</th>
-                <th style={th()}>LOCATION</th>
-                <th style={th()}>SUBMITTED</th>
-                <th style={th()}>PRIORITY</th>
-                <th style={th()}>STATUS</th>
-                <th style={{ ...th(), textAlign: 'right' }}>ACTIONS</th>
+          <thead>
+            <colgroup>
+              <col style={{ width: 44 }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '28%' }} />
+              <col style={{ width: '11%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '10%' }} />
+            </colgroup>
+            <tr style={{ borderBottom: '1px solid #F3F4F6', background: '#FAFAFA' }}>
+              <th style={th({ w: 44 })}>
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  style={{ accentColor: '#FF5A1F', width: 15, height: 15, cursor: 'pointer' }}
+                />
+              </th>
+              <th style={th()}>REQ ID</th>
+              <th style={th()}>TYPE</th>
+              <th style={th()}>LOCATION</th>
+              <th style={th()}>SUBMITTED</th>
+              <th style={th()}>PRIORITY</th>
+              <th style={th()}>STATUS</th>
+              <th style={{ ...th(), textAlign: 'right' }}>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr>
+                <td colSpan="8" style={{ padding: '48px 0', textAlign: 'center' }}>
+                  <Spinner />
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan="8" style={{ padding: '48px 0', textAlign: 'center' }}>
-                    <Spinner />
+            ) : filtered.length === 0 ? (
+              <tr>
+                <td colSpan="8" style={{ padding: '48px 0', textAlign: 'center' }}>
+                  <EmptyState title="No requests found" description="There are no requests matching your filters." />
+                </td>
+              </tr>
+            ) : filtered.map((row) => {
+              const isChecked = selected.includes(row.id);
+              const pStyle = PRIORITY_STYLES[row.priority] || PRIORITY_STYLES.Low;
+              const sStyle = STATUS_STYLES[row.status] || STATUS_STYLES.Pending;
+
+              return (
+                <tr
+                  key={row.id}
+                  style={{
+                    borderBottom: '1px solid #F9FAFB',
+                    background: isChecked ? '#FFF7F5' : '#fff',
+                    transition: 'background .12s',
+                  }}
+                  onMouseEnter={(e) => { if (!isChecked) e.currentTarget.style.background = '#FAFAFA'; }}
+                  onMouseLeave={(e) => { if (!isChecked) e.currentTarget.style.background = '#fff'; }}
+                >
+                  {/* Checkbox */}
+                  <td style={td({ pl: 20, w: 44 })}>
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleRow(row.id)}
+                      style={{ accentColor: '#FF5A1F', width: 15, height: 15, cursor: 'pointer' }}
+                    />
                   </td>
-                </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan="8" style={{ padding: '48px 0', textAlign: 'center' }}>
-                    <EmptyState title="No requests found" description="There are no requests matching your filters." />
+
+                  {/* Req ID */}
+                  <td style={td()}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{row.id}</span>
                   </td>
-                </tr>
-              ) : filtered.map((row) => {
-                const isChecked = selected.includes(row.id);
-                const pStyle = PRIORITY_STYLES[row.priority] || PRIORITY_STYLES.Low;
-                const sStyle = STATUS_STYLES[row.status] || STATUS_STYLES.Pending;
 
-                return (
-                  <tr
-                    key={row.id}
-                    style={{
-                      borderBottom: '1px solid #F9FAFB',
-                      background: isChecked ? '#FFF7F5' : '#fff',
-                      transition: 'background .12s',
-                    }}
-                    onMouseEnter={(e) => { if (!isChecked) e.currentTarget.style.background = '#FAFAFA'; }}
-                    onMouseLeave={(e) => { if (!isChecked) e.currentTarget.style.background = '#fff'; }}
-                  >
-                    {/* Checkbox */}
-                    <td style={td({ pl: 20, w: 44 })}>
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => toggleRow(row.id)}
-                        style={{ accentColor: '#FF5A1F', width: 15, height: 15, cursor: 'pointer' }}
-                      />
-                    </td>
-
-                    {/* Req ID */}
-                    <td style={td()}>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{row.id}</span>
-                    </td>
-
-                    {/* Type */}
-                    <td style={td()}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{
-                          width: 26, height: 26, borderRadius: 6,
-                          background: '#F1F5F9', color: '#64748B',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                        }}>
-                          <MaterialIcon icon={row.typeIcon} className="text-[13px]" />
-                        </div>
-                        <span style={{ fontSize: 13, fontWeight: 500, color: '#111827' }}>{row.type}</span>
-                      </div>
-                    </td>
-
-                    {/* Location */}
-                    <td style={td()}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#111827', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {row.location}
-                      </div>
-                      <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {row.locationSub} · {row.requester}
-                      </div>
-                    </td>
-
-                    {/* Submitted */}
-                    <td style={td()}>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: '#111827', lineHeight: 1.3 }}>
-                        {row.time}
-                      </div>
-                      <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2 }}>{row.timeSub}</div>
-                    </td>
-
-                    {/* Priority Badge */}
-                    <td style={td()}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 10px',
-                        borderRadius: 999,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        background: pStyle.bg,
-                        color: pStyle.color,
-                        whiteSpace: 'nowrap',
+                  {/* Type */}
+                  <td style={td()}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{
+                        width: 26, height: 26, borderRadius: 6,
+                        background: '#F1F5F9', color: '#64748B',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                       }}>
-                        {row.priority}
-                      </span>
-                    </td>
+                        <MaterialIcon icon={row.typeIcon} className="text-[13px]" />
+                      </div>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: '#111827' }}>{row.type}</span>
+                    </div>
+                  </td>
 
-                    {/* Status Badge */}
-                    <td style={td()}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 10px',
-                        borderRadius: 999,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        background: sStyle.bg,
-                        color: sStyle.color,
-                        whiteSpace: 'nowrap',
-                      }}>
-                        {row.status}
-                      </span>
-                    </td>
+                  {/* Location */}
+                  <td style={td()}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#111827', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {row.location}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {row.locationSub} · {row.requester}
+                    </div>
+                  </td>
 
-                    {/* Action */}
-                    <td style={{ ...td(), textAlign: 'right', paddingRight: 20 }}>
-                      <button
-                        style={{
-                          width: 32, height: 32,
-                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                          border: '1px solid #E5E7EB', borderRadius: 8,
-                          background: '#fff', color: '#6B7280',
-                          cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                          transition: 'all .15s',
-                        }}
-                        title="View Detail"
-                        onClick={() => setDetailRequest(row)}
-                        onMouseEnter={(e) => { e.currentTarget.style.color = '#FF5A1F'; e.currentTarget.style.borderColor = '#FDBA74'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.borderColor = '#E5E7EB'; }}
-                      >
-                        <MaterialIcon icon="open_in_new" className="text-[14px]" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  {/* Submitted */}
+                  <td style={td()}>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: '#111827', lineHeight: 1.3 }}>
+                      {row.time}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2 }}>{row.timeSub}</div>
+                  </td>
 
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={8} style={{ padding: '48px 0', textAlign: 'center', fontSize: 13, color: '#9CA3AF' }}>
-                    No requests match your current filter.
+                  {/* Priority Badge */}
+                  <td style={td()}>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '3px 10px',
+                      borderRadius: 999,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: pStyle.bg,
+                      color: pStyle.color,
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {row.priority}
+                    </span>
+                  </td>
+
+                  {/* Status Badge */}
+                  <td style={td()}>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '3px 10px',
+                      borderRadius: 999,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: sStyle.bg,
+                      color: sStyle.color,
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {row.status}
+                    </span>
+                  </td>
+
+                  {/* Action */}
+                  <td style={{ ...td(), textAlign: 'right', paddingRight: 20 }}>
+                    <button
+                      style={{
+                        width: 32, height: 32,
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        border: '1px solid #E5E7EB', borderRadius: 8,
+                        background: '#fff', color: '#6B7280',
+                        cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                        transition: 'all .15s',
+                      }}
+                      title="View Detail"
+                      onClick={() => setDetailRequest(row)}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = '#FF5A1F'; e.currentTarget.style.borderColor = '#FDBA74'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.borderColor = '#E5E7EB'; }}
+                    >
+                      <MaterialIcon icon="open_in_new" className="text-[14px]" />
+                    </button>
                   </td>
                 </tr>
-              )}
-            </tbody>
-          </GlobalTable>
+              );
+            })}
+
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={8} style={{ padding: '48px 0', textAlign: 'center', fontSize: 13, color: '#9CA3AF' }}>
+                  No requests match your current filter.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </GlobalTable>
 
         {/* ── Pagination Footer ── */}
         <div className="px-5 py-3 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white gap-3">

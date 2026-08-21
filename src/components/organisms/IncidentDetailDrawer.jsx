@@ -61,10 +61,10 @@ export default function IncidentDetailDrawer({ incident, onClose }) {
           </button>
         </div>
 
-        {/* ── Two-column layout ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 0, flex: 1, minHeight: 0 }}>
+        {/* ── Single-column layout ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0, flex: 1, minHeight: 0 }}>
 
-          {/* LEFT column */}
+          {/* Main content */}
           <div style={{ padding: 20, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
             {/* Incident Overview card */}
@@ -102,43 +102,68 @@ export default function IncidentDetailDrawer({ incident, onClose }) {
               </div>
             </div>
 
-            {/* Geospatial Context */}
+            {/* Incident Media & Timeline */}
             <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid #F3F4F6' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <MaterialIcon icon="map" className="text-[15px]" style={{ color: '#6B7280' }} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>Geospatial Context</span>
+                  <MaterialIcon icon="photo_camera" className="text-[15px]" style={{ color: '#6B7280' }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>Incident Media & Timeline</span>
                 </div>
-                <span style={{ fontSize: 11, color: '#9CA3AF' }}>Coordinates: {d.coords}</span>
               </div>
-              {/* Map placeholder */}
-              <div style={{ height: 220, background: '#E8EEF4', position: 'relative', overflow: 'hidden' }}>
-                <svg width="100%" height="100%" viewBox="0 0 600 220" preserveAspectRatio="xMidYMid slice">
-                  {/* Grid lines simulating map */}
-                  {[...Array(12)].map((_, i) => <line key={`v${i}`} x1={i*55} y1="0" x2={i*55} y2="220" stroke="#D1D5DB" strokeWidth="0.5" />)}
-                  {[...Array(6)].map((_,  i) => <line key={`h${i}`} x1="0" y1={i*44} x2="600" y2={i*44} stroke="#D1D5DB" strokeWidth="0.5" />)}
-                  {/* Roads */}
-                  <rect x="120" y="0" width="18" height="220" fill="#C9D3DC" opacity="0.6" />
-                  <rect x="0" y="90" width="600" height="16" fill="#C9D3DC" opacity="0.6" />
-                  <rect x="280" y="0" width="14" height="220" fill="#C9D3DC" opacity="0.5" />
-                  <rect x="0" y="158" width="600" height="12" fill="#C9D3DC" opacity="0.4" />
-                  {/* City blocks */}
-                  {[[20,20,90,64],[145,20,120,64],[285,20,85,64],[380,20,100,64],[490,20,105,64],[20,110,90,42],[145,110,120,42],[285,110,85,42],[380,110,100,42],[20,158,90,58],[145,160,120,54],[285,160,85,54],[380,160,100,54]].map(([x,y,w,h],i)=>(
-                    <rect key={i} x={x} y={y} width={w} height={h} fill="#CBD5E1" rx="3" opacity="0.5" />
-                  ))}
-                  {/* Incident marker with pulse */}
-                  <circle cx="300" cy="110" r="28" fill="#EF4444" opacity="0.12" />
-                  <circle cx="300" cy="110" r="18" fill="#EF4444" opacity="0.2" />
-                  <circle cx="300" cy="110" r="10" fill="#EF4444" opacity="0.9" />
-                  <circle cx="300" cy="110" r="4" fill="#fff" />
-                  <text x="314" y="104" fontSize="9" fontWeight="700" fill="#DC2626">INCIDENT {incident.id.slice(-3)}</text>
-                </svg>
-                <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(255,255,255,0.9)', borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 500, color: '#374151' }}>
-                  📍 Legend
+              {/* Image */}
+              <div style={{ width: '100%', height: 320, background: '#E8EEF4', position: 'relative', overflow: 'hidden' }}>
+                <img src="/incident-image.png" alt="Incident Media" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', bottom: 12, right: 12, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 11, padding: '4px 8px', borderRadius: 6, backdropFilter: 'blur(4px)' }}>
+                  Live Feed
                 </div>
-                {/* Zoom controls */}
-                <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', flexDirection: 'column', background: '#fff', borderRadius: 6, border: '1px solid #E5E7EB', overflow: 'hidden' }}>
-                  {['+', '−'].map((s) => <button key={s} style={{ width: 28, height: 28, border: 'none', background: 'none', cursor: 'pointer', fontSize: 16, color: '#374151', lineHeight: 1 }}>{s}</button>)}
+              </div>
+
+              {/* Timeline (moved to bottom of incident image, not separate section) */}
+              <div style={{ padding: '20px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Activity Timeline</span>
+                  <button style={{ height: 26, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 6, background: '#fff', fontSize: 11, fontWeight: 500, color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <MaterialIcon icon="filter_list" className="text-[12px]" /> Filter
+                  </button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                  {d.timeline.map((t, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 12, paddingBottom: 18, position: 'relative' }}>
+                      {i < d.timeline.length - 1 && <div style={{ position: 'absolute', left: 15, top: 34, bottom: 0, width: 2, background: '#F3F4F6' }} />}
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: t.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1 }}>
+                        <MaterialIcon icon={t.icon} className="text-[14px]" style={{ color: t.color }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>{t.label}</span>
+                          <span style={{ fontSize: 11, color: '#9CA3AF' }}>{t.time}</span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>
+                          {t.tag ? t.detail.replace('Critical', '') : t.detail}
+                          {t.tag && <span style={{ fontSize: 11, fontWeight: 700, padding: '1px 6px', borderRadius: 999, background: '#FEE2E2', color: '#DC2626', marginLeft: 4 }}>Critical</span>}
+                        </p>
+                        {t.code && (
+                          <pre style={{ margin: '6px 0 0', padding: '8px 10px', background: '#111827', borderRadius: 6, fontSize: 10, color: '#86EFAC', lineHeight: 1.6, overflow: 'auto', fontFamily: 'monospace' }}>
+                            {t.code}
+                          </pre>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add internal note (incident time input thing) */}
+                <div style={{ borderTop: '1px solid #F3F4F6', paddingTop: 16 }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <input
+                      value={note} onChange={(e) => setNote(e.target.value)}
+                      placeholder="Add an internal note..."
+                      style={{ flex: 1, height: 34, padding: '0 12px', fontSize: 12, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', color: '#374151' }}
+                    />
+                    <button style={{ width: 34, height: 34, border: 'none', background: '#FF5A1F', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <MaterialIcon icon="send" className="text-[14px]" style={{ color: '#fff' }} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -163,64 +188,13 @@ export default function IncidentDetailDrawer({ incident, onClose }) {
             )}
           </div>
 
-          {/* RIGHT column */}
-          <div style={{ background: '#fff', borderLeft: '1px solid #E5E7EB', padding: 18, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
-
-            {/* Incident Timeline */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>Incident Timeline</span>
-                <button style={{ height: 26, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 6, background: '#fff', fontSize: 11, fontWeight: 500, color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <MaterialIcon icon="filter_list" className="text-[12px]" /> Filter
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                {d.timeline.map((t, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 12, paddingBottom: 18, position: 'relative' }}>
-                    {i < d.timeline.length - 1 && <div style={{ position: 'absolute', left: 15, top: 34, bottom: 0, width: 2, background: '#F3F4F6' }} />}
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: t.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1 }}>
-                      <MaterialIcon icon={t.icon} className="text-[14px]" style={{ color: t.color }} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>{t.label}</span>
-                        <span style={{ fontSize: 11, color: '#9CA3AF' }}>{t.time}</span>
-                      </div>
-                      <p style={{ margin: 0, fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>
-                        {t.tag ? t.detail.replace('Critical', '') : t.detail}
-                        {t.tag && <span style={{ fontSize: 11, fontWeight: 700, padding: '1px 6px', borderRadius: 999, background: '#FEE2E2', color: '#DC2626', marginLeft: 4 }}>Critical</span>}
-                      </p>
-                      {t.code && (
-                        <pre style={{ margin: '6px 0 0', padding: '8px 10px', background: '#111827', borderRadius: 6, fontSize: 10, color: '#86EFAC', lineHeight: 1.6, overflow: 'auto', fontFamily: 'monospace' }}>
-                          {t.code}
-                        </pre>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Add internal note */}
-            <div style={{ borderTop: '1px solid #F3F4F6', paddingTop: 16 }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <input
-                  value={note} onChange={(e) => setNote(e.target.value)}
-                  placeholder="Add an internal note..."
-                  style={{ flex: 1, height: 34, padding: '0 12px', fontSize: 12, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', color: '#374151' }}
-                />
-                <button style={{ width: 34, height: 34, border: 'none', background: '#FF5A1F', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <MaterialIcon icon="send" className="text-[14px]" style={{ color: '#fff' }} />
-                </button>
-              </div>
-            </div>
-
-            {/* Related Entities */}
-            {d.entities.length > 0 && (
-              <div style={{ borderTop: '1px solid #F3F4F6', paddingTop: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>RELATED ENTITIES</div>
+          {/* Related Entities (Moved from right column) */}
+          {d.entities.length > 0 && (
+            <div style={{ padding: '0 20px 20px' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>RELATED ENTITIES</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
                 {d.entities.map((e) => (
-                  <div key={e.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', border: '1px solid #E5E7EB', borderRadius: 8, marginBottom: 8, cursor: 'pointer' }}
+                  <div key={e.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: 8, background: '#fff', cursor: 'pointer' }}
                     onMouseEnter={(el) => el.currentTarget.style.background = '#FAFAFA'}
                     onMouseLeave={(el) => el.currentTarget.style.background = '#fff'}
                   >
@@ -232,8 +206,8 @@ export default function IncidentDetailDrawer({ incident, onClose }) {
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </>

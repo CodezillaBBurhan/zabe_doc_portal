@@ -3,12 +3,12 @@
 
 export const db = {
   members: [
-    { id: 1, name: 'Adamu Abubakar', role: 'State Supervisor', phone: '08012345678', location: 'Kano', status: 'Active', addedOn: '2023-01-15' },
-    { id: 2, name: 'Ngozi Eze', role: 'Ward Collation Officer', phone: '08023456789', location: 'Lagos', status: 'Inactive', addedOn: '2023-01-20' },
-    { id: 3, name: 'Chukwudi Okafor', role: 'Field Agent', phone: '08034567890', location: 'Rivers', status: 'Active', addedOn: '2023-02-05' },
-    { id: 4, name: 'Aisha Bello', role: 'Data Analyst', phone: '08045678901', location: 'FCT Abuja', status: 'Active', addedOn: '2023-03-10' },
-    { id: 5, name: 'Oluwaseun Adebayo', role: 'LGA Coordinator', phone: '08056789012', location: 'Oyo', status: 'Pending', addedOn: '2023-04-12' },
-    { id: 6, name: 'Zainab Usman', role: 'Field Agent', phone: '08067890123', location: 'Kaduna', status: 'Active', addedOn: '2023-05-22' },
+    { id: 1, name: 'Adamu Abubakar', role: 'State Supervisor', email: 'adamu@zabe.app', designation: 'Senior Supervisor', status: 'Active', addedOn: '2023-01-15' },
+    { id: 2, name: 'Ngozi Eze', role: 'Ward Collation Officer', email: 'ngozi@zabe.app', designation: 'Collation Officer', status: 'Inactive', addedOn: '2023-01-20' },
+    { id: 3, name: 'Chukwudi Okafor', role: 'Field Agent', email: 'chukwudi@zabe.app', designation: 'Field Agent I', status: 'Active', addedOn: '2023-02-05' },
+    { id: 4, name: 'Aisha Bello', role: 'Data Analyst', email: 'aisha@zabe.app', designation: 'Data Specialist', status: 'Active', addedOn: '2023-03-10' },
+    { id: 5, name: 'Oluwaseun Adebayo', role: 'LGA Coordinator', email: 'oluwaseun@zabe.app', designation: 'Coordinator', status: 'Pending', addedOn: '2023-04-12' },
+    { id: 6, name: 'Zainab Usman', role: 'Field Agent', email: 'zainab@zabe.app', designation: 'Field Agent II', status: 'Active', addedOn: '2023-05-22' },
   ],
   requests: [
     { id: 'REQ-101', type: 'Result Submission', submitter: 'Adamu Abubakar', date: '2023-06-01T10:30:00Z', status: 'Pending', priority: 'High', location: 'Kano - Ward 1' },
@@ -32,12 +32,25 @@ export const db = {
     { id: 'LNK-001', name: 'Lagos Election Results 2023', url: 'https://zabe.app/p/lagos-2023', createdBy: 'Admin', views: 1250, status: 'Active', createdOn: '2023-05-01' },
     { id: 'LNK-002', name: 'National Turnout Live', url: 'https://zabe.app/p/nat-turnout', createdBy: 'Aisha Bello', views: 8400, status: 'Active', createdOn: '2023-05-15' },
     { id: 'LNK-003', name: 'Kano Incident Heatmap', url: 'https://zabe.app/p/kano-incidents', createdBy: 'Admin', views: 320, status: 'Inactive', createdOn: '2023-05-20' },
+  ],
+  roles: [
+    { id: 1, name: 'Admin', description: 'Full system access', membersCount: 3, status: 'Active', permissions: ['overview', 'incident', 'map', 'tv', 'team'] },
+    { id: 2, name: 'State Supervisor', description: 'Regional management and approval', membersCount: 12, status: 'Active', permissions: ['overview', 'incident', 'map'] },
+    { id: 3, name: 'Data Analyst', description: 'Read-only access to analytics', membersCount: 8, status: 'Active', permissions: ['overview', 'map'] },
+    { id: 4, name: 'Field Agent', description: 'Incident reporting only', membersCount: 150, status: 'Active', permissions: ['incident'] },
+  ],
+  permissions: [
+    { id: 'perm_1', key: 'overview', title: 'Overview Dashboard', module: 'Analytics', desc: 'View real-time high-level metrics.', status: 'Active' },
+    { id: 'perm_2', key: 'incident', title: 'Incident Management', module: 'Operations', desc: 'Report, escalate, and resolve active field incidents.', status: 'Active' },
+    { id: 'perm_3', key: 'map', title: 'Ward/LGA Map Data', module: 'Geospatial', desc: 'Access geospatial polling unit data and regional stats.', status: 'Active' },
+    { id: 'perm_4', key: 'tv', title: 'TV Broadcast Control', module: 'Media', desc: 'Manage live feeds and lower-third graphic overlays.', status: 'Active' },
+    { id: 'perm_5', key: 'team', title: 'Team Settings', module: 'Administration', desc: 'Modify global access roles and invite new members.', status: 'Active' }
   ]
 };
 
 // Helper function to persist data to localStorage
 export const loadData = () => {
-  const stored = localStorage.getItem('zabe_mock_db_v2');
+  const stored = localStorage.getItem('zabe_mock_db_v3');
   if (stored) {
     try {
       Object.assign(db, JSON.parse(stored));
@@ -50,7 +63,7 @@ export const loadData = () => {
 };
 
 export const saveData = () => {
-  localStorage.setItem('zabe_mock_db_v2', JSON.stringify(db));
+  localStorage.setItem('zabe_mock_db_v3', JSON.stringify(db));
 };
 
 // Initialize on load

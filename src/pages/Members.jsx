@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { MembersAPI } from '../mocks/api';
 import Spinner from '../components/atoms/Spinner';
 import EmptyState from '../components/molecules/EmptyState';
@@ -41,7 +42,6 @@ export default function Members() {
   // Filter State
   const [filterRole, setFilterRole] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
-  const [filterPublicLink, setFilterPublicLink] = useState('All');
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,30 +51,26 @@ export default function Members() {
     name: '',
     email: '',
     designation: '',
-    role: 'Level 1 (L1)',
-    publicLink: 'Select Existing Link'
+    role: 'Level 1 (L1)'
   });
   const [errors, setErrors] = useState({});
 
   // Filter Options
   const roleOptions = ['All', 'L1', 'L2', 'L3'];
   const statusOptions = ['All', 'Active', 'Inactive'];
-  const publicLinkOptions = ['All', ...new Set(members.map(m => m.publicLink).filter(link => link !== '-'))];
 
   // Apply Filters
   const filteredMembers = members.filter(member => {
     const matchesRole = filterRole === 'All' || member.role === filterRole;
     const matchesStatus = filterStatus === 'All' || member.status === filterStatus;
-    const matchesPublicLink = filterPublicLink === 'All' || member.publicLink === filterPublicLink;
-    return matchesRole && matchesStatus && matchesPublicLink;
+    return matchesRole && matchesStatus;
   });
 
-  const hasActiveFilters = filterRole !== 'All' || filterStatus !== 'All' || filterPublicLink !== 'All';
+  const hasActiveFilters = filterRole !== 'All' || filterStatus !== 'All';
 
   const clearFilters = () => {
     setFilterRole('All');
     setFilterStatus('All');
-    setFilterPublicLink('All');
     setCurrentPage(1);
   };
 
@@ -102,8 +98,7 @@ export default function Members() {
       name: '',
       email: '',
       designation: '',
-      role: 'Level 1 (L1)',
-      publicLink: 'Select Existing Link'
+      role: 'Level 1 (L1)'
     });
     setErrors({});
     setDrawerOpen(true);
@@ -116,8 +111,7 @@ export default function Members() {
       name: member.name,
       email: member.email || '',
       designation: member.designation,
-      role: member.role === 'L1' ? 'Level 1 (L1)' : member.role === 'L2' ? 'Level 2 (L2)' : 'Level 3 (L3)',
-      publicLink: member.publicLink
+      role: member.role === 'L1' ? 'Level 1 (L1)' : member.role === 'L2' ? 'Level 2 (L2)' : 'Level 3 (L3)'
     });
     setErrors({});
     setDrawerOpen(true);
@@ -130,8 +124,7 @@ export default function Members() {
       name: member.name,
       email: member.email || '',
       designation: member.designation,
-      role: member.role === 'L1' ? 'Level 1 (L1)' : member.role === 'L2' ? 'Level 2 (L2)' : 'Level 3 (L3)',
-      publicLink: member.publicLink
+      role: member.role === 'L1' ? 'Level 1 (L1)' : member.role === 'L2' ? 'Level 2 (L2)' : 'Level 3 (L3)'
     });
     setErrors({});
     setDrawerOpen(true);
@@ -173,7 +166,6 @@ export default function Members() {
           email: formData.email,
           designation: formData.designation,
           role: roleCode,
-          publicLink: formData.publicLink === 'Select Existing Link' ? '-' : formData.publicLink,
           status: 'Active',
           addedOn: dateStr // renamed from createdDate based on mock db structure
         });
@@ -183,8 +175,7 @@ export default function Members() {
           name: formData.name,
           email: formData.email,
           designation: formData.designation,
-          role: roleCode,
-          publicLink: formData.publicLink === 'Select Existing Link' ? '-' : formData.publicLink
+          role: roleCode
         });
         setMembers(members.map(m => m.id === selectedMember.id ? updatedMember : m));
       }
@@ -230,7 +221,7 @@ export default function Members() {
         <div>
           <h1 className="text-[32px] font-bold text-[#0f1c2d] leading-tight mb-2">Members</h1>
           <p className="text-[15px] text-gray-500">
-            Manage users, roles and public access links.
+            Manage users and roles.
           </p>
         </div>
         <div className="shrink-0">
@@ -275,20 +266,6 @@ export default function Members() {
           <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[18px]" />
         </div>
 
-        {/* Public Link Filter */}
-        <div className="relative w-full sm:w-[200px]">
-          <select
-            value={filterPublicLink}
-            onChange={(e) => handleFilterChange(setFilterPublicLink, e.target.value)}
-            className="w-full pl-4 pr-10 py-2.5 text-[14px] font-medium text-gray-700 bg-white border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] appearance-none shadow-sm cursor-pointer"
-          >
-            {publicLinkOptions.map(opt => (
-              <option key={opt} value={opt}>Public Link: {opt}</option>
-            ))}
-          </select>
-          <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[18px]" />
-        </div>
-
         {/* Clear Filters Button */}
         {hasActiveFilters && (
           <button 
@@ -306,12 +283,11 @@ export default function Members() {
         <GlobalTable minWidth="900px" wrapperClassName="rounded-xl">
             <thead>
               <tr className="border-b border-[#e4e7ec] bg-white text-[13px] font-medium text-gray-500 tracking-wide">
-                <th className="px-6 py-5">User</th>
-                <th className="px-6 py-5">Designation</th>
-                <th className="px-6 py-5">Role</th>
-                <th className="px-6 py-5">Public Link</th>
-                <th className="px-6 py-5">Status</th>
-                <th className="px-6 py-5">Created Date</th>
+                <th className="px-6 py-5 text-left">User</th>
+                <th className="px-6 py-5 text-left">Designation</th>
+                <th className="px-6 py-5 text-left">Role</th>
+                <th className="px-6 py-5 text-left">Status</th>
+                <th className="px-6 py-5 text-left">Created Date</th>
                 <th className="px-6 py-5 text-right">Actions</th>
               </tr>
             </thead>
@@ -342,9 +318,8 @@ export default function Members() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600">{member.designation}</td>
+                    <td className="px-6 py-4 text-gray-600">{member.designation || '-'}</td>
                     <td className="px-6 py-4 text-gray-600">{member.role}</td>
-                    <td className="px-6 py-4 text-gray-600">{member.publicLink}</td>
                     <td className="px-6 py-4">
                       <div className={`flex items-center text-[14px] ${member.status === 'Active' ? 'text-[#027a48]' : 'text-gray-500'}`}>
                         <span className={`w-1.5 h-1.5 rounded-full mr-2 ${member.status === 'Active' ? 'bg-[#12b76a]' : 'bg-gray-400'}`}></span>
@@ -421,16 +396,18 @@ export default function Members() {
       {/* Drawer Overlay */}
       {drawerOpen && (
         <div 
-          className="fixed inset-0 bg-gray-900/40 z-40 transition-opacity"
+          className="fixed inset-0 bg-gray-900/40 transition-opacity"
+          style={{ zIndex: 200, backdropFilter: 'blur(1px)' }}
           onClick={handleCloseDrawer}
         ></div>
       )}
 
       {/* Drawer Panel */}
       <div 
-        className={`fixed top-0 right-0 h-full w-full sm:w-[380px] bg-white z-50 shadow-2xl flex flex-col transition-transform duration-300 transform ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[380px] bg-white shadow-2xl flex flex-col transition-transform duration-300 transform ${
           drawerOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
+        style={{ zIndex: 201 }}
       >
         {/* Drawer Header */}
         <div className="flex items-start justify-between p-6 pb-4 border-b border-[#e4e7ec] shrink-0">
@@ -440,9 +417,9 @@ export default function Members() {
             </h2>
             <p className="text-[13px] text-gray-500">
               {drawerMode === 'add' 
-                ? 'Create a new user and assign their role and public access link.' 
+                ? 'Create a new user and assign their role.' 
                 : drawerMode === 'edit' 
-                ? 'Update user details, role and public access link.'
+                ? 'Update user details and role.'
                 : 'Review user profile and access configuration.'}
             </p>
           </div>
@@ -508,9 +485,17 @@ export default function Members() {
 
             {/* Role Selection */}
             <div>
-              <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">
-                ROLE SELECTION
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-[11px] font-bold text-[#475467] uppercase tracking-wider">
+                  ROLE SELECTION
+                </label>
+                {drawerMode !== 'view' && (
+                  <Link to="/permissions" className="text-[11px] font-semibold text-[#ea580c] hover:text-[#c2410c] flex items-center">
+                    <MaterialIcon icon="add" className="text-[12px] mr-0.5" />
+                    Create Role
+                  </Link>
+                )}
+              </div>
               <div className="relative">
                 <select 
                   value={formData.role}
@@ -526,28 +511,7 @@ export default function Members() {
               </div>
             </div>
 
-            {/* Public Link Assignment */}
-            <div>
-              <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">
-                PUBLIC LINK ASSIGNMENT
-              </label>
-              <div className="relative">
-                <select 
-                  value={formData.publicLink}
-                  disabled={drawerMode === 'view'}
-                  onChange={(e) => setFormData({...formData, publicLink: e.target.value})}
-                  className={`w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 appearance-none bg-white ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
-                >
-                  <option>Select Existing Link</option>
-                  {/* Map distinct active options that are not '-' */}
-                  {publicLinkOptions.filter(opt => opt !== 'All').map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                  <option value="New Territory">New Territory</option>
-                </select>
-                {drawerMode !== 'view' && <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />}
-              </div>
-            </div>
+
 
           </form>
         </div>
