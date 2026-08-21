@@ -17,7 +17,7 @@ const CreatePublicLink = () => {
   const [linkName, setLinkName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const [slides, setSlides] = useState([{ id: 1, name: 'Slide 1', widgets: [] }]);
   const [activeSlideId, setActiveSlideId] = useState(1);
 
@@ -30,7 +30,7 @@ const CreatePublicLink = () => {
     const row = Math.floor(activeWidgets.length / 3);
     const nextX = (activeWidgets.length % 3) * w;
     const nextY = row * h;
-    
+
     const updatedWidgets = [...activeWidgets, { ...newWidget, grid: { x: nextX, y: nextY, w, h } }];
     const updatedSlides = [...slides];
     updatedSlides[activeSlideIndex].widgets = updatedWidgets;
@@ -144,14 +144,6 @@ const CreatePublicLink = () => {
             Operational Preview
           </div>
           <div className="flex items-center gap-3">
-            <Button 
-              variant="ghost" 
-              className="h-7 px-3 text-[11px] font-semibold text-brand-orange bg-orange-50 border border-orange-100/50 hover:bg-orange-100 flex items-center shadow-sm" 
-              onClick={handlePreview}
-            >
-              <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-              Preview in New Tab
-            </Button>
             <div className="px-2.5 py-1 bg-secondary-container/50 text-secondary font-label-md text-[11px] uppercase tracking-wider rounded-md font-semibold">
               Preview Mode
             </div>
@@ -171,11 +163,10 @@ const CreatePublicLink = () => {
               <button
                 key={slide.id}
                 onClick={() => setActiveSlideId(slide.id)}
-                className={`px-4 py-1.5 rounded-full text-[12px] font-bold transition-colors ${
-                  activeSlideId === slide.id 
-                    ? 'bg-brand-orange text-white shadow-sm' 
+                className={`px-4 py-1.5 rounded-full text-[12px] font-bold transition-colors ${activeSlideId === slide.id
+                    ? 'bg-brand-orange text-white shadow-sm'
                     : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
-                }`}
+                  }`}
               >
                 {slide.name}
               </button>
@@ -256,10 +247,10 @@ const CreatePublicLink = () => {
                 >
                   {activeWidgets.map(w => (
                     <div key={w.id}>
-                      <DashboardWidget 
-                        title={w.title} 
-                        type={w.type} 
-                        data={w.data} 
+                      <DashboardWidget
+                        title={w.title}
+                        type={w.type}
+                        data={w.data}
                         onRemove={() => handleRemoveWidget(w.id)}
                         onChangeType={() => handleChangeType(w.id)}
                       />
@@ -268,12 +259,20 @@ const CreatePublicLink = () => {
                 </GridLayout>
               )}
             </div>
-            
-            {/* Add Widget Button */}
-            <div className="mt-4 flex justify-center pb-8">
-              <Button variant="secondary" className="w-full max-w-[200px] border-dashed" onClick={() => setIsModalOpen(true)}>
+
+            {/* Action Buttons */}
+            <div className="mt-4 flex justify-center items-center gap-4 pb-8">
+              <Button variant="secondary" className="w-[180px] border-dashed" onClick={() => setIsModalOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Widget
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-[180px] text-brand-orange bg-orange-50 border border-orange-100/50 hover:bg-orange-100"
+                onClick={handlePreview}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Preview Dashboard
               </Button>
             </div>
 
@@ -282,7 +281,7 @@ const CreatePublicLink = () => {
       </div>
 
       <div className="flex justify-end mb-8">
-        <Button 
+        <Button
           onClick={handleSave}
           disabled={!linkName.trim() || isSubmitting}
         >
@@ -292,10 +291,10 @@ const CreatePublicLink = () => {
       </div>
 
       {/* Modals */}
-      <AddWidgetModal 
-        open={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onAddWidget={handleAddWidget} 
+      <AddWidgetModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddWidget={handleAddWidget}
       />
     </div>
   );
