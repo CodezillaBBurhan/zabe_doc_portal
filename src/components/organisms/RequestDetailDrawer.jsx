@@ -322,7 +322,7 @@ export default function RequestDetailDrawer({ request, onClose, onApprove, onRej
                   <MaterialIcon icon="add" style={{ fontSize: 12, marginRight: 2 }} />
                   {isCreating ? 'Creating...' : 'Create Public Link'}
                 </button>
-=======
+              )}
             </div>
             
             {(() => {

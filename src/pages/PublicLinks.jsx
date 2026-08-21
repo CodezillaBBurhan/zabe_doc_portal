@@ -11,6 +11,7 @@ import PageHeader from '../components/molecules/PageHeader';
 import Input from '../components/atoms/Input';
 import Button from '../components/atoms/Button';
 import Badge from '../components/atoms/Badge';
+import { provisionDefaultDashboard, getDashboardDetailsFromUrl } from '../utils/metabase-api';
 
 const PublicLinks = () => {
   const navigate = useNavigate();
