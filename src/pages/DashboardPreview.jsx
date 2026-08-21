@@ -6,6 +6,7 @@ import 'react-resizable/css/styles.css';
 
 export default function DashboardPreview() {
   const [data, setData] = useState(null);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   useEffect(() => {
     try {
@@ -26,7 +27,9 @@ export default function DashboardPreview() {
     );
   }
 
-  const { linkName, widgets } = data;
+  const { linkName, slides, widgets } = data;
+  const displaySlides = slides || [{ id: 1, name: 'Slide 1', widgets: widgets || [] }];
+  const activeWidgets = displaySlides[activeSlideIndex]?.widgets || [];
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
@@ -74,14 +77,15 @@ export default function DashboardPreview() {
 
         {/* Dynamic Grid Area */}
         <div className="flex-1 mt-4">
-          {widgets.length === 0 ? (
+          {activeWidgets.length === 0 ? (
             <div className="w-full h-64 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
-              <p className="text-gray-400 font-semibold mb-2">Dashboard is empty</p>
+              <p className="text-gray-400 font-semibold mb-2">Slide is empty</p>
             </div>
           ) : (
             <GridLayout
+              key={`slide-${activeSlideIndex}`}
               className="layout"
-              layout={widgets.map(w => ({ i: w.id, ...w.grid, static: true }))}
+              layout={activeWidgets.map(w => ({ i: w.id, ...w.grid, static: true }))}
               cols={12}
               rowHeight={140}
               width={1208}
@@ -89,14 +93,12 @@ export default function DashboardPreview() {
               isDraggable={false}
               margin={[16, 16]}
             >
-              {widgets.map(w => (
+              {activeWidgets.map(w => (
                 <div key={w.id}>
                   <DashboardWidget 
                     title={w.title} 
                     type={w.type} 
                     data={w.data}
-                    // Pass empty functions to hide the edit/delete buttons if you want, 
-                    // or just let them be there for 'preview' feel. We'll leave them inactive.
                     onRemove={null}
                     onChangeType={null}
                   />
@@ -105,6 +107,36 @@ export default function DashboardPreview() {
             </GridLayout>
           )}
         </div>
+
+        {/* Slides Navigation */}
+        {displaySlides.length > 1 && (
+          <div className="flex justify-center items-center gap-6 mt-8 pb-8">
+            <button 
+              onClick={() => setActiveSlideIndex(Math.max(0, activeSlideIndex - 1))}
+              disabled={activeSlideIndex === 0}
+              className="p-2 rounded-full bg-white shadow-sm border border-gray-200 disabled:opacity-50 hover:bg-gray-50 transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div className="flex gap-3">
+              {displaySlides.map((s, i) => (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveSlideIndex(i)}
+                  className={`w-3 h-3 rounded-full transition-colors ${activeSlideIndex === i ? 'bg-teal-500 ring-4 ring-teal-500/20' : 'bg-gray-300 hover:bg-gray-400'}`}
+                  title={s.name}
+                />
+              ))}
+            </div>
+            <button 
+              onClick={() => setActiveSlideIndex(Math.min(displaySlides.length - 1, activeSlideIndex + 1))}
+              disabled={activeSlideIndex === displaySlides.length - 1}
+              className="p-2 rounded-full bg-white shadow-sm border border-gray-200 disabled:opacity-50 hover:bg-gray-50 transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
