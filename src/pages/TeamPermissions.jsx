@@ -4,6 +4,7 @@ import MaterialIcon from '../components/atoms/MaterialIcon';
 import GlobalTable from '../components/organisms/GlobalTable';
 import Spinner from '../components/atoms/Spinner';
 import EmptyState from '../components/molecules/EmptyState';
+import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import { MembersAPI, RolesAPI } from '../mocks/api';
 
 const PERMISSIONS_DEF = [
@@ -42,6 +43,9 @@ export default function TeamPermissions() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedPermissions, setEditedPermissions] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  
+  const [discardModalOpen, setDiscardModalOpen] = useState(false);
+  const [pendingMemberToSelect, setPendingMemberToSelect] = useState(null);
 
   // Assign Member Form State
   const [assignForm, setAssignForm] = useState({
@@ -139,14 +143,27 @@ export default function TeamPermissions() {
 
   const handleSelectMember = (member) => {
     if (isEditing) {
-      // Optional: block selection if currently editing, or prompt
-      if (!window.confirm("You have unsaved changes. Discard?")) return;
+      setPendingMemberToSelect(member);
+      setDiscardModalOpen(true);
+      return;
     }
+    executeSelectMember(member);
+  };
+
+  const executeSelectMember = (member) => {
     setSelectedMemberId(member.id);
     setEditedPermissions(member.permissions);
     setIsEditing(false);
     setSuccessMessage('');
     setIsProfileDrawerOpen(true);
+  };
+
+  const confirmDiscard = () => {
+    setDiscardModalOpen(false);
+    if (pendingMemberToSelect) {
+      executeSelectMember(pendingMemberToSelect);
+      setPendingMemberToSelect(null);
+    }
   };
 
   // Permission Handlers
@@ -658,6 +675,17 @@ export default function TeamPermissions() {
           </button>
         </div>
       </div>
+
+      {/* Discard Changes Confirmation Modal */}
+      <ConfirmDialog 
+        isOpen={discardModalOpen} 
+        onClose={() => { setDiscardModalOpen(false); setPendingMemberToSelect(null); }} 
+        onConfirm={confirmDiscard}
+        title="Discard Unsaved Changes?"
+        message="You have unsaved changes to this member's permissions. Are you sure you want to discard them and view another member?"
+        confirmText="Discard"
+        confirmColor="red"
+      />
 
     </div>
   );
