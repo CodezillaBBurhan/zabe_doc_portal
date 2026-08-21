@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import MaterialIcon from '../components/atoms/MaterialIcon';
+import PageHeader from '../components/molecules/PageHeader';
+import Button from '../components/atoms/Button';
 
 export default function ManagePermission() {
   const navigate = useNavigate();
@@ -9,23 +11,14 @@ export default function ManagePermission() {
     <div className="flex flex-col w-full pb-10">
       
       {/* Header */}
-      <div className="flex justify-between items-start mb-8">
-        <div>
-          <h1 className="text-[28px] font-bold text-[#0f1c2d] leading-tight mb-1">Manage Permissions</h1>
-          <p className="text-[14px] text-gray-500">
-            Configure access control and modules for this operative.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate('/team')}
-            className="flex items-center text-[13px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2 hover:bg-gray-50 transition-colors shadow-sm"
-          >
-            <MaterialIcon icon="arrow_back" className="mr-2 text-[16px]" />
-            Back to Team
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Manage Permissions"
+        description="Configure access control and modules for this operative."
+      >
+        <Button variant="secondary" onClick={() => navigate('/team')} icon="arrow_back">
+          Back to Team
+        </Button>
+      </PageHeader>
 
       <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
         
@@ -59,13 +52,14 @@ export default function ManagePermission() {
               </div>
             </div>
 
-            <button 
+            <Button 
+              variant="primaryLight"
               onClick={() => navigate('/profile')}
-              className="w-full flex items-center justify-center text-[14px] font-semibold text-[#ff8c42] bg-[#fff3eb] border border-[#ffdbba] rounded-md px-4 py-2 hover:bg-[#ffecd9] transition-colors"
+              className="w-full"
+              icon="person"
             >
-              <MaterialIcon icon="person" className="mr-2 text-[18px]" />
               View Full Profile
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -80,12 +74,12 @@ export default function ManagePermission() {
                 <p className="text-[13px] text-gray-500">Control exactly which modules and actions this operative can perform.</p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <button className="px-4 py-2 rounded-md text-[13px] font-bold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 shadow-sm transition-colors">
+                <Button variant="secondary">
                   Clear All
-                </button>
-                <button className="px-4 py-2 rounded-md text-[13px] font-bold text-[#ff8c42] bg-white border border-[#ff8c42] hover:bg-[#fff3eb] shadow-sm transition-colors">
+                </Button>
+                <Button variant="primaryLight">
                   Select All
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -220,18 +214,13 @@ export default function ManagePermission() {
 
             </div>
 
-            {/* Action Footer */}
             <div className="p-6 border-t border-[#e4e7ec] bg-[#f9fafb] flex items-center justify-end gap-3 mt-auto">
-              <button 
-                onClick={() => navigate('/team')}
-                className="px-5 py-2.5 rounded-md text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 transition-colors shadow-sm"
-              >
+              <Button variant="secondary" onClick={() => navigate('/team')}>
                 Cancel Changes
-              </button>
-              <button className="px-6 py-2.5 rounded-md text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] transition-colors shadow-sm flex items-center">
-                <MaterialIcon icon="save" className="mr-2 text-[18px]" />
+              </Button>
+              <Button icon="save">
                 Save Permissions
-              </button>
+              </Button>
             </div>
             
           </div>

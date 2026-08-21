@@ -6,6 +6,11 @@ import MaterialIcon from '../components/atoms/MaterialIcon';
 import ManualEntryDrawer from '../components/organisms/ManualEntryDrawer';
 import RequestDetailDrawer from '../components/organisms/RequestDetailDrawer';
 import GlobalTable from '../components/organisms/GlobalTable';
+import PageHeader from '../components/molecules/PageHeader';
+import Button from '../components/atoms/Button';
+import Badge from '../components/atoms/Badge';
+import Input from '../components/atoms/Input';
+import { formatTime } from '../utils/formatters';
 
 /* ─────────────────────────────────────────
    DATA
@@ -15,22 +20,6 @@ import GlobalTable from '../components/organisms/GlobalTable';
 ───────────────────────────────────────── */
 const TAB_COUNTS = { All: 124, Pending: 89, Assigned: 28, Resolved: 7 };
 
-/* ─────────────────────────────────────────
-   BADGE STYLE MAPS  (exactly like Figma)
-───────────────────────────────────────── */
-const PRIORITY_STYLES = {
-  Critical: { bg: '#FEE2E2', color: '#DC2626' },
-  High: { bg: '#FFEDD5', color: '#EA580C' },
-  Medium: { bg: '#FEF9C3', color: '#CA8A04' },
-  Low: { bg: '#F1F5F9', color: '#475569' },
-};
-
-const STATUS_STYLES = {
-  Pending: { bg: '#F1F5F9', color: '#6B7280' },
-  Assigned: { bg: '#DBEAFE', color: '#2563EB' },
-  'In Progress': { bg: '#EDE9FE', color: '#7C3AED' },
-  Resolved: { bg: '#DCFCE7', color: '#16A34A' },
-};
 
 /* ─────────────────────────────────────────
    KPI CARDS  (Figma spec)
@@ -105,7 +94,7 @@ export default function Requests() {
         typeIcon: r.type === 'Security' ? 'security' : r.type === 'Logistical' ? 'local_shipping' : 'computer',
         locationSub: r.location,
         requester: r.submitter,
-        time: new Date(r.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: formatTime(r.date),
         timeSub: 'Today',
         tab: r.status === 'Resolved' || r.status === 'Rejected' ? 'Resolved' : r.status === 'Pending' ? 'Pending' : 'Assigned'
       }));
@@ -136,40 +125,14 @@ export default function Requests() {
     <div style={{ width: '100%', minWidth: 0 }}>
 
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#111827', letterSpacing: '-0.3px', margin: 0, lineHeight: 1.3 }}>
-            Request Queue
-          </h1>
-          <p style={{ fontSize: 13, color: '#6B7280', margin: '4px 0 0' }}>
-            Manage and assign incoming deployment requests.
-          </p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-          {/* Filter button */}
-          <button style={{
-            height: 36, padding: '0 16px', borderRadius: 8,
-            border: '1px solid #D1D5DB', background: '#fff',
-            color: '#374151', fontWeight: 500, fontSize: 13,
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-          }}>
-            <MaterialIcon icon="filter_list" className="text-[16px]" style={{ color: '#6B7280' }} />
-            Filter
-          </button>
-          {/* Manual Entry button */}
-          {/* <button onClick={() => setDrawerOpen(true)} style={{
-            height: 36, padding: '0 18px', borderRadius: 8,
-            background: '#FF5A1F', color: '#fff',
-            fontWeight: 600, fontSize: 13, border: 'none',
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            cursor: 'pointer', boxShadow: '0 1px 3px rgba(255,90,31,0.35)',
-          }}>
-            <MaterialIcon icon="add" className="text-[16px]" />
-            Manual Entry
-          </button> */}
-        </div>
-      </div>
+      <PageHeader
+        title="Request Queue"
+        description="Manage and assign incoming deployment requests."
+      >
+        <Button variant="secondary" icon="filter_list">
+          Filter
+        </Button>
+      </PageHeader>
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
@@ -276,23 +239,12 @@ export default function Requests() {
 
           {/* Search */}
           <div className="relative w-full md:w-auto md:max-w-[340px] flex-1">
-            <span style={{
-              position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
-              color: '#9CA3AF', fontSize: 17, display: 'flex', alignItems: 'center',
-            }}>
-              <MaterialIcon icon="search" className="text-[17px]" />
-            </span>
-            <input
+            <Input
+              icon="search"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search ID, Location..."
-              style={{
-                height: 34, paddingLeft: 34, paddingRight: 12, width: '100%',
-                fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8,
-                background: '#fff', outline: 'none', color: '#374151',
-                boxSizing: 'border-box',
-              }}
             />
           </div>
         </div>
@@ -306,15 +258,15 @@ export default function Requests() {
             <span style={{ fontSize: 13, fontWeight: 600, color: '#FF5A1F' }}>
               {selected.length} selected
             </span>
-            <button style={bulkBtn}>Assign</button>
-            <button style={bulkBtn}>Escalate</button>
-            <button style={{ ...bulkBtn, color: '#DC2626', borderColor: '#FECACA' }}>Dismiss</button>
-            <button
+            <Button variant="secondary" size="sm">Assign</Button>
+            <Button variant="secondary" size="sm">Escalate</Button>
+            <Button variant="dangerLight" size="sm">Dismiss</Button>
+            <Button
+              variant="ghost"
+              icon="close"
               onClick={() => setSelected([])}
-              style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', display: 'flex' }}
-            >
-              <MaterialIcon icon="close" className="text-[18px]" />
-            </button>
+              className="ml-auto text-gray-500 hover:text-gray-900"
+            />
           </div>
         )}
 
@@ -364,8 +316,6 @@ export default function Requests() {
               </tr>
             ) : filtered.map((row) => {
               const isChecked = selected.includes(row.id);
-              const pStyle = PRIORITY_STYLES[row.priority] || PRIORITY_STYLES.Low;
-              const sStyle = STATUS_STYLES[row.status] || STATUS_STYLES.Pending;
 
               return (
                 <tr
@@ -427,54 +377,23 @@ export default function Requests() {
 
                   {/* Priority Badge */}
                   <td style={td()}>
-                    <span style={{
-                      display: 'inline-block',
-                      padding: '3px 10px',
-                      borderRadius: 999,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      background: pStyle.bg,
-                      color: pStyle.color,
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {row.priority}
-                    </span>
+                    <Badge status={row.priority} />
                   </td>
 
                   {/* Status Badge */}
                   <td style={td()}>
-                    <span style={{
-                      display: 'inline-block',
-                      padding: '3px 10px',
-                      borderRadius: 999,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      background: sStyle.bg,
-                      color: sStyle.color,
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {row.status}
-                    </span>
+                    <Badge status={row.status} />
                   </td>
 
                   {/* Action */}
                   <td style={{ ...td(), textAlign: 'right', paddingRight: 20 }}>
-                    <button
-                      style={{
-                        width: 32, height: 32,
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                        border: '1px solid #E5E7EB', borderRadius: 8,
-                        background: '#fff', color: '#6B7280',
-                        cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                        transition: 'all .15s',
-                      }}
-                      title="View Detail"
+                    <Button 
+                      variant="ghost" 
+                      icon="open_in_new" 
                       onClick={() => setDetailRequest(row)}
-                      onMouseEnter={(e) => { e.currentTarget.style.color = '#FF5A1F'; e.currentTarget.style.borderColor = '#FDBA74'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.borderColor = '#E5E7EB'; }}
-                    >
-                      <MaterialIcon icon="open_in_new" className="text-[14px]" />
-                    </button>
+                      title="View Detail"
+                      className="w-8 h-8 p-0 flex items-center justify-center text-gray-500 hover:text-brand-orange"
+                    />
                   </td>
                 </tr>
               );
@@ -497,12 +416,12 @@ export default function Requests() {
             <strong style={{ color: '#111827' }}>124</strong> requests
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button disabled style={paginationBtn(true)}>
+            <Button variant="secondary" disabled>
               Previous
-            </button>
-            <button style={paginationBtn(false)}>
+            </Button>
+            <Button variant="secondary">
               Next
-            </button>
+            </Button>
           </div>
         </div>
       </div>

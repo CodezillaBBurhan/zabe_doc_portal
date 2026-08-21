@@ -6,6 +6,10 @@ import EmptyState from '../components/molecules/EmptyState';
 import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import GlobalTable from '../components/organisms/GlobalTable';
 import { useNavigate } from 'react-router-dom';
+import PageHeader from '../components/molecules/PageHeader';
+import Input from '../components/atoms/Input';
+import Button from '../components/atoms/Button';
+import Badge from '../components/atoms/Badge';
 
 const PublicLinks = () => {
   const navigate = useNavigate();
@@ -72,16 +76,7 @@ const PublicLinks = () => {
   };
 
   const getStatusBadge = (status) => {
-    switch(status) {
-      case 'Active':
-        return <span className="px-2.5 py-1 text-xs font-medium bg-[#e6f4ea] text-[#1e8e3e] rounded-full">Active</span>;
-      case 'Expiring':
-        return <span className="px-2.5 py-1 text-xs font-medium bg-[#fef7e0] text-[#f29900] rounded-full">Expiring</span>;
-      case 'Revoked':
-        return <span className="px-2.5 py-1 text-xs font-medium bg-[#fce8e6] text-[#d93025] rounded-full">Revoked</span>;
-      default:
-        return null;
-    }
+    return <Badge status={status} />;
   };
 
   const handleFilterSelect = (filterName, value) => {
@@ -111,19 +106,15 @@ const PublicLinks = () => {
   return (
     <div className="flex flex-col h-full w-full">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-display-lg text-display-lg text-on-surface mb-2">Public Links</h1>
-          <p className="font-body-md text-body-md text-secondary">Manage secure public-facing election information links.</p>
-        </div>
-        <button 
-          onClick={() => navigate('/links/create')}
-          className="flex items-center gap-2 bg-brand-orange hover:opacity-90 text-white px-4 py-2.5 rounded-lg font-label-md text-label-md transition-opacity shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
+      <PageHeader
+        title="Public Links"
+        description="Manage secure public-facing election information links."
+      >
+        <Button onClick={() => navigate('/links/create')}>
+          <Plus className="w-4 h-4 mr-2" />
           Create Public Link
-        </button>
-      </div>
+        </Button>
+      </PageHeader>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
@@ -156,19 +147,14 @@ const PublicLinks = () => {
       {/* Filters Area */}
       <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
         <div className="relative w-full md:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary w-4 h-4" />
-          <input 
+          <Input 
+            icon="search"
             type="text" 
             placeholder="Search links..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-surface-container-lowest shadow-sm rounded-lg font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-on-surface placeholder:text-secondary border-none"
+            className="w-full bg-surface-container-lowest"
           />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-on-surface">
-              <X className="w-4 h-4" />
-            </button>
-          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto overflow-visible relative">
@@ -204,12 +190,13 @@ const PublicLinks = () => {
             </div>
           ))}
           {(searchQuery || Object.values(activeFilters).some(v => v !== 'All')) && (
-            <button 
+            <Button 
+              variant="ghost"
               onClick={clearFilters}
-              className="font-body-md text-body-md text-secondary hover:text-on-surface whitespace-nowrap px-2"
+              className="text-secondary hover:text-on-surface"
             >
               Clear Filters
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -229,7 +216,7 @@ const PublicLinks = () => {
                 <th className="py-4 px-6 font-medium text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/30">
+            <tbody className="divide-y divide-gray-200/30">
               {isLoading ? (
                 <tr>
                   <td colSpan="8" className="py-12 px-6 text-center">
@@ -251,15 +238,15 @@ const PublicLinks = () => {
                     <td className="py-4 px-6">{getStatusBadge(link.status)}</td>
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-end gap-1">
-                        <button className="p-1.5 text-secondary hover:text-brand-orange hover:bg-brand-orange/10 rounded-md transition-colors" title="Copy Link">
+                        <Button variant="ghost" className="p-1.5 h-auto text-secondary hover:text-brand-orange hover:bg-brand-orange/10" title="Copy Link">
                           <Copy className="w-4 h-4" />
-                        </button>
-                        <button className="p-1.5 text-secondary hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Edit Link">
+                        </Button>
+                        <Button variant="ghost" className="p-1.5 h-auto text-secondary hover:text-blue-600 hover:bg-blue-50" title="Edit Link">
                           <Edit className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => { setLinkToDelete(link); setDeleteModalOpen(true); }} className="p-1.5 text-secondary hover:text-error hover:bg-error/10 rounded-md transition-colors" title="Delete Link">
+                        </Button>
+                        <Button variant="ghost" onClick={() => { setLinkToDelete(link); setDeleteModalOpen(true); }} className="p-1.5 h-auto text-secondary hover:text-error hover:bg-error/10" title="Delete Link">
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>

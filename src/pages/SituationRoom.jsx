@@ -10,6 +10,7 @@ import {
   Presentation, 
   Wifi
 } from 'lucide-react';
+import Button from '../components/atoms/Button';
 
 const SituationRoom = () => {
   return (
@@ -35,23 +36,23 @@ const SituationRoom = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <button className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-[4px] font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
-            <Lock className="w-4 h-4" />
+          <Button variant="secondary" className="flex-1 sm:flex-none">
+            <Lock className="w-4 h-4 mr-2" />
             Lock Screen
-          </button>
-          <button className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-[4px] font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
-            <RefreshCw className="w-4 h-4" />
+          </Button>
+          <Button variant="secondary" className="flex-1 sm:flex-none">
+            <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
-          </button>
-          <button className="flex-1 sm:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-surface-container-lowest border border-error rounded-[4px] font-label-md text-label-md text-error hover:bg-error-container transition-colors">
-            <Power className="w-4 h-4" />
+          </Button>
+          <Button variant="dangerLight" className="flex-1 sm:flex-none">
+            <Power className="w-4 h-4 mr-2" />
             Disconnect
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Main Broadcast Preview Card */}
-      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-[16px] mb-8">
+      <div className="bg-surface-container-lowest rounded-xl border border-gray-200 shadow-sm p-[16px] mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-headline-sm text-headline-sm text-on-surface">Current Broadcast Preview</h2>
           <div className="flex items-center gap-1.5 font-body-sm text-body-sm text-secondary">
@@ -94,19 +95,19 @@ const SituationRoom = () => {
                 {/* Metric 2 */}
                 <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 flex flex-col items-center justify-center shadow-lg">
                   <span className="text-white/80 text-xs font-semibold tracking-wider uppercase mb-2">Critical</span>
-                  <span className="text-4xl font-bold text-[#FF6B6B]">42</span>
+                  <span className="text-4xl font-bold text-red-400">42</span>
                 </div>
                 {/* Metric 3 */}
                 <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 flex flex-col items-center justify-center shadow-lg">
                   <span className="text-white/80 text-xs font-semibold tracking-wider uppercase mb-2">Resolved</span>
-                  <span className="text-4xl font-bold text-[#4ADE80]">89%</span>
+                  <span className="text-4xl font-bold text-emerald-400">89%</span>
                 </div>
               </div>
             </div>
 
             <div className="mt-auto flex justify-start">
               <div className="flex items-center gap-2 px-3 py-1.5 bg-black/80 rounded border border-white/10">
-                <div className="w-2 h-2 rounded-full bg-[#FF6B6B] animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></div>
                 <span className="text-xs font-bold text-white tracking-wider uppercase">Live Feed Active</span>
               </div>
             </div>
@@ -133,8 +134,8 @@ const SituationRoom = () => {
         </div>
 
         <div className="bg-surface-container-lowest rounded-[4px] shadow-sm p-6 flex flex-col items-start border-t-2 border-t-transparent hover:border-t-[#12B76A] transition-all">
-          <div className="w-8 h-8 rounded-full bg-[#12B76A]/10 flex items-center justify-center mb-6">
-            <Wifi className="w-4 h-4 text-[#12B76A]" />
+          <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
+            <Wifi className="w-4 h-4 text-emerald-500" />
           </div>
           <h4 className="font-body-sm text-body-sm text-secondary uppercase tracking-wider mb-2">Connection Status</h4>
           <p className="font-headline-sm text-headline-sm text-on-surface">Excellent (12ms)</p>

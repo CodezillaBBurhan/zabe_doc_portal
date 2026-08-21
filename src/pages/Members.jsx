@@ -6,6 +6,12 @@ import EmptyState from '../components/molecules/EmptyState';
 import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import GlobalTable from '../components/organisms/GlobalTable';
+import Button from '../components/atoms/Button';
+import Badge from '../components/atoms/Badge';
+import Avatar from '../components/atoms/Avatar';
+import Input from '../components/atoms/Input';
+import PageHeader from '../components/molecules/PageHeader';
+import { formatDate } from '../utils/formatters';
 
 
 const PAGE_SIZE = 10;
@@ -227,23 +233,14 @@ export default function Members() {
     <div className="flex flex-col w-full pb-10 relative">
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-[32px] font-bold text-[#0f1c2d] leading-tight mb-2">Users</h1>
-          <p className="text-[15px] text-gray-500">
-            Manage users and roles.
-          </p>
-        </div>
-        <div className="shrink-0">
-          <button
-            onClick={handleOpenAdd}
-            className="flex items-center text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md px-4 py-2 transition-colors shadow-sm"
-          >
-            <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
-            Add User
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Users"
+        description="Manage users and roles."
+      >
+        <Button variant="primary" icon="add" onClick={handleOpenAdd}>
+          Add User
+        </Button>
+      </PageHeader>
 
       {/* Filters Section */}
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-8 flex-wrap">
@@ -288,19 +285,19 @@ export default function Members() {
         )}
       </div>
 
-      <div className="bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col w-full mb-6">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col w-full mb-6">
         <GlobalTable minWidth="900px" wrapperClassName="rounded-xl">
           <thead>
-            <tr className="border-b border-[#e4e7ec] bg-white text-[13px] font-medium text-gray-500 tracking-wide">
-              <th className="px-6 py-5 text-left">User</th>
-              <th className="px-6 py-5 text-left">Designation</th>
-              <th className="px-6 py-5 text-left">Role</th>
-              <th className="px-6 py-5 text-left">Status</th>
-              <th className="px-6 py-5 text-left">Created Date</th>
-              <th className="px-6 py-5 text-right">Actions</th>
+            <tr className="border-b border-t border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider bg-white">
+              <th className="px-5 py-4 text-left w-[280px]">NAME & EMAIL</th>
+              <th className="px-5 py-4 text-left w-[160px]">DESIGNATION</th>
+              <th className="px-5 py-4 text-left w-[140px]">ROLE</th>
+              <th className="px-5 py-4 text-left w-[100px]">STATUS</th>
+              <th className="px-5 py-4 text-left w-[140px]">CREATED DATE</th>
+              <th className="px-5 py-4 text-right w-[160px]">ACTIONS</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e4e7ec]">
+          <tbody className="divide-y divide-gray-200">
             {isLoading ? (
               <tr>
                 <td colSpan="6" className="px-6 py-12">
@@ -316,55 +313,51 @@ export default function Members() {
             ) : (
               paginatedMembers.map(member => (
                 <tr key={member.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-[#f0f5fc] text-[#475467] font-bold text-[13px] flex items-center justify-center shrink-0">
-                        {getInitials(member.name)}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-semibold text-[#0f1c2d] truncate">{member.name}</div>
-                        {member.email && <div className="text-[13px] text-gray-500 truncate">{member.email}</div>}
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={member.name} />
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[14px] font-bold text-on-surface leading-snug truncate">{member.name}</span>
+                        <span className="text-[12px] text-gray-500 truncate">{member.email || `${member.name.toLowerCase().replace(' ', '')}@zabe.app`}</span>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">{member.designation || '-'}</td>
-                  <td className="px-6 py-4 text-gray-600">{member.role}</td>
-                  <td className="px-6 py-4">
-                    <div className={`flex items-center text-[14px] ${member.status === 'Active' ? 'text-[#027a48]' : 'text-gray-500'}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full mr-2 ${member.status === 'Active' ? 'bg-[#12b76a]' : 'bg-gray-400'}`}></span>
-                      {member.status}
-                    </div>
+                  <td className="px-5 py-4 text-[14px] font-semibold text-gray-700">{member.designation || '-'}</td>
+                  <td className="px-5 py-4 text-[14px] font-semibold text-gray-700">{member.role}</td>
+                  <td className="px-5 py-4">
+                    <Badge status={member.status} />
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
-                    {(() => {
-                      const dateVal = member.addedOn || member.createdDate;
-                      if (!dateVal) return '—';
-                      const d = new Date(dateVal);
-                      return isNaN(d.getTime()) ? dateVal : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                    })()}
+                  <td className="px-5 py-4 text-[13px] text-gray-600">
+                    {formatDate(member.addedOn || member.createdDate)}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-3 text-gray-400 relative">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center justify-end gap-3 text-gray-500 relative pr-4">
                       <button
                         onClick={() => handleOpenView(member)}
-                        className="hover:text-[#005fb0] transition-colors"
-                        title="View"
+                        className="group/btn relative hover:text-blue-700 transition-colors"
                       >
                         <MaterialIcon icon="visibility" className="text-[20px]" />
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max px-2 py-1 bg-gray-800 text-white text-[10px] font-medium rounded shadow-sm opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all z-50">
+                          View Details
+                        </span>
                       </button>
                       <button
                         onClick={() => handleOpenEdit(member)}
-                        className="hover:text-gray-600 transition-colors"
-                        title="Edit"
+                        className="group/btn relative hover:text-gray-800 transition-colors"
                       >
                         <MaterialIcon icon="edit" className="text-[18px]" />
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max px-2 py-1 bg-gray-800 text-white text-[10px] font-medium rounded shadow-sm opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all z-50">
+                          Edit Member
+                        </span>
                       </button>
                       <button
                         onClick={() => handleDeleteClick(member)}
-                        className="hover:text-red-500 transition-colors"
-                        title="Delete"
+                        className="group/btn relative hover:text-red-500 transition-colors"
                       >
                         <MaterialIcon icon="delete" className="text-[18px]" />
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max px-2 py-1 bg-gray-800 text-white text-[10px] font-medium rounded shadow-sm opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all z-50">
+                          Delete
+                        </span>
                       </button>
                     </div>
                   </td>
@@ -376,7 +369,7 @@ export default function Members() {
 
         {/* Pagination / Footer */}
         {!isLoading && filteredMembers.length > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-t border-[#e4e7ec]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-t border-gray-200">
             <div className="text-[14px] text-gray-600 font-medium">
               Showing {(currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, filteredMembers.length)} of {filteredMembers.length} entries
             </div>
@@ -453,36 +446,25 @@ export default function Members() {
           <form id="member-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
 
             {/* Full Name */}
-            <div>
-              <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">
-                FULL NAME
-              </label>
-              <input
-                type="text"
-                placeholder="Enter full name"
-                value={formData.name}
-                disabled={drawerMode === 'view'}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className={`w-full px-3 py-2.5 text-[14px] border ${errors.name ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 placeholder:text-gray-400 ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
-              />
-              {errors.name && <p className="text-red-500 text-[12px] mt-1">{errors.name}</p>}
-            </div>
+            <Input
+              label="FULL NAME"
+              placeholder="Enter full name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              disabled={drawerMode === 'view'}
+              error={errors.name}
+            />
 
             {/* Email Address */}
-            <div>
-              <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">
-                EMAIL ADDRESS
-              </label>
-              <input
-                type="email"
-                placeholder="email@example.com"
-                value={formData.email}
-                disabled={drawerMode === 'view'}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full px-3 py-2.5 text-[14px] border ${errors.email ? 'border-red-500' : 'border-[#e4e7ec]'} rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 placeholder:text-gray-400 ${drawerMode === 'view' ? 'bg-gray-50 text-gray-500 cursor-not-allowed border-transparent' : ''}`}
-              />
-              {errors.email && <p className="text-red-500 text-[12px] mt-1">{errors.email}</p>}
-            </div>
+            <Input
+              label="EMAIL ADDRESS"
+              type="email"
+              placeholder="email@example.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              disabled={drawerMode === 'view'}
+              error={errors.email}
+            />
 
             {/* Designation */}
             <div>
@@ -522,29 +504,17 @@ export default function Members() {
         {/* Drawer Footer */}
         <div className="p-6 border-t border-[#e4e7ec] flex items-center justify-end gap-3 bg-white shrink-0">
           {drawerMode === 'view' ? (
-            <button
-              type="button"
-              onClick={handleCloseDrawer}
-              className="px-6 py-2 rounded-md text-[14px] font-semibold text-white bg-gray-600 hover:bg-gray-700 transition-colors"
-            >
+            <Button variant="secondary" onClick={handleCloseDrawer}>
               Close
-            </button>
+            </Button>
           ) : (
             <>
-              <button
-                type="button"
-                onClick={handleCloseDrawer}
-                className="px-4 py-2 rounded-md text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 transition-colors"
-              >
+              <Button variant="secondary" onClick={handleCloseDrawer}>
                 Cancel
-              </button>
-              <button
-                type="submit"
-                form="member-form"
-                className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] transition-colors shadow-sm"
-              >
+              </Button>
+              <Button type="submit" form="member-form" variant="primary">
                 {drawerMode === 'add' ? 'Create User' : 'Save Changes'}
-              </button>
+              </Button>
             </>
           )}
         </div>
