@@ -3,6 +3,7 @@ import MaterialIcon from '../components/atoms/MaterialIcon';
 import GlobalTable from '../components/organisms/GlobalTable';
 import Spinner from '../components/atoms/Spinner';
 import EmptyState from '../components/molecules/EmptyState';
+import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import { RolesAPI, PermissionsAPI } from '../mocks/api';
 
 export default function Permissions() {
@@ -22,6 +23,10 @@ export default function Permissions() {
   const [isSaving, setIsSaving] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
+
+  // Delete modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   useEffect(() => {
     fetchRoles();
@@ -72,18 +77,26 @@ export default function Permissions() {
     setIsDrawerOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm(`Are you sure you want to delete this ${activeTab === 'roles' ? 'role' : 'permission'}?`)) return;
+  const handleDeleteClick = (item) => {
+    setItemToDelete(item);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
       if (activeTab === 'roles') {
-        await RolesAPI.delete(id);
-        setRoles(roles.filter(r => r.id !== id));
+        await RolesAPI.delete(itemToDelete.id);
+        setRoles(roles.filter(r => r.id !== itemToDelete.id));
       } else {
-        await PermissionsAPI.delete(id);
-        setPermissions(permissions.filter(p => p.id !== id));
+        await PermissionsAPI.delete(itemToDelete.id);
+        setPermissions(permissions.filter(p => p.id !== itemToDelete.id));
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -223,7 +236,7 @@ export default function Permissions() {
                     </td>
                     <td className="px-5 py-4 text-right">
                       <button onClick={() => handleOpenEdit(role)} className="text-gray-400 hover:text-[#005fb0] transition-colors p-1" title="Edit"><MaterialIcon icon="edit" className="text-[18px]" /></button>
-                      <button onClick={() => handleDelete(role.id)} className="text-gray-400 hover:text-red-600 transition-colors p-1 ml-2" title="Delete"><MaterialIcon icon="delete" className="text-[18px]" /></button>
+                      <button onClick={() => handleDeleteClick(role)} className="text-gray-400 hover:text-red-600 transition-colors p-1 ml-2" title="Delete"><MaterialIcon icon="delete" className="text-[18px]" /></button>
                     </td>
                   </tr>
                 ))}
@@ -267,7 +280,7 @@ export default function Permissions() {
                     </td>
                     <td className="px-5 py-4 text-right">
                       <button onClick={() => handleOpenEdit(perm)} className="text-gray-400 hover:text-[#005fb0] transition-colors p-1" title="Edit"><MaterialIcon icon="edit" className="text-[18px]" /></button>
-                      <button onClick={() => handleDelete(perm.id)} className="text-gray-400 hover:text-red-600 transition-colors p-1 ml-2" title="Delete"><MaterialIcon icon="delete" className="text-[18px]" /></button>
+                      <button onClick={() => handleDeleteClick(perm)} className="text-gray-400 hover:text-red-600 transition-colors p-1 ml-2" title="Delete"><MaterialIcon icon="delete" className="text-[18px]" /></button>
                     </td>
                   </tr>
                 ))}
@@ -276,6 +289,17 @@ export default function Permissions() {
           )
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDialog 
+        isOpen={deleteModalOpen} 
+        onClose={() => setDeleteModalOpen(false)} 
+        onConfirm={confirmDelete}
+        title={`Delete ${activeTab === 'roles' ? 'Role' : 'Permission'}?`}
+        message={`Are you sure you want to delete "${itemToDelete?.name || itemToDelete?.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        confirmColor="red"
+      />
 
       {/* CRUD Drawer */}
       {isDrawerOpen && (
