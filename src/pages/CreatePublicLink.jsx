@@ -262,16 +262,16 @@ const CreatePublicLink = () => {
 
             {/* Action Buttons */}
             <div className="mt-4 flex justify-center items-center gap-4 pb-8">
-              <Button variant="secondary" className="w-[180px] border-dashed" onClick={() => setIsModalOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
+              <Button variant="secondary" className="w-auto min-w-[180px] px-6 border-dashed whitespace-nowrap" onClick={() => setIsModalOpen(true)}>
+                <Plus className="w-4 h-4 mr-2 shrink-0" />
                 Add Widget
               </Button>
               <Button
                 variant="ghost"
-                className="w-[180px] text-brand-orange bg-orange-50 border border-orange-100/50 hover:bg-orange-100"
+                className="w-auto min-w-[180px] px-6 whitespace-nowrap text-brand-orange bg-orange-50 border border-orange-100/50 hover:bg-brand-orange hover:text-white transition-colors flex items-center justify-center"
                 onClick={handlePreview}
               >
-                <ExternalLink className="w-4 h-4 mr-2" />
+                <ExternalLink className="w-4 h-4 mr-2 shrink-0" />
                 Preview Dashboard
               </Button>
             </div>

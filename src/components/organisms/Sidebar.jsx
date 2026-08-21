@@ -14,7 +14,7 @@ export default function Sidebar({ isOpen, onClose }) {
           </div>
           <div className="min-w-0">
             <h1 className="font-headline-sm text-[15px] font-bold text-on-surface leading-tight truncate">Digital Operations</h1>
-            <p className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px] truncate">Center (DOC)</p>
+            <p className="font-body-sm text-body-sm text-on-surface font-bold uppercase tracking-wider text-[10px] truncate">CENTER (DOC)</p>
           </div>
         </div>
         {onClose && (
