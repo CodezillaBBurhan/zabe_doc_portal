@@ -18,45 +18,64 @@ const CreatePublicLink = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const [widgets, setWidgets] = useState([]);
+  const [slides, setSlides] = useState([{ id: 1, name: 'Slide 1', widgets: [] }]);
+  const [activeSlideId, setActiveSlideId] = useState(1);
+
+  const activeSlideIndex = slides.findIndex(s => s.id === activeSlideId);
+  const activeWidgets = slides[activeSlideIndex]?.widgets || [];
 
   const handleAddWidget = (newWidget) => {
     const w = 4;
     const h = 2;
-    // Calculate exact X and Y to stack cleanly side-by-side (3 per row)
-    const row = Math.floor(widgets.length / 3);
-    const nextX = (widgets.length % 3) * w;
+    const row = Math.floor(activeWidgets.length / 3);
+    const nextX = (activeWidgets.length % 3) * w;
     const nextY = row * h;
     
-    setWidgets([...widgets, { ...newWidget, grid: { x: nextX, y: nextY, w, h } }]);
+    const updatedWidgets = [...activeWidgets, { ...newWidget, grid: { x: nextX, y: nextY, w, h } }];
+    const updatedSlides = [...slides];
+    updatedSlides[activeSlideIndex].widgets = updatedWidgets;
+    setSlides(updatedSlides);
   };
 
   const handleLayoutChange = (newLayout) => {
-    const updatedWidgets = widgets.map(w => {
+    const updatedWidgets = activeWidgets.map(w => {
       const layoutItem = newLayout.find(l => l.i === w.id);
       return layoutItem ? { ...w, grid: { x: layoutItem.x, y: layoutItem.y, w: layoutItem.w, h: layoutItem.h } } : w;
     });
-    setWidgets(updatedWidgets);
+    const updatedSlides = [...slides];
+    updatedSlides[activeSlideIndex].widgets = updatedWidgets;
+    setSlides(updatedSlides);
   };
 
   const handleRemoveWidget = (id) => {
-    setWidgets(widgets.filter(w => w.id !== id));
+    const updatedWidgets = activeWidgets.filter(w => w.id !== id);
+    const updatedSlides = [...slides];
+    updatedSlides[activeSlideIndex].widgets = updatedWidgets;
+    setSlides(updatedSlides);
   };
 
   const handleChangeType = (id) => {
-    // Simple cycle through types for now
     const types = ['bar', 'line', 'pie', 'area', 'scatter'];
-    setWidgets(widgets.map(w => {
+    const updatedWidgets = activeWidgets.map(w => {
       if (w.id === id) {
         const nextIdx = (types.indexOf(w.type) + 1) % types.length;
         return { ...w, type: types[nextIdx] };
       }
       return w;
-    }));
+    });
+    const updatedSlides = [...slides];
+    updatedSlides[activeSlideIndex].widgets = updatedWidgets;
+    setSlides(updatedSlides);
+  };
+
+  const handleAddSlide = () => {
+    const newId = Date.now();
+    setSlides([...slides, { id: newId, name: `Slide ${slides.length + 1}`, widgets: [] }]);
+    setActiveSlideId(newId);
   };
 
   const handlePreview = () => {
-    localStorage.setItem('dashboard_preview', JSON.stringify({ linkName, widgets }));
+    localStorage.setItem('dashboard_preview', JSON.stringify({ linkName, slides }));
     window.open('/preview', '_blank');
   };
 
@@ -146,7 +165,29 @@ const CreatePublicLink = () => {
           {/* Glass Overlay */}
           <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
 
-
+          {/* Slides Manager */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-white/80 backdrop-blur-md px-2 py-1.5 rounded-full shadow-sm border border-white/60 flex items-center gap-1">
+            {slides.map(slide => (
+              <button
+                key={slide.id}
+                onClick={() => setActiveSlideId(slide.id)}
+                className={`px-4 py-1.5 rounded-full text-[12px] font-bold transition-colors ${
+                  activeSlideId === slide.id 
+                    ? 'bg-brand-orange text-white shadow-sm' 
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
+                }`}
+              >
+                {slide.name}
+              </button>
+            ))}
+            <button
+              onClick={handleAddSlide}
+              className="w-7 h-7 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 ml-1 transition-colors"
+              title="Add new slide"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
 
           {/* Dashboard Mockup Image */}
           <div className="relative w-[1200px] min-h-[750px] h-auto shrink-0 bg-gray-50 rounded-xl shadow-2xl overflow-hidden border border-white/60 flex flex-col z-10 p-4 gap-3">
@@ -195,7 +236,7 @@ const CreatePublicLink = () => {
 
             {/* Dynamic Draggable Grid Area */}
             <div className="flex-1 mt-4 min-h-[300px]">
-              {widgets.length === 0 ? (
+              {activeWidgets.length === 0 ? (
                 <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50 min-h-[300px]">
                   <p className="text-gray-400 font-semibold mb-2">Dashboard is empty</p>
                   <p className="text-gray-400 text-[12px] mb-4">Click "Add Widget" below to build your custom view</p>
@@ -203,7 +244,7 @@ const CreatePublicLink = () => {
               ) : (
                 <GridLayout
                   className="layout"
-                  layout={widgets.map(w => ({ i: w.id, ...w.grid }))}
+                  layout={activeWidgets.map(w => ({ i: w.id, ...w.grid }))}
                   cols={12}
                   rowHeight={140}
                   width={1160}
@@ -213,7 +254,7 @@ const CreatePublicLink = () => {
                   isDraggable={true}
                   margin={[16, 16]}
                 >
-                  {widgets.map(w => (
+                  {activeWidgets.map(w => (
                     <div key={w.id}>
                       <DashboardWidget 
                         title={w.title} 
