@@ -3,12 +3,12 @@
 
 export const db = {
   members: [
-    { id: 1, name: 'Adamu Abubakar', role: 'State Supervisor', email: 'adamu@zabe.app', designation: 'Senior Supervisor', status: 'Active', addedOn: '2023-01-15' },
-    { id: 2, name: 'Ngozi Eze', role: 'Ward Collation Officer', email: 'ngozi@zabe.app', designation: 'Collation Officer', status: 'Inactive', addedOn: '2023-01-20' },
-    { id: 3, name: 'Chukwudi Okafor', role: 'Field Agent', email: 'chukwudi@zabe.app', designation: 'Field Agent I', status: 'Active', addedOn: '2023-02-05' },
-    { id: 4, name: 'Aisha Bello', role: 'Data Analyst', email: 'aisha@zabe.app', designation: 'Data Specialist', status: 'Active', addedOn: '2023-03-10' },
-    { id: 5, name: 'Oluwaseun Adebayo', role: 'LGA Coordinator', email: 'oluwaseun@zabe.app', designation: 'Coordinator', status: 'Pending', addedOn: '2023-04-12' },
-    { id: 6, name: 'Zainab Usman', role: 'Field Agent', email: 'zainab@zabe.app', designation: 'Field Agent II', status: 'Active', addedOn: '2023-05-22' },
+    { id: 1, name: 'Adamu Abubakar', role: 'State Supervisor', email: 'adamu@zabe.app', designation: 'Senior Supervisor', status: 'Active', addedOn: '2023-01-15', viewTo: 'Kano State', publicLink: 'zabe.app/kano-state' },
+    { id: 2, name: 'Ngozi Eze', role: 'Ward Collation Officer', email: 'ngozi@zabe.app', designation: 'Collation Officer', status: 'Inactive', addedOn: '2023-01-20', viewTo: 'Lagos Central', publicLink: 'zabe.app/lagos-central' },
+    { id: 3, name: 'Chukwudi Okafor', role: 'Field Agent', email: 'chukwudi@zabe.app', designation: 'Field Agent I', status: 'Active', addedOn: '2023-02-05', viewTo: 'Rivers LGA', publicLink: '' },
+    { id: 4, name: 'Aisha Bello', role: 'Data Analyst', email: 'aisha@zabe.app', designation: 'Data Specialist', status: 'Active', addedOn: '2023-03-10', viewTo: 'National', publicLink: 'zabe.app/national' },
+    { id: 5, name: 'Oluwaseun Adebayo', role: 'LGA Coordinator', email: 'oluwaseun@zabe.app', designation: 'Coordinator', status: 'Pending', addedOn: '2023-04-12', viewTo: 'Oyo State', publicLink: '' },
+    { id: 6, name: 'Zainab Usman', role: 'Field Agent', email: 'zainab@zabe.app', designation: 'Field Agent II', status: 'Active', addedOn: '2023-05-22', viewTo: 'FCT Abuja', publicLink: 'zabe.app/abuja' },
   ],
   requests: [
     { id: 'REQ-101', type: 'Result Submission', submitter: 'Adamu Abubakar', date: '2023-06-01T10:30:00Z', status: 'Pending', priority: 'High', location: 'Kano - Ward 1' },

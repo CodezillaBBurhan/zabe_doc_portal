@@ -4,7 +4,7 @@ import MaterialIcon from '../components/atoms/MaterialIcon';
 export default function Settings() {
   return (
     <div className="flex flex-col gap-8 w-full pb-10">
-      
+
       {/* Page Header */}
       <div>
         <h1 className="text-[28px] font-bold text-[#005fb0] leading-tight mb-3">Settings</h1>
@@ -25,7 +25,7 @@ export default function Settings() {
 
       {/* Settings Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         {/* Card 1: Election Configuration */}
         <div className="bg-white border border-[#e4e7ec] rounded-lg p-6 flex flex-col hover:shadow-sm transition-shadow">
           <div className="w-9 h-9 rounded-full bg-[#eff4ff] flex items-center justify-center mb-4">
@@ -167,12 +167,12 @@ export default function Settings() {
             </button>
           </div>
         </div>
-        
+
       </div>
 
       {/* Bottom Compact Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         {/* Public Information */}
         <div className="bg-white border border-[#e4e7ec] rounded-lg p-5 flex items-center hover:shadow-sm transition-shadow">
           <div className="w-9 h-9 rounded-full bg-[#eff4ff] flex items-center justify-center mr-4 shrink-0">
@@ -193,14 +193,14 @@ export default function Settings() {
             <MaterialIcon icon="group" className="text-[#005fb0] text-[18px]" />
           </div>
           <div className="flex-1">
-            <h3 className="text-[15px] font-semibold text-[#005fb0]">Team & Permissions</h3>
+            <h3 className="text-[15px] font-semibold text-[#005fb0]">Principals</h3>
             <p className="text-[13px] text-gray-700 mt-1 font-medium">126 Users • 18 Roles</p>
           </div>
           <button className="flex items-center text-[14px] font-semibold text-[#005fb0] hover:text-[#004786] shrink-0">
             Manage <MaterialIcon icon="arrow_forward" className="ml-1 text-[16px]" />
           </button>
         </div>
-        
+
       </div>
 
     </div>

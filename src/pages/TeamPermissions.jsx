@@ -43,7 +43,7 @@ export default function TeamPermissions() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedPermissions, setEditedPermissions] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-  
+
   const [discardModalOpen, setDiscardModalOpen] = useState(false);
   const [pendingMemberToSelect, setPendingMemberToSelect] = useState(null);
 
@@ -215,7 +215,7 @@ export default function TeamPermissions() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-[28px] font-bold text-[#0f1c2d] leading-tight mb-2">Team & Permissions</h1>
+          <h1 className="text-[28px] font-bold text-[#0f1c2d] leading-tight mb-2">Principals</h1>
           <p className="text-[15px] text-gray-500">
             Manage access control and user roles for the Election Center.
           </p>
@@ -227,7 +227,7 @@ export default function TeamPermissions() {
             className="flex-1 sm:flex-none justify-center flex items-center text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md px-4 py-2 transition-colors shadow-sm"
           >
             <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
-            Assign Member
+            Assign Principal
           </button>
         </div>
       </div>
@@ -236,7 +236,7 @@ export default function TeamPermissions() {
       <div className="flex flex-col w-full items-start">
 
         {/* Table */}
-        <div className="w-full bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col overflow-hidden relative">
+        <div className="w-full bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col overflow-hidden overflow-x-auto relative">
 
           {/* Table Toolbar */}
           <div className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 relative z-20">
@@ -301,14 +301,17 @@ export default function TeamPermissions() {
           ) : paginatedMembers.length === 0 ? (
             <EmptyState title="No members found" description="Adjust your search or filters to see more members." />
           ) : (
-            <GlobalTable minWidth="700px">
+            <GlobalTable minWidth="1100px">
               <thead>
                 <tr className="border-b border-t border-[#e4e7ec] text-[11px] font-bold text-gray-500 uppercase tracking-wider bg-white">
                   <th className="px-5 py-4 w-[280px]">NAME & EMAIL</th>
-                  <th className="px-5 py-4 w-[160px]">ROLE</th>
+                  <th className="px-5 py-4 w-[140px]">ROLE</th>
                   <th className="px-5 py-4 w-[100px]">STATUS</th>
-                  <th className="px-5 py-4 w-[140px]">LAST LOGIN</th>
-                  <th className="px-5 py-4 w-[120px] text-center">ACTIONS</th>
+                  <th className="px-5 py-4 w-[120px]">LAST LOGIN</th>
+                  <th className="px-5 py-4 w-[140px]">VIEW TO</th>
+                  <th className="px-5 py-4 w-[140px]">PUBLIC LINK</th>
+                  <th className="px-5 py-4 w-[120px]">CREATED DATE</th>
+                  <th className="px-5 py-4 w-[160px] text-right">ACTIONS</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e4e7ec]">
@@ -343,24 +346,68 @@ export default function TeamPermissions() {
                         <div className="text-[#0f1c2d]">{member.lastLogin}</div>
                         <div className="text-[12px] text-gray-500">{member.lastLoginTime}</div>
                       </td>
+                      <td className="px-5 py-4 text-gray-600">
+                        {member.viewTo || '—'}
+                      </td>
+                      <td className="px-5 py-4">
+                        {member.publicLink ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#eff4ff] text-[#005fb0] border border-[#d1e0ff] truncate max-w-[120px]">
+                            {member.publicLink}
+                          </span>
+                        ) : (
+                          <span className="text-[12px] text-gray-400 italic">Not Assigned</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-gray-600">
+                        {(() => {
+                          const dateVal = member.addedOn || member.createdDate || '2023-01-01'; // Fallback for mock data
+                          const d = new Date(dateVal);
+                          return isNaN(d.getTime()) ? dateVal : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                        })()}
+                      </td>
                       <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-center justify-end gap-3 text-gray-400 relative pr-4">
+                          <button
+                            onClick={() => {
+                              if (member.publicLink) console.log('View Link for:', member.id);
+                            }}
+                            disabled={!member.publicLink}
+                            className={`group/btn relative transition-colors ${member.publicLink ? 'hover:text-[#005fb0] text-gray-400' : 'text-gray-300 opacity-50 cursor-not-allowed'}`}
+                          >
+                            <MaterialIcon icon="open_in_new" className="text-[18px]" />
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max px-2 py-1 bg-gray-800 text-white text-[10px] font-medium rounded shadow-sm opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all z-50">
+                              Preview Link
+                            </span>
+                          </button>
                           <button
                             onClick={() => handleSelectMember(member)}
-                            className="flex items-center justify-center w-8 h-8 rounded text-gray-500 border border-[#e4e7ec] bg-white hover:bg-gray-50"
-                            title="View"
+                            className="group/btn relative hover:text-[#005fb0] transition-colors"
                           >
-                            <MaterialIcon icon="visibility" className="text-[16px]" />
+                            <MaterialIcon icon="visibility" className="text-[20px]" />
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max px-2 py-1 bg-gray-800 text-white text-[10px] font-medium rounded shadow-sm opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all z-50">
+                              View Details
+                            </span>
                           </button>
                           <button
                             onClick={() => {
                               handleSelectMember(member);
                               setIsEditing(true);
                             }}
-                            className="flex items-center justify-center w-8 h-8 rounded text-gray-500 border border-[#e4e7ec] bg-white hover:bg-gray-50"
-                            title="Edit Permissions"
+                            className="group/btn relative hover:text-gray-800 transition-colors"
                           >
-                            <MaterialIcon icon="edit" className="text-[16px]" />
+                            <MaterialIcon icon="edit" className="text-[18px]" />
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max px-2 py-1 bg-gray-800 text-white text-[10px] font-medium rounded shadow-sm opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all z-50">
+                              Edit Permissions
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => console.log('Delete member:', member.id)}
+                            className="group/btn relative hover:text-red-500 transition-colors"
+                          >
+                            <MaterialIcon icon="delete" className="text-[18px]" />
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max px-2 py-1 bg-gray-800 text-white text-[10px] font-medium rounded shadow-sm opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all z-50">
+                              Delete
+                            </span>
                           </button>
                         </div>
                       </td>
@@ -580,7 +627,7 @@ export default function TeamPermissions() {
         {/* Header */}
         <div className="p-6 border-b border-[#e4e7ec] flex items-start justify-between shrink-0">
           <div>
-            <h2 className="text-[20px] font-bold text-[#0f1c2d] mb-1">Assign Member</h2>
+            <h2 className="text-[20px] font-bold text-[#0f1c2d] mb-1">Assign Principal</h2>
             <p className="text-[13px] text-gray-500">Create a new user and assign their role and public access link.</p>
           </div>
           <button onClick={() => setIsAssignDrawerOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100">
@@ -677,9 +724,9 @@ export default function TeamPermissions() {
       </div>
 
       {/* Discard Changes Confirmation Modal */}
-      <ConfirmDialog 
-        isOpen={discardModalOpen} 
-        onClose={() => { setDiscardModalOpen(false); setPendingMemberToSelect(null); }} 
+      <ConfirmDialog
+        isOpen={discardModalOpen}
+        onClose={() => { setDiscardModalOpen(false); setPendingMemberToSelect(null); }}
         onConfirm={confirmDiscard}
         title="Discard Unsaved Changes?"
         message="You have unsaved changes to this member's permissions. Are you sure you want to discard them and view another member?"
