@@ -20,7 +20,7 @@ export default function ForgotPasswordForm() {
       <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-10 pt-10 pb-8 border border-gray-100">
         <div className="flex flex-col items-center mb-6">
           <FormLogo />
-          <h2 className="text-[24px] font-bold text-[#111827] leading-tight text-center mt-5 mb-2">
+          <h2 className="text-[24px] font-bold text-on-surface leading-tight text-center mt-5 mb-2">
             Reset Password
           </h2>
           <p className="text-[13px] text-gray-500 text-center px-4">

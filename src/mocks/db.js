@@ -23,9 +23,9 @@ export const db = {
   ],
   auditLogs: [
     { id: 1, action: 'Data_Sync', user: 'System_Service', role: 'Automation', module: 'Voter_DB', target: 'tbl_precinct', timestamp: '2023-06-01T10:42:15Z' },
-    { id: 2, action: 'Override_Config', user: 'A. Mitchell', role: 'Lead Ops', module: 'Core_Routing', target: 'node_alpha_config', timestamp: '2023-06-01T10:38:02Z' },
-    { id: 3, action: 'Export_Report', user: 'J. Harrison', role: 'Analyst', module: 'Reports', target: 'turnout_Q3_config', timestamp: '2023-06-01T10:15:44Z' },
-    { id: 4, action: 'Modify_Perms', user: 'S. Vance', role: 'Admin', module: 'Auth_Control', target: 'usr_grp_field', timestamp: '2023-06-01T09:55:10Z' },
+    { id: 2, action: 'Override_Config', user: 'A. Abubakar', role: 'Lead Ops', module: 'Core_Routing', target: 'node_alpha_config', timestamp: '2023-06-01T10:38:02Z' },
+    { id: 3, action: 'Export_Report', user: 'C. Okafor', role: 'Analyst', module: 'Reports', target: 'turnout_Q3_config', timestamp: '2023-06-01T10:15:44Z' },
+    { id: 4, action: 'Modify_Perms', user: 'N. Eze', role: 'Admin', module: 'Auth_Control', target: 'usr_grp_field', timestamp: '2023-06-01T09:55:10Z' },
     { id: 5, action: 'Health_Check', user: 'System_Service', role: 'Automation', module: 'Infrastructure', target: 'cluster_node', timestamp: '2023-06-01T09:12:05Z' },
   ],
   publicLinks: [
@@ -50,7 +50,7 @@ export const db = {
 
 // Helper function to persist data to localStorage
 export const loadData = () => {
-  const stored = localStorage.getItem('zabe_mock_db_v3');
+  const stored = localStorage.getItem('zabe_mock_db_v4');
   if (stored) {
     try {
       Object.assign(db, JSON.parse(stored));
@@ -63,7 +63,7 @@ export const loadData = () => {
 };
 
 export const saveData = () => {
-  localStorage.setItem('zabe_mock_db_v3', JSON.stringify(db));
+  localStorage.setItem('zabe_mock_db_v4', JSON.stringify(db));
 };
 
 // Initialize on load

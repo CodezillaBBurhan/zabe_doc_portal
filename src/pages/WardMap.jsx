@@ -3,6 +3,9 @@ import MaterialIcon from '../components/atoms/MaterialIcon';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import PageHeader from '../components/molecules/PageHeader';
+import Input from '../components/atoms/Input';
+import Button from '../components/atoms/Button';
 
 /* ── Components ── */
 function KPICard({ icon, title, value, sub, iconBg, iconColor, valueColor = '#111827', progress }) {
@@ -93,11 +96,11 @@ export default function WardMap() {
     <div style={{ width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 shrink-0">
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111827', letterSpacing: '-0.3px' }}>Ward / LGA Map</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Explore collation progress and election activity by geography.</p>
-        </div>
+      <PageHeader
+        title="Ward / LGA Map"
+        description="Explore collation progress and election activity by geography."
+        className="shrink-0"
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, fontWeight: 500, color: '#6B7280' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#DC2626', fontWeight: 600 }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#DC2626', animation: 'pulse 2s infinite' }} />
@@ -105,7 +108,7 @@ export default function WardMap() {
           </div>
           <span>Last updated: 10:42 AM</span>
         </div>
-      </div>
+      </PageHeader>
 
       {/* ── Filter Bar ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 shrink-0">
@@ -125,13 +128,12 @@ export default function WardMap() {
 
         {/* Search */}
         <div className="relative w-full md:w-[280px]">
-          <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
-            <MaterialIcon icon="search" className="text-[16px]" />
-          </span>
-          <input
-            value={search} onChange={(e) => setSearch(e.target.value)}
+          <Input
+            icon="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search geography..."
-            style={{ height: 34, paddingLeft: 34, paddingRight: 12, width: '100%', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', boxSizing: 'border-box', color: '#374151', background: '#F9FAFB' }}
+            className="bg-gray-50"
           />
         </div>
       </div>
@@ -240,7 +242,7 @@ export default function WardMap() {
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #E5E7EB', padding: '20px 24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>TOP LGAS BY PROGRESS</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#0284C7', cursor: 'pointer' }}>View All</span>
+              <Button variant="ghostPrimary" className="text-[13px] h-auto p-0">View All</Button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-5">

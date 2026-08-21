@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import MaterialIcon from '../components/atoms/MaterialIcon';
-
+import Button from '../components/atoms/Button';
 export default function NotFound() {
   const navigate = useNavigate();
 
@@ -15,13 +15,14 @@ export default function NotFound() {
       <p className="text-gray-500 mb-8 max-w-md">
         The page you are looking for doesn't exist, has been removed, or is temporarily unavailable.
       </p>
-      <button 
+      <Button 
+        variant="primary" 
+        icon="arrow_back" 
         onClick={() => navigate('/dashboard')}
-        className="px-6 py-3 bg-[#ff5a1f] hover:bg-[#e84c12] text-white rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm"
+        className="px-6 py-3"
       >
-        <MaterialIcon icon="arrow_back" className="text-[18px]" />
         Return to Dashboard
-      </button>
+      </Button>
     </div>
   );
 }

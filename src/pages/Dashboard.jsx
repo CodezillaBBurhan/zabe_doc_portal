@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts';
 import MaterialIcon from '../components/atoms/MaterialIcon';
-
+import PageHeader from '../components/molecules/PageHeader';
+import Button from '../components/atoms/Button';
 const REGIONAL_DATA = [
   { state: "Kano", registered: 5921370, accredited: 3951201, valid: 3890122, turnout: 66.7 },
   { state: "Lagos", registered: 7060195, accredited: 4102931, valid: 4010212, turnout: 58.1 },
@@ -17,22 +18,14 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col w-full pb-10">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h2 className="text-[32px] font-bold text-gray-900 tracking-tight leading-tight mb-1">
-            Welcome back, Sarah
-          </h2>
-          <p className="text-[14px] text-gray-500 font-medium">
-            Nigeria Election 2027 <span className="mx-2 text-gray-300">|</span> Real-time national election metrics.
-          </p>
-        </div>
-        <div>
-          <button className="h-10 px-4 rounded-md border border-gray-200 bg-white text-gray-600 font-medium text-[13px] flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
-            <MaterialIcon icon="refresh" className="text-[18px]" />
-            Last updated: Just now
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Welcome back, Sarah"
+        description={<>Nigeria Election 2027 <span className="mx-2 text-gray-300">|</span> Real-time national election metrics.</>}
+      >
+        <Button variant="secondary" icon="refresh">
+          Last updated: Just now
+        </Button>
+      </PageHeader>
 
       {/* KPI Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-6">
@@ -65,13 +58,13 @@ export default function Dashboard() {
         />
         <KpiCard 
           icon="pie_chart" 
-          iconBg="bg-[#fff0eb] text-[#ff5a1f]" 
+          iconBg="bg-orange-50 text-brand-orange" 
           title="NATIONAL TURNOUT" 
           value="58.4%" 
           trend="up"
           trendValue="+3.1%"
           footerText="projected final"
-          borderLeft="border-l-4 border-l-[#ff5a1f]"
+          borderLeft="border-l-4 border-l-brand-orange"
         />
       </div>
 
@@ -87,9 +80,9 @@ export default function Dashboard() {
             <h3 className="text-[16px] font-bold text-gray-900 mb-6">Live Vote Counts</h3>
             
             <div className="space-y-6">
-              <VoteProgress candidate="Candidate A" votes="22,100,432 (41.7%)" percentage={41.7} color="bg-[#1e40af]" />
-              <VoteProgress candidate="Candidate B" votes="19,845,110 (37.4%)" percentage={37.4} color="bg-[#ff5a1f]" />
-              <VoteProgress candidate="Candidate C" votes="8,400,201 (15.8%)" percentage={15.8} color="bg-[#10b981]" />
+              <VoteProgress candidate="Candidate A" votes="22,100,432 (41.7%)" percentage={41.7} color="bg-blue-800" />
+              <VoteProgress candidate="Candidate B" votes="19,845,110 (37.4%)" percentage={37.4} color="bg-brand-orange" />
+              <VoteProgress candidate="Candidate C" votes="8,400,201 (15.8%)" percentage={15.8} color="bg-green-500" />
             </div>
           </div>
 
@@ -97,7 +90,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl border border-gray-100 shadow-[0_2px_10px_rgb(0,0,0,0.02)] p-6 flex-1">
             <div className="flex justify-between items-center mb-6">
                <h3 className="text-[16px] font-bold text-gray-900">Live Activity</h3>
-               <div className="w-2 h-2 rounded-full bg-[#a16207]"></div>
+               <div className="w-2 h-2 rounded-full bg-yellow-700"></div>
             </div>
             
             <div className="space-y-7">
@@ -142,7 +135,7 @@ function KpiCard({ icon, title, value, trend, trendValue, footerText, footerIcon
         
         <div className="flex items-center gap-1.5 text-[12px] font-medium text-gray-400">
           {trend === 'up' && (
-            <span className="flex items-center text-[#10b981] gap-0.5 font-bold">
+            <span className="flex items-center text-green-500 gap-0.5 font-bold">
               <MaterialIcon icon="trending_up" className="text-[14px]" />
               {trendValue}
             </span>
@@ -200,18 +193,20 @@ function GeographicDistribution() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h3 className="text-[18px] font-bold text-gray-900">Geographic Distribution</h3>
         <div className="flex bg-gray-50 rounded-md border border-gray-200 p-0.5 w-full sm:w-auto shrink-0">
-          <button 
+          <Button 
+            variant={viewType === 'turnout' ? 'secondary' : 'ghost'}
             onClick={() => setViewType('turnout')}
             className={`flex-1 sm:flex-none px-3 py-1.5 text-[12px] font-semibold rounded shadow-sm transition-colors ${viewType === 'turnout' ? 'bg-white text-gray-900 border border-gray-200/50' : 'text-gray-500 hover:text-gray-700'}`}
           >
             Turnout %
-          </button>
-          <button 
+          </Button>
+          <Button 
+            variant={viewType === 'total' ? 'secondary' : 'ghost'}
             onClick={() => setViewType('total')}
             className={`flex-1 sm:flex-none px-3 py-1.5 text-[12px] font-semibold rounded shadow-sm transition-colors ${viewType === 'total' ? 'bg-white text-gray-900 border border-gray-200/50' : 'text-gray-500 hover:text-gray-700'}`}
           >
             Total Votes
-          </button>
+          </Button>
         </div>
       </div>
       
@@ -250,7 +245,7 @@ function GeographicDistribution() {
                     return (
                       <div className="bg-gray-900 text-white rounded-lg p-3 shadow-xl flex flex-col gap-1 min-w-[150px] z-50 relative">
                         <div className="text-[13px] font-bold text-gray-100 border-b border-gray-700 pb-1 mb-1">{data.state} Stats</div>
-                        <div className="flex justify-between text-[11px] gap-4"><span className="text-gray-400">Turnout:</span> <span className="font-semibold text-[#10b981]">{data.turnout}%</span></div>
+                        <div className="flex justify-between text-[11px] gap-4"><span className="text-gray-400">Turnout:</span> <span className="font-semibold text-green-500">{data.turnout}%</span></div>
                         <div className="flex justify-between text-[11px] gap-4"><span className="text-gray-400">Total Valid:</span> <span className="font-semibold">{data.valid.toLocaleString()}</span></div>
                       </div>
                     );
@@ -278,11 +273,11 @@ function GeographicDistribution() {
         </div>
         
         {/* Right Side: Details Panel */}
-        <div className="flex-1 bg-[#f8fafc] rounded-xl p-5 border border-gray-100 flex flex-col min-w-[200px]">
+        <div className="flex-1 bg-slate-50 rounded-xl p-5 border border-gray-100 flex flex-col min-w-[200px]">
           {hoveredState ? (
             <div className="h-full flex flex-col">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
-                <div className="w-10 h-10 rounded-full bg-blue-100 text-[#1e40af] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
                   <MaterialIcon icon="location_on" className="text-[20px]" />
                 </div>
                 <div>
@@ -307,7 +302,7 @@ function GeographicDistribution() {
                 
                 <div className="mt-auto pt-4 border-t border-gray-200">
                   <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Voter Turnout</div>
-                  <div className="text-[24px] font-bold text-[#10b981] leading-none">{hoveredState.turnout}%</div>
+                  <div className="text-[24px] font-bold text-green-500 leading-none">{hoveredState.turnout}%</div>
                 </div>
               </div>
             </div>

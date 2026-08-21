@@ -20,7 +20,7 @@ export default function LoginForm() {
       <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-10 pt-10 pb-8 border border-gray-100">
         <div className="flex flex-col items-center mb-6">
           <FormLogo />
-          <h2 className="text-[26px] font-bold text-[#111827] leading-tight text-center mt-5 mb-1.5">
+          <h2 className="text-[26px] font-bold text-on-surface leading-tight text-center mt-5 mb-1.5">
             Digital Operations<br />Center (DOC)
           </h2>
           <p className="text-[11px] font-bold text-gray-500 tracking-wider uppercase">
@@ -49,7 +49,7 @@ export default function LoginForm() {
 
           <div className="flex items-center justify-between pt-1 pb-1">
             <Checkbox id="remember" label="Remember me" />
-            <Link to="/forgot-password" className="text-[13px] font-semibold text-[#2563eb] hover:text-blue-700">
+            <Link to="/forgot-password" className="text-[13px] font-semibold text-brand-orange hover:text-orange-700">
               Forgot Password?
             </Link>
           </div>

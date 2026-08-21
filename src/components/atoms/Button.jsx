@@ -1,14 +1,52 @@
-export default function Button({ children, variant = 'primary', icon: Icon, className = '', ...props }) {
-  const baseStyle = "w-full flex justify-center items-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold focus:outline-none transition-colors duration-200";
+// 📚 See COMPONENTS.md in the project root for usage guidelines and variants.
+import React from 'react';
+import MaterialIcon from './MaterialIcon';
+import Spinner from './Spinner';
+
+export default function Button({
+  children,
+  variant = 'primary',
+  icon,
+  iconRight,
+  isLoading,
+  disabled,
+  className = '',
+  onClick,
+  type = 'button',
+  ...props
+}) {
+  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-md px-4 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-brand-orange disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-[14px]';
+  
   const variants = {
-    primary: "text-white bg-brand-orange hover:bg-[#e04a15] focus:ring-2 focus:ring-offset-2 focus:ring-brand-orange",
-    outline: "border border-gray-300 text-gray-700 bg-white hover:bg-gray-50",
+    primary: 'bg-brand-orange hover:bg-[#e64a10] text-white border border-transparent',
+    secondary: 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300',
+    danger: 'bg-error hover:bg-red-700 text-white border border-transparent',
+    dangerLight: 'bg-[#fef3f2] hover:bg-[#fee4e2] text-[#d92d20] border border-[#fecdca]',
+    ghost: 'bg-transparent hover:bg-gray-100 text-gray-700 border border-transparent shadow-none',
+    primaryLight: 'bg-[#fff3eb] hover:bg-[#ffecd9] text-brand-orange border border-[#ffdbba]',
+    ghostPrimary: 'bg-transparent hover:bg-orange-50 text-brand-orange border border-transparent shadow-none',
+    ghostInfo: 'bg-transparent hover:bg-blue-50 text-[#005fb0] border border-transparent shadow-none'
   };
 
   return (
-    <button className={`${baseStyle} ${variants[variant]} ${className}`} {...props}>
-      {Icon && <Icon className="mr-2 h-5 w-5 text-gray-400" />}
+    <button
+      type={type}
+      className={`${baseClasses} ${variants[variant] || variants.primary} ${className}`}
+      disabled={disabled || isLoading}
+      onClick={onClick}
+      {...props}
+    >
+      {isLoading ? (
+        <Spinner className="w-4 h-4 mr-2" />
+      ) : icon ? (
+        <MaterialIcon icon={icon} className={`text-[18px] ${children ? 'mr-1.5' : ''}`} />
+      ) : null}
+      
       {children}
+      
+      {!isLoading && iconRight && (
+        <MaterialIcon icon={iconRight} className="text-[18px] ml-1.5" />
+      )}
     </button>
   );
 }

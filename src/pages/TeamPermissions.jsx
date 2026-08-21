@@ -6,6 +6,12 @@ import Spinner from '../components/atoms/Spinner';
 import EmptyState from '../components/molecules/EmptyState';
 import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import { MembersAPI, RolesAPI } from '../mocks/api';
+import Button from '../components/atoms/Button';
+import Badge from '../components/atoms/Badge';
+import Avatar from '../components/atoms/Avatar';
+import Input from '../components/atoms/Input';
+import PageHeader from '../components/molecules/PageHeader';
+import { formatDate } from '../utils/formatters';
 
 const PERMISSIONS_DEF = [
   { key: 'overview', title: 'Overview Dashboard', desc: 'View real-time high-level metrics and system status.' },
@@ -213,30 +219,20 @@ export default function TeamPermissions() {
     <div className="flex flex-col w-full pb-10">
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-[28px] font-bold text-[#0f1c2d] leading-tight mb-2">Principals</h1>
-          <p className="text-[15px] text-gray-500">
-            Manage access control and user roles for the Election Center.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3 shrink-0 w-full sm:w-auto">
-
-          <button
-            onClick={() => setIsAssignDrawerOpen(true)}
-            className="flex-1 sm:flex-none justify-center flex items-center text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md px-4 py-2 transition-colors shadow-sm"
-          >
-            <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
-            Assign Principal
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Principals"
+        description="Manage access control and user roles for the Election Center."
+      >
+        <Button variant="primary" icon="add" onClick={() => setIsAssignDrawerOpen(true)}>
+          Assign Principal
+        </Button>
+      </PageHeader>
 
       {/* Main Content Layout */}
       <div className="flex flex-col w-full items-start">
 
         {/* Table */}
-        <div className="w-full bg-white border border-[#e4e7ec] rounded-xl shadow-sm flex flex-col overflow-hidden overflow-x-auto relative">
+        <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden overflow-x-auto relative">
 
           {/* Table Toolbar */}
           <div className="flex flex-col sm:flex-row items-center justify-between p-5 gap-4 relative z-20">
@@ -247,25 +243,25 @@ export default function TeamPermissions() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search members..."
-                className="w-full pl-10 pr-4 py-2 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700"
+                className="w-full pl-10 pr-4 py-2 text-[14px] border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700"
               />
             </div>
 
             <div className="flex items-center gap-3">
               {(searchTerm || roleFilter !== 'All' || statusFilter !== 'All') && (
-                <button onClick={clearFilters} className="text-sm font-medium text-gray-500 hover:text-gray-800">Clear</button>
+                <Button variant="ghost" onClick={clearFilters} className="px-2 py-1">Clear</Button>
               )}
               <div className="relative">
                 <button
                   onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                  className={`flex justify-center items-center text-[14px] font-semibold text-gray-700 bg-white border rounded-md px-4 py-2 transition-colors shrink-0 ${showFilterDropdown ? 'border-[#ff8c42] ring-1 ring-[#ff8c42]' : 'border-[#e4e7ec] hover:bg-gray-50'}`}
+                  className={`flex justify-center items-center text-[14px] font-semibold text-gray-700 bg-white border rounded-md px-4 py-2 transition-colors shrink-0 ${showFilterDropdown ? 'border-brand-orange ring-1 ring-brand-orange' : 'border-gray-200 hover:bg-gray-50'}`}
                 >
                   <MaterialIcon icon="filter_list" className="mr-2 text-[18px]" />
                   Filter
                 </button>
 
                 {showFilterDropdown && (
-                  <div className="absolute right-0 top-[110%] w-64 bg-white border border-[#e4e7ec] shadow-lg rounded-xl z-50 p-4">
+                  <div className="absolute right-0 top-[110%] w-64 bg-white border border-gray-200 shadow-lg rounded-xl z-50 p-4">
                     <div className="mb-4">
                       <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">Role</label>
                       <select
@@ -303,7 +299,7 @@ export default function TeamPermissions() {
           ) : (
             <GlobalTable minWidth="1100px">
               <thead>
-                <tr className="border-b border-t border-[#e4e7ec] text-[11px] font-bold text-gray-500 uppercase tracking-wider bg-white">
+                <tr className="border-b border-t border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider bg-white">
                   <th className="px-5 py-4 w-[280px]">NAME & EMAIL</th>
                   <th className="px-5 py-4 w-[140px]">ROLE</th>
                   <th className="px-5 py-4 w-[100px]">STATUS</th>
@@ -314,36 +310,32 @@ export default function TeamPermissions() {
                   <th className="px-5 py-4 w-[160px] text-right">ACTIONS</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e4e7ec]">
+              <tbody className="divide-y divide-gray-200">
                 {paginatedMembers.map((member) => {
                   const isSelected = selectedMemberId === member.id;
                   return (
                     <tr
                       key={member.id}
                       onClick={() => handleSelectMember(member)}
-                      className={`transition-colors group cursor-pointer border-l-2 ${isSelected ? 'bg-[#f0f5fc] border-l-[#005fb0]' : 'hover:bg-gray-50 border-l-transparent'}`}
+                      className={`transition-colors group cursor-pointer ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
                     >
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0 overflow-hidden border border-gray-100">
-                            <img src={member.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                          </div>
+                          <Avatar src={member.avatar} name={member.name} />
                           <div className="min-w-0">
-                            <div className="font-semibold text-[#0f1c2d] mb-0.5 truncate">{member.name}</div>
+                            <div className="font-semibold text-on-surface mb-0.5 truncate">{member.name}</div>
                             <div className="text-[13px] text-gray-500 truncate">{member.email}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-4 text-[#0f1c2d] font-medium">
+                      <td className="px-5 py-4 text-on-surface font-medium">
                         {member.role}
                       </td>
                       <td className="px-5 py-4">
-                        {member.status === 'Active' && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#ecfdf3] text-[#027a48] border border-[#abefc6]">Active</span>}
-                        {member.status === 'Inactive' && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#fef3f2] text-[#b42318] border border-[#fecdca]">Inactive</span>}
-                        {member.status === 'Pending' && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">Pending</span>}
+                        <Badge status={member.status} />
                       </td>
                       <td className="px-5 py-4">
-                        <div className="text-[#0f1c2d]">{member.lastLogin}</div>
+                        <div className="text-on-surface">{member.lastLogin}</div>
                         <div className="text-[12px] text-gray-500">{member.lastLoginTime}</div>
                       </td>
                       <td className="px-5 py-4 text-gray-600">
@@ -351,7 +343,7 @@ export default function TeamPermissions() {
                       </td>
                       <td className="px-5 py-4">
                         {member.publicLink ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-[#eff4ff] text-[#005fb0] border border-[#d1e0ff] truncate max-w-[120px]">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200 truncate max-w-[120px]">
                             {member.publicLink}
                           </span>
                         ) : (
@@ -359,20 +351,16 @@ export default function TeamPermissions() {
                         )}
                       </td>
                       <td className="px-5 py-4 text-gray-600">
-                        {(() => {
-                          const dateVal = member.addedOn || member.createdDate || '2023-01-01'; // Fallback for mock data
-                          const d = new Date(dateVal);
-                          return isNaN(d.getTime()) ? dateVal : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                        })()}
+                        {formatDate(member.addedOn || member.createdDate || '2023-01-01')}
                       </td>
                       <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-3 text-gray-400 relative pr-4">
+                        <div className="flex items-center justify-end gap-3 text-gray-500 relative pr-4">
                           <button
                             onClick={() => {
                               if (member.publicLink) console.log('View Link for:', member.id);
                             }}
                             disabled={!member.publicLink}
-                            className={`group/btn relative transition-colors ${member.publicLink ? 'hover:text-[#005fb0] text-gray-400' : 'text-gray-300 opacity-50 cursor-not-allowed'}`}
+                            className={`group/btn relative transition-colors ${member.publicLink ? 'hover:text-blue-700 text-gray-500' : 'text-gray-300 opacity-50 cursor-not-allowed'}`}
                           >
                             <MaterialIcon icon="open_in_new" className="text-[18px]" />
                             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max px-2 py-1 bg-gray-800 text-white text-[10px] font-medium rounded shadow-sm opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all z-50">
@@ -381,7 +369,7 @@ export default function TeamPermissions() {
                           </button>
                           <button
                             onClick={() => handleSelectMember(member)}
-                            className="group/btn relative hover:text-[#005fb0] transition-colors"
+                            className="group/btn relative hover:text-blue-700 transition-colors"
                           >
                             <MaterialIcon icon="visibility" className="text-[20px]" />
                             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-max px-2 py-1 bg-gray-800 text-white text-[10px] font-medium rounded shadow-sm opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all z-50">
@@ -420,7 +408,7 @@ export default function TeamPermissions() {
 
           {/* Table Footer / Pagination */}
           {!isLoading && filteredMembers.length > 0 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-t border-[#e4e7ec]">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 border-t border-gray-200">
               <div className="text-[14px] text-gray-600 font-medium">
                 Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, totalEntries)} of {totalEntries} entries
               </div>
@@ -428,14 +416,14 @@ export default function TeamPermissions() {
                 <button
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  className="px-4 py-1.5 rounded text-[13px] font-medium border border-[#e4e7ec] text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  className="px-4 py-1.5 rounded text-[13px] font-medium border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
                 <button
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  className="px-4 py-1.5 rounded text-[13px] font-medium border border-[#e4e7ec] text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  className="px-4 py-1.5 rounded text-[13px] font-medium border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>
@@ -459,11 +447,9 @@ export default function TeamPermissions() {
         className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[110] shadow-2xl flex flex-col transition-transform duration-300 transform overflow-y-auto ${isProfileDrawerOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <div className="p-6 border-b border-[#e4e7ec] flex items-center justify-between shrink-0 sticky top-0 bg-white z-20">
-          <h2 className="text-[20px] font-bold text-[#0f1c2d]">User Profile</h2>
-          <button onClick={() => setIsProfileDrawerOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100">
-            <MaterialIcon icon="close" className="text-[22px]" />
-          </button>
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between shrink-0 sticky top-0 bg-white z-20">
+          <h2 className="text-[20px] font-bold text-gray-900">User Profile</h2>
+          <Button variant="ghost" icon="close" onClick={() => setIsProfileDrawerOpen(false)} className="p-1" />
         </div>
 
         <div className="flex-1 flex flex-col relative p-6">
@@ -484,21 +470,19 @@ export default function TeamPermissions() {
             {selectedMember ? (
               <>
                 {/* Profile Header */}
-                <div className="pb-6 border-b border-[#e4e7ec] relative">
+                <div className="pb-6 border-b border-gray-200 relative">
                   {!isEditing && (
                     <button
                       onClick={() => navigate('/profile')}
-                      className="absolute top-0 right-0 text-[13px] font-semibold text-[#005fb0] hover:text-[#004786]"
+                      className="absolute top-0 right-0 text-[13px] font-semibold text-blue-700 hover:text-blue-800"
                     >
                       Edit Profile
                     </button>
                   )}
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-gray-200 shrink-0 overflow-hidden border border-gray-200">
-                      <img src={selectedMember.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                    </div>
+                  <Avatar src={selectedMember.avatar} name={selectedMember.name} size="lg" />
                     <div>
-                      <h2 className="text-[18px] font-bold text-[#0f1c2d] mb-0.5">{selectedMember.name}</h2>
+                      <h2 className="text-[18px] font-bold text-on-surface mb-0.5">{selectedMember.name}</h2>
                       <div className="text-[14px] text-gray-500">{selectedMember.role}</div>
                     </div>
                   </div>
@@ -511,12 +495,12 @@ export default function TeamPermissions() {
                       <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">
                         ACCESS PERMISSIONS
                       </div>
-                      <div className="bg-[#f0f5fc] rounded-md py-2.5 px-4 text-center text-[11px] font-bold text-[#475467] tracking-wider mb-3">
+                      <div className="bg-blue-50 rounded-md py-2.5 px-4 text-center text-[11px] font-bold text-secondary tracking-wider mb-3">
                         {Object.values(selectedMember.permissions || {}).filter(Boolean).length} PERMISSIONS ASSIGNED
                       </div>
                       <button
                         onClick={() => setIsEditing(true)}
-                        className="w-full flex items-center justify-center text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] rounded-md px-4 py-2 hover:bg-gray-50 transition-colors"
+                        className="w-full flex items-center justify-center text-[14px] font-semibold text-gray-700 bg-white border border-gray-200 rounded-md px-4 py-2 hover:bg-gray-50 transition-colors"
                       >
                         <MaterialIcon icon="edit" className="mr-2 text-[16px]" />
                         Manage Permissions
@@ -538,7 +522,7 @@ export default function TeamPermissions() {
                         return (
                           <div
                             key={perm.key}
-                            className={`border rounded-lg p-3 flex items-start gap-3 transition-colors ${adminDisabled ? 'bg-[#f9fafb] opacity-75 border-[#e4e7ec]' : 'bg-white border-[#e4e7ec]'
+                            className={`border rounded-lg p-3 flex items-start gap-3 transition-colors ${adminDisabled ? 'bg-surface-container-lowest opacity-75 border-gray-200' : 'bg-white border-gray-200'
                               } ${isEditing && !adminDisabled ? 'hover:border-gray-300 cursor-pointer' : ''}`}
                             onClick={() => {
                               if (isEditing && !adminDisabled) {
@@ -552,13 +536,13 @@ export default function TeamPermissions() {
                                 checked={isChecked}
                                 onChange={() => { }} // handled by parent div onClick
                                 disabled={!isEditing || adminDisabled}
-                                className={`rounded focus:ring-[#ff8c42] w-4 h-4 cursor-pointer ${!isEditing || adminDisabled ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-not-allowed' : 'border-gray-300 text-[#ff8c42]'
+                                className={`rounded focus:ring-brand-orange w-4 h-4 cursor-pointer ${!isEditing || adminDisabled ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-not-allowed' : 'border-gray-300 text-brand-orange'
                                   }`}
                               />
                             </div>
                             <div>
                               <div className="flex items-center gap-2 mb-0.5">
-                                <div className={`text-[14px] font-bold ${adminDisabled ? 'text-gray-500' : 'text-[#0f1c2d]'}`}>
+                                <div className={`text-[14px] font-bold ${adminDisabled ? 'text-gray-500' : 'text-on-surface'}`}>
                                   {perm.title}
                                 </div>
                                 {perm.adminOnly && (
@@ -579,22 +563,13 @@ export default function TeamPermissions() {
 
                 {/* Panel Footer */}
                 {isEditing && (
-                  <div className="pt-5 border-t border-[#e4e7ec] bg-white flex items-center justify-end gap-3 mt-auto sticky bottom-0">
-                    <button
-                      onClick={handleCancelPermissions}
-                      disabled={isSaving}
-                      className="px-4 py-2 rounded-md text-[14px] font-semibold text-gray-700 bg-white border border-[#e4e7ec] hover:bg-gray-50 transition-colors disabled:opacity-50"
-                    >
+                  <div className="pt-5 border-t border-gray-200 bg-white flex items-center justify-end gap-3 mt-auto sticky bottom-0">
+                    <Button variant="secondary" onClick={handleCancelPermissions} disabled={isSaving}>
                       Cancel
-                    </button>
-                    <button
-                      onClick={handleSavePermissions}
-                      disabled={isSaving}
-                      className="px-4 py-2 rounded-md text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] transition-colors shadow-sm disabled:opacity-75 flex items-center"
-                    >
-                      {isSaving && <Spinner className="w-4 h-4 mr-2" />}
+                    </Button>
+                    <Button variant="primary" onClick={handleSavePermissions} disabled={isSaving} isLoading={isSaving}>
                       Save Changes
-                    </button>
+                    </Button>
                   </div>
                 )}
               </>
@@ -625,9 +600,9 @@ export default function TeamPermissions() {
           }`}
       >
         {/* Header */}
-        <div className="p-6 border-b border-[#e4e7ec] flex items-start justify-between shrink-0">
+        <div className="p-6 border-b border-gray-200 flex items-start justify-between shrink-0">
           <div>
-            <h2 className="text-[20px] font-bold text-[#0f1c2d] mb-1">Assign Principal</h2>
+            <h2 className="text-[20px] font-bold text-on-surface mb-1">Assign Principal</h2>
             <p className="text-[13px] text-gray-500">Create a new user and assign their role and public access link.</p>
           </div>
           <button onClick={() => setIsAssignDrawerOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100">
@@ -641,8 +616,8 @@ export default function TeamPermissions() {
           {/* Select Member */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-[11px] font-bold text-[#475467] uppercase tracking-wider">SELECT MEMBER</label>
-              <Link to="/members" className="text-[11px] font-semibold text-[#ea580c] hover:text-[#c2410c] flex items-center">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-wider">SELECT MEMBER</label>
+              <Link to="/members" className="text-[11px] font-semibold text-brand-orange hover:text-orange-700 flex items-center">
                 <MaterialIcon icon="add" className="text-[12px] mr-0.5" />
                 Create Member
               </Link>
@@ -651,7 +626,7 @@ export default function TeamPermissions() {
               <select
                 value={assignForm.memberId}
                 onChange={handleAssignMemberSelect}
-                className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer"
+                className="w-full px-3 py-2.5 pr-10 text-[14px] border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 appearance-none bg-white cursor-pointer"
               >
                 <option value="">Select Existing Member</option>
                 {members.map(m => (
@@ -664,12 +639,12 @@ export default function TeamPermissions() {
 
           {/* Designation (Role) */}
           <div>
-            <label className="block text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">DESIGNATION</label>
+            <label className="block text-[11px] font-bold text-secondary uppercase tracking-wider mb-2">DESIGNATION</label>
             <div className="relative">
               <select
                 value={assignForm.designation}
                 disabled
-                className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none text-gray-500 appearance-none bg-gray-50 cursor-not-allowed"
+                className="w-full px-3 py-2.5 pr-10 text-[14px] border border-gray-200 rounded-md focus:outline-none text-gray-500 appearance-none bg-gray-50 cursor-not-allowed"
               >
                 <option value="">Select Designation</option>
                 {[...new Set([...allRoles.map(r => r.name), ...members.map(m => m.role).filter(Boolean)])].map(roleName => (
@@ -681,27 +656,23 @@ export default function TeamPermissions() {
           </div>
 
           {/* Name Input */}
-          <div>
-            <label className=" text-[11px] font-bold text-[#475467] uppercase tracking-wider mb-2">View To</label>
-            <input
-              type="text"
-              value={assignForm.name}
-              onChange={(e) => setAssignForm({ ...assignForm, name: e.target.value })}
-              className="w-full px-3 py-2.5 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 bg-white"
-            />
-          </div>
+          <Input
+            label="VIEW TO"
+            value={assignForm.name}
+            onChange={(e) => setAssignForm({ ...assignForm, name: e.target.value })}
+          />
 
           {/* Public Link Assignment */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-[11px] font-bold text-[#475467] uppercase tracking-wider">PUBLIC LINK ASSIGNMENT</label>
-              <Link to="/links/create" className="text-[11px] font-semibold text-[#ea580c] hover:text-[#c2410c] flex items-center">
+              <label className="text-[11px] font-bold text-secondary uppercase tracking-wider">PUBLIC LINK ASSIGNMENT</label>
+              <Link to="/links/create" className="text-[11px] font-semibold text-brand-orange hover:text-orange-700 flex items-center">
                 <MaterialIcon icon="add" className="text-[12px] mr-0.5" />
                 Create Public Link
               </Link>
             </div>
             <div className="relative">
-              <select className="w-full px-3 py-2.5 pr-10 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-[#ff8c42] text-gray-700 appearance-none bg-white cursor-pointer">
+              <select className="w-full px-3 py-2.5 pr-10 text-[14px] border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700 appearance-none bg-white cursor-pointer">
                 <option>Select Existing Link</option>
                 <option>Kano North</option>
                 <option>Lagos Central</option>
@@ -713,13 +684,13 @@ export default function TeamPermissions() {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-[#e4e7ec] bg-white shrink-0 flex items-center justify-end gap-3">
-          <button onClick={() => setIsAssignDrawerOpen(false)} className="px-4 py-2 text-[14px] font-medium text-gray-500 hover:text-gray-900 transition-colors">
+        <div className="p-6 border-t border-gray-200 bg-white shrink-0 flex items-center justify-end gap-3">
+          <Button variant="ghost" onClick={() => setIsAssignDrawerOpen(false)}>
             Cancel
-          </button>
-          <button onClick={() => setIsAssignDrawerOpen(false)} className="px-5 py-2 text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md transition-colors shadow-sm">
+          </Button>
+          <Button variant="primary" onClick={() => setIsAssignDrawerOpen(false)}>
             Assign
-          </button>
+          </Button>
         </div>
       </div>
 

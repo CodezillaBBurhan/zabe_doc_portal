@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import MaterialIcon from '../components/atoms/MaterialIcon';
 import GlobalTable from '../components/organisms/GlobalTable';
+import PageHeader from '../components/molecules/PageHeader';
+import Button from '../components/atoms/Button';
+import Avatar from '../components/atoms/Avatar';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -8,11 +11,11 @@ import jsPDF from 'jspdf';
 const generateMockLogs = () => {
   const users = [
     { name: 'System_Service', role: 'Automation' },
-    { name: 'A. Mitchell', role: 'Lead Ops' },
-    { name: 'J. Harrison', role: 'Analyst' },
-    { name: 'S. Vance', role: 'Admin' },
-    { name: 'M. Chen', role: 'Operator' },
-    { name: 'T. Brooks', role: 'Auditor' }
+    { name: 'A. Abubakar', role: 'Lead Ops' },
+    { name: 'C. Okafor', role: 'Analyst' },
+    { name: 'N. Eze', role: 'Admin' },
+    { name: 'O. Adebayo', role: 'Operator' },
+    { name: 'Z. Usman', role: 'Auditor' }
   ];
   const actions = ['Data_Sync', 'Override_Config', 'Export_Report', 'Modify_Perms', 'Health_Check', 'Login_Attempt', 'Purge_Logs'];
   const modules = ['Voter_DB', 'Core_Routing', 'Reports', 'Auth_Control', 'Infrastructure', 'System'];
@@ -262,9 +265,9 @@ export default function AuditLogs() {
 
   const getColorClass = (index) => {
     const colors = [
-      'bg-[#e6eeff] text-[#005fb0]',
-      'bg-[#ffeddf] text-[#9b4500]',
-      'bg-[#f3e8ff] text-[#6b21a8]'
+      'bg-blue-50 text-blue-700',
+      'bg-orange-50 text-orange-700',
+      'bg-purple-50 text-purple-700'
     ];
     return colors[index % colors.length];
   };
@@ -273,41 +276,33 @@ export default function AuditLogs() {
     <div id="audit-dashboard" className="flex flex-col gap-6 w-full pb-10 bg-gray-50 min-h-screen">
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-[28px] font-bold text-[#111827] leading-tight">Audit Logs</h1>
-          <p className="text-[14px] text-gray-500 mt-1">Track every important action performed across the Election Center.</p>
-        </div>
-        <div className="flex gap-3 w-full sm:w-auto relative" ref={exportMenuRef}>
-          {/* <button 
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 border rounded-md shadow-sm text-sm font-medium flex transition-colors ${showFilters ? 'bg-gray-100 border-gray-300 text-gray-800' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`}
-          >
-            <MaterialIcon icon="filter_list" className="text-gray-500 text-[20px]" />
-            Filter {activeFilters.length > 0 && <span className="ml-1 bg-brand-orange text-white text-[10px] px-1.5 py-0.5 rounded-full">{activeFilters.length}</span>}
-          </button> */}
-
-          <button
+      <PageHeader 
+        title="Audit Logs"
+        description="Track every important action performed across the Election Center."
+      >
+        <div className="relative w-full sm:w-auto" ref={exportMenuRef}>
+          <Button 
+            variant="primary" 
+            icon="download" 
             onClick={() => setExportMenuOpen(!exportMenuOpen)}
-            className="flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-[#ff8c42] hover:bg-[#ff7a22] text-white rounded-md shadow-sm text-sm font-medium flex transition-colors"
+            className="w-full sm:w-auto"
           >
-            <MaterialIcon icon="download" className="text-white text-[20px]" />
             Export
-          </button>
+          </Button>
 
           {/* Export Dropdown */}
           {exportMenuOpen && (
             <div className="absolute right-0 top-[110%] w-48 bg-white border border-gray-200 shadow-xl rounded-md z-50 overflow-hidden">
-              <button onClick={handleExportCSV} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100 flex items-center gap-2">
-                <MaterialIcon icon="grid_on" className="text-gray-400 text-[18px]" /> CSV Spreadsheet
-              </button>
-              <button onClick={handleExportPDF} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                <MaterialIcon icon="picture_as_pdf" className="text-gray-400 text-[18px]" /> Screenshot (PDF)
-              </button>
+              <Button variant="ghost" onClick={handleExportCSV} icon="grid_on" className="w-full justify-start rounded-none border-b border-gray-100 px-4 py-3 text-gray-700">
+                CSV Spreadsheet
+              </Button>
+              <Button variant="ghost" onClick={handleExportPDF} icon="picture_as_pdf" className="w-full justify-start rounded-none px-4 py-3 text-gray-700">
+                Screenshot (PDF)
+              </Button>
             </div>
           )}
         </div>
-      </div>
+      </PageHeader>
 
       {/* Filter Section */}
       {showFilters && (
@@ -351,13 +346,14 @@ export default function AuditLogs() {
               <MaterialIcon icon="expand_more" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[20px] pointer-events-none" />
             </div>
 
-            <button
+            <Button
+              variant="ghost"
+              icon="close"
               onClick={clearAllFilters}
-              className="hidden sm:flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 ml-auto font-medium"
+              className="hidden sm:flex ml-auto text-gray-500"
             >
-              <MaterialIcon icon="close" className="text-[18px]" />
               Clear Filters
-            </button>
+            </Button>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -497,27 +493,29 @@ export default function AuditLogs() {
               </div>
 
               <div className="flex flex-wrap items-center gap-1">
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
+                  className="px-2 sm:px-3 py-1.5"
                 >
                   Prev
-                </button>
+                </Button>
 
                 {/* Simplified page numbers rendering for brevity */}
-                <button className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-700 font-medium bg-gray-100">
+                <Button variant="secondary" className="px-2 sm:px-3 py-1.5 bg-gray-100">
                   {currentPage}
-                </button>
+                </Button>
                 <span className="px-1 sm:px-2 text-gray-400">/ {totalPages}</span>
 
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages || totalPages === 0}
-                  className="px-2 sm:px-3 py-1.5 border border-gray-200 rounded text-gray-500 hover:bg-white disabled:opacity-50 transition-colors bg-white"
+                  className="px-2 sm:px-3 py-1.5"
                 >
                   Next
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -530,7 +528,7 @@ export default function AuditLogs() {
               {chartBars.map((bar, i) => (
                 <div key={i} className="w-full flex flex-col justify-end h-full relative group" title={`Events: ${bar.count}`}>
                   <div
-                    className={`w-full rounded-t-sm transition-all ${bar.isCritical ? 'bg-red-50' : 'bg-[#f0f5fc]'}`}
+                    className={`w-full rounded-t-sm transition-all ${bar.isCritical ? 'bg-red-50' : 'bg-blue-50'}`}
                     style={{ height: bar.height }}
                   >
                     {bar.isCritical && (
@@ -564,7 +562,7 @@ export default function AuditLogs() {
               <div className="text-[13px] text-gray-500 mb-1">Total Events</div>
               <div className="flex items-baseline gap-3">
                 <div className="text-[36px] font-bold text-gray-900 leading-none">{totalEvents.toLocaleString()}</div>
-                <div className="flex items-center text-[#12B76A] text-[13px] font-medium">
+                <div className="flex items-center text-green-600 text-[13px] font-medium">
                   <MaterialIcon icon="trending_up" className="text-[16px] mr-0.5" />
                   +12%
                 </div>
@@ -574,15 +572,15 @@ export default function AuditLogs() {
             <div className="border-t border-gray-100 pt-5 flex justify-between">
               <div>
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">FAILED</div>
-                <div className="text-[20px] font-bold text-[#d92d20]">{failedEvents}</div>
+                <div className="text-[20px] font-bold text-red-600">{failedEvents}</div>
               </div>
               <div>
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">BLOCKED</div>
-                <div className="text-[20px] font-bold text-[#d92d20]">{blockedEvents}</div>
+                <div className="text-[20px] font-bold text-red-600">{blockedEvents}</div>
               </div>
               <div>
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">CRITICAL</div>
-                <div className="text-[20px] font-bold text-[#d92d20]">{criticalEvents}</div>
+                <div className="text-[20px] font-bold text-red-600">{criticalEvents}</div>
               </div>
             </div>
           </div>
@@ -590,8 +588,8 @@ export default function AuditLogs() {
           {/* Critical Events */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
-              <MaterialIcon icon="warning_amber" className="text-[#d92d20] text-[20px]" />
-              <h3 className="text-[11px] font-bold text-[#d92d20] uppercase tracking-wider">CRITICAL EVENTS</h3>
+              <MaterialIcon icon="warning_amber" className="text-red-600 text-[20px]" />
+              <h3 className="text-[11px] font-bold text-red-600 uppercase tracking-wider">CRITICAL EVENTS</h3>
             </div>
 
             <div className="flex flex-col">
@@ -600,7 +598,7 @@ export default function AuditLogs() {
               ) : (
                 latestCritical.map((event, idx) => (
                   <div key={idx} className="relative pl-5 py-3 border-b border-gray-100 last:border-0">
-                    <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-[#d92d20]"></div>
+                    <div className="absolute left-0 top-[18px] w-2 h-2 rounded-full bg-red-600"></div>
                     <div className="flex justify-between items-start mb-1">
                       <div className="font-semibold text-[13px] text-gray-900">{event.action.replace(/_/g, ' ')}</div>
                       <div className="text-[11px] text-gray-500 mt-0.5">{formatTimeOnly(event.timestamp)}</div>
@@ -628,9 +626,7 @@ export default function AuditLogs() {
                 userStats.map((stat, idx) => (
                   <div key={idx} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0 ${getColorClass(idx)}`}>
-                        {getInitials(stat.user)}
-                      </div>
+                      <Avatar name={stat.user} size="md" />
                       <div>
                         <div className="text-[13px] font-semibold text-gray-900">{stat.user}</div>
                         <div className="text-[11px] text-gray-500">{stat.role}</div>

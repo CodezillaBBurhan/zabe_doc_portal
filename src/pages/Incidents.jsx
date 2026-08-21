@@ -6,15 +6,14 @@ import MaterialIcon from '../components/atoms/MaterialIcon';
 import ReportIncidentDrawer from '../components/organisms/ReportIncidentDrawer';
 import IncidentDetailDrawer from '../components/organisms/IncidentDetailDrawer';
 import GlobalTable from '../components/organisms/GlobalTable';
+import PageHeader from '../components/molecules/PageHeader';
+import Button from '../components/atoms/Button';
+import Badge from '../components/atoms/Badge';
+import Input from '../components/atoms/Input';
+import { formatTime } from '../utils/formatters';
 
 /* ── Data (now fetched from API) ── */
 
-const SEVERITY = {
-  Critical: { bg: '#FEE2E2', color: '#DC2626' },
-  High: { bg: '#FFEDD5', color: '#EA580C' },
-  Medium: { bg: '#FEF9C3', color: '#CA8A04' },
-  Low: { bg: '#F0FDF4', color: '#16A34A' },
-};
 
 const CAT_ICON = {
   Security: { icon: 'security', color: '#EF4444', bg: '#FEE2E2' },
@@ -110,7 +109,7 @@ export default function Incidents() {
         detail: i.title,
         sub: i.location.split(' - ')[1] || '',
         location: i.location.split(' - ')[0] || '',
-        time: new Date(i.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: formatTime(i.time),
         tab: i.status === 'Resolved' ? 'Resolved' : i.severity === 'Critical' ? 'Critical' : i.status === 'Open' ? 'Pending' : 'Active'
       }));
       setIncidents(mapped);
@@ -134,38 +133,32 @@ export default function Incidents() {
     <div style={{ width: '100%', minWidth: 0 }}>
 
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111827', letterSpacing: '-0.3px' }}>Incidents</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Monitor, manage, and resolve election incidents in real-time.</p>
-        </div>
-        {/* <button onClick={() => setReportOpen(true)} style={{ height: 36, padding: '0 18px', borderRadius: 8, background: '#FF5A1F', color: '#fff', fontWeight: 600, fontSize: 13, border: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer', boxShadow: '0 1px 3px rgba(255,90,31,0.35)', flexShrink: 0 }}>
-          <MaterialIcon icon="add" className="text-[16px]" />
-          Report Incident
-        </button> */}
-      </div>
+      <PageHeader
+        title="Incidents"
+        description="Monitor, manage, and resolve election incidents in real-time."
+      />
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         {[
-          { title: 'TOTAL INCIDENTS', value: '142', sub: '↑ 18% from last 24h', subColor: '#16A34A', icon: 'list_alt', iconBg: '#EFF6FF', iconFg: '#3B82F6', spark: '#3B82F6', up: true },
-          { title: 'ACTIVE INCIDENTS', value: '12', sub: '↓ 3 from last 24h', subColor: '#EA580C', icon: 'bolt', iconBg: '#FFF7ED', iconFg: '#F97316', spark: '#F97316', up: false },
-          { title: 'CRITICAL', value: '3', sub: '↑ 1 from last 24h', subColor: '#DC2626', icon: 'warning_amber', iconBg: '#FEF2F2', iconFg: '#EF4444', spark: '#EF4444', up: true },
-          { title: 'RESOLVED', value: '127', sub: '↑ 15% from last 24h', subColor: '#16A34A', icon: 'check_circle', iconBg: '#F0FDF4', iconFg: '#22C55E', spark: '#22C55E', up: true },
+          { title: 'TOTAL INCIDENTS', value: '142', sub: '↑ 18% from last 24h', subColor: 'text-emerald-600', icon: 'list_alt', iconBg: 'bg-blue-50', iconFg: 'text-blue-500', spark: '#3B82F6', up: true },
+          { title: 'ACTIVE INCIDENTS', value: '12', sub: '↓ 3 from last 24h', subColor: 'text-orange-600', icon: 'bolt', iconBg: 'bg-orange-50', iconFg: 'text-orange-500', spark: '#F97316', up: false },
+          { title: 'CRITICAL', value: '3', sub: '↑ 1 from last 24h', subColor: 'text-red-600', icon: 'warning_amber', iconBg: 'bg-red-50', iconFg: 'text-red-500', spark: '#EF4444', up: true },
+          { title: 'RESOLVED', value: '127', sub: '↑ 15% from last 24h', subColor: 'text-emerald-600', icon: 'check_circle', iconBg: 'bg-emerald-50', iconFg: 'text-emerald-500', spark: '#22C55E', up: true },
         ].map((c) => (
-          <div key={c.title} style={{ background: '#fff', borderRadius: 12, padding: '16px 18px', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 7, background: c.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <MaterialIcon icon={c.icon} className="text-[14px]" style={{ color: c.iconFg }} />
+          <div key={c.title} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${c.iconBg}`}>
+                  <MaterialIcon icon={c.icon} className={`text-[14px] ${c.iconFg}`} />
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.04em' }}>{c.title}</span>
+                <span className="text-[11px] font-bold text-gray-400 tracking-wider uppercase">{c.title}</span>
               </div>
               <Sparkline color={c.spark} up={c.up} />
             </div>
             <div>
-              <div style={{ fontSize: 32, fontWeight: 700, color: '#111827', lineHeight: 1 }}>{c.value}</div>
-              <div style={{ fontSize: 11.5, marginTop: 4, fontWeight: 500, color: c.subColor }}>{c.sub}</div>
+              <div className="text-[32px] font-bold text-gray-900 leading-none">{c.value}</div>
+              <div className={`text-[11.5px] mt-1 font-medium ${c.subColor}`}>{c.sub}</div>
             </div>
           </div>
         ))}
@@ -206,24 +199,26 @@ export default function Incidents() {
         </div>
 
         {/* Quick Actions */}
-        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #E5E7EB', padding: 18, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#111827', marginBottom: 14 }}>Quick Actions</div>
-          {[
-            { icon: 'add_circle', iconBg: '#FFF5F2', iconFg: '#FF5A1F', label: 'Report New Incident', sub: 'Create a new incident report' },
-            { icon: 'location_on', iconBg: '#EFF6FF', iconFg: '#3B82F6', label: 'Incident Map', sub: 'View incidents on Ward/LGA map' },
-            { icon: 'trending_up', iconBg: '#F0FDF4', iconFg: '#22C55E', label: 'Incident Analytics', sub: 'View trends and analysis' },
-            { icon: 'download', iconBg: '#FEF3C7', iconFg: '#D97706', label: 'Export Report', sub: 'Download incident report' },
-          ].map((a) => (
-            <button key={a.label} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', background: 'none', border: 'none', cursor: 'pointer', borderBottom: '1px solid #F9FAFB', textAlign: 'left' }}>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: a.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <MaterialIcon icon={a.icon} className="text-[15px]" style={{ color: a.iconFg }} />
-              </div>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#111827' }}>{a.label}</div>
-                <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{a.sub}</div>
-              </div>
-            </button>
-          ))}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <div className="text-[13px] font-bold text-gray-900 mb-4">Quick Actions</div>
+          <div className="flex flex-col">
+            {[
+              { icon: 'add_circle', iconBg: 'bg-orange-50', iconFg: 'text-brand-orange', label: 'Report New Incident', sub: 'Create a new incident report' },
+              { icon: 'location_on', iconBg: 'bg-blue-50', iconFg: 'text-blue-500', label: 'Incident Map', sub: 'View incidents on Ward/LGA map' },
+              { icon: 'trending_up', iconBg: 'bg-emerald-50', iconFg: 'text-emerald-500', label: 'Incident Analytics', sub: 'View trends and analysis' },
+              { icon: 'download', iconBg: 'bg-amber-50', iconFg: 'text-amber-500', label: 'Export Report', sub: 'Download incident report' },
+            ].map((a, i, arr) => (
+              <Button key={a.label} variant="ghost" className={`w-full !justify-start rounded-none py-3 ${i < arr.length - 1 ? 'border-b border-gray-50' : ''}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mr-3 ${a.iconBg}`}>
+                  <MaterialIcon icon={a.icon} className={`text-[15px] ${a.iconFg}`} />
+                </div>
+                <div className="text-left">
+                  <div className="text-[12px] font-semibold text-gray-900">{a.label}</div>
+                  <div className="text-[11px] text-gray-500 mt-0.5">{a.sub}</div>
+                </div>
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -232,13 +227,11 @@ export default function Incidents() {
         {/* Filter bar */}
         <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4 flex flex-col sm:flex-row sm:items-center flex-wrap gap-3">
           <div style={{ position: 'relative', flex: 1, minWidth: 180 }}>
-            <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', display: 'flex', alignItems: 'center', pointerEvents: 'none', zIndex: 1 }}>
-              <MaterialIcon icon="search" className="text-[16px]" />
-            </span>
-            <input
-              value={search} onChange={(e) => setSearch(e.target.value)}
+            <Input
+              icon="search"
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search incidents by ID, detail or location..."
-              style={{ height: 34, paddingLeft: 34, paddingRight: 12, width: '100%', fontSize: 13, border: '1px solid #E5E7EB', borderRadius: 8, outline: 'none', boxSizing: 'border-box', color: '#374151' }}
             />
           </div>
           {[
@@ -253,10 +246,9 @@ export default function Incidents() {
               <MaterialIcon icon="expand_more" className="text-[14px]" style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', pointerEvents: 'none' }} />
             </div>
           ))}
-          <button style={{ height: 34, padding: '0 14px', border: '1px solid #E5E7EB', borderRadius: 8, background: '#fff', fontSize: 13, fontWeight: 500, color: '#374151', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <MaterialIcon icon="tune" className="text-[15px]" style={{ color: '#6B7280' }} />
+          <Button variant="secondary" icon="tune">
             More Filters
-          </button>
+          </Button>
         </div>
 
         {/* Table card */}
@@ -301,7 +293,6 @@ export default function Incidents() {
                   </td>
                 </tr>
               ) : filtered.map((row) => {
-                const sev = SEVERITY[row.severity] || SEVERITY.Low;
                 const cat = CAT_ICON[row.category] || CAT_ICON.Others;
                 return (
                   <tr key={row.id} style={{ borderBottom: '1px solid #F9FAFB' }}
@@ -310,9 +301,7 @@ export default function Incidents() {
                   >
                     <td style={{ ...cell, fontWeight: 600, color: '#374151' }}>{row.id}</td>
                     <td style={cell}>
-                      <span style={{ fontSize: 11.5, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: sev.bg, color: sev.color, whiteSpace: 'nowrap' }}>
-                        {row.severity}
-                      </span>
+                      <Badge status={row.severity} />
                     </td>
                     <td style={cell}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -334,9 +323,9 @@ export default function Incidents() {
                       <div style={{ fontSize: 11, color: '#9CA3AF' }}>Today</div>
                     </td>
                     <td style={{ ...cell, textAlign: 'right' }}>
-                      <button onClick={() => setDetailIncident(row)} style={{ height: 30, padding: '0 12px', border: '1px solid #FDBA74', borderRadius: 7, background: '#fff', fontSize: 12, fontWeight: 600, color: '#EA580C', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      <Button variant="secondary" onClick={() => setDetailIncident(row)}>
                         View Details
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 );
@@ -350,19 +339,19 @@ export default function Incidents() {
               Showing <strong style={{ color: '#111827' }}>1 to {filtered.length}</strong> of <strong style={{ color: '#111827' }}>142</strong> entries
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <button disabled style={{ height: 30, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 7, background: '#fff', fontSize: 12, color: '#D1D5DB', cursor: 'not-allowed' }}>
+              <Button variant="secondary" disabled>
                 ‹ Previous
-              </button>
+              </Button>
               {[1, 2, 3].map((n) => (
-                <button key={n} style={{ width: 30, height: 30, border: n === 1 ? '1px solid #FF5A1F' : '1px solid #E5E7EB', borderRadius: 7, background: n === 1 ? '#FFF5F2' : '#fff', fontSize: 12, fontWeight: n === 1 ? 700 : 400, color: n === 1 ? '#FF5A1F' : '#374151', cursor: 'pointer' }}>
+                <Button key={n} variant={n === 1 ? 'primary' : 'secondary'} className="w-8 h-8 p-0 flex items-center justify-center">
                   {n}
-                </button>
+                </Button>
               ))}
               <span style={{ fontSize: 13, color: '#9CA3AF', padding: '0 4px' }}>…</span>
-              <button style={{ width: 30, height: 30, border: '1px solid #E5E7EB', borderRadius: 7, background: '#fff', fontSize: 12, color: '#374151', cursor: 'pointer' }}>20</button>
-              <button style={{ height: 30, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 7, background: '#fff', fontSize: 12, color: '#374151', cursor: 'pointer' }}>
+              <Button variant="secondary" className="w-8 h-8 p-0 flex items-center justify-center">20</Button>
+              <Button variant="secondary">
                 Next ›
-              </button>
+              </Button>
             </div>
           </div>
         </div>

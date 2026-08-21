@@ -5,6 +5,10 @@ import Spinner from '../components/atoms/Spinner';
 import EmptyState from '../components/molecules/EmptyState';
 import ConfirmDialog from '../components/organisms/ConfirmDialog';
 import { RolesAPI, PermissionsAPI } from '../mocks/api';
+import PageHeader from '../components/molecules/PageHeader';
+import Input from '../components/atoms/Input';
+import Button from '../components/atoms/Button';
+import Badge from '../components/atoms/Badge';
 
 export default function Permissions() {
   const [activeTab, setActiveTab] = useState('roles'); // 'roles' or 'permissions'
@@ -148,46 +152,44 @@ export default function Permissions() {
       </div>
 
       {/* Page Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="text-[28px] font-bold text-[#0f1c2d] leading-tight mb-2">Roles & Permissions</h1>
-          <p className="text-[15px] text-gray-500">Manage organizational roles and create system permissions.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={handleOpenCreate} className="flex items-center text-[14px] font-semibold text-white bg-[#ff5a1f] hover:bg-[#e64a10] rounded-md px-4 py-2 transition-colors shadow-sm">
-            <MaterialIcon icon="add" className="mr-1.5 text-[18px]" />
-            {activeTab === 'roles' ? 'Create Role' : 'Create Permission'}
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Roles & Permissions"
+        description="Manage organizational roles and create system permissions."
+      >
+        <Button onClick={handleOpenCreate} icon="add">
+          {activeTab === 'roles' ? 'Create Role' : 'Create Permission'}
+        </Button>
+      </PageHeader>
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200 mb-6 gap-6">
         <button
           onClick={() => { setActiveTab('roles'); setSearch(''); }}
-          className={`pb-3 text-[14px] font-semibold transition-colors relative ${activeTab === 'roles' ? 'text-[#ff5a1f]' : 'text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-[14px] font-semibold transition-colors relative ${activeTab === 'roles' ? 'text-brand-orange' : 'text-gray-500 hover:text-gray-800'}`}
         >
           Roles
-          {activeTab === 'roles' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#ff5a1f] rounded-t" />}
+          {activeTab === 'roles' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-brand-orange rounded-t" />}
         </button>
         <button
           onClick={() => { setActiveTab('permissions'); setSearch(''); }}
-          className={`pb-3 text-[14px] font-semibold transition-colors relative ${activeTab === 'permissions' ? 'text-[#ff5a1f]' : 'text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-[14px] font-semibold transition-colors relative ${activeTab === 'permissions' ? 'text-brand-orange' : 'text-gray-500 hover:text-gray-800'}`}
         >
           System Permissions
-          {activeTab === 'permissions' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#ff5a1f] rounded-t" />}
+          {activeTab === 'permissions' && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-brand-orange rounded-t" />}
         </button>
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white border border-[#e4e7ec] rounded-xl shadow-sm overflow-hidden flex flex-col w-full">
-        <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-[#e4e7ec] gap-4 w-full">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col w-full">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-gray-200 gap-4 w-full">
           <div className="relative w-full sm:w-[320px]">
-            <MaterialIcon icon="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]" />
-            <input
-              type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+            <Input
+              icon="search"
+              type="text" 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)}
               placeholder={activeTab === 'roles' ? "Search roles..." : "Search permissions..."}
-              className="w-full pl-10 pr-4 py-2 text-[14px] border border-[#e4e7ec] rounded-md focus:outline-none focus:ring-1 focus:ring-brand-orange text-gray-700"
+              className="w-full"
             />
           </div>
         </div>
@@ -201,7 +203,7 @@ export default function Permissions() {
           ) : (
             <GlobalTable minWidth="800px" className="text-[14px]">
               <thead>
-                <tr className="bg-[#f9fafb] border-b border-[#e4e7ec] text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                <tr className="bg-gray-50 border-b border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                   <th className="px-5 py-4 text-left">ROLE NAME</th>
                   <th className="px-5 py-4 text-left">DESCRIPTION</th>
                   <th className="px-5 py-4 text-left">MEMBERS</th>
@@ -213,14 +215,14 @@ export default function Permissions() {
               <tbody className="divide-y divide-[#e4e7ec]">
                 {filteredRoles.map(role => (
                   <tr key={role.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-4"><div className="font-semibold text-[#0f1c2d]">{role.name}</div></td>
+                    <td className="px-5 py-4"><div className="font-semibold text-on-surface">{role.name}</div></td>
                     <td className="px-5 py-4 text-[13px] text-gray-500">{role.description}</td>
                     <td className="px-5 py-4 text-gray-600 font-medium">{role.membersCount}</td>
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-1">
                         {role.permissions?.slice(0, 2).map(p => {
                           const def = permissions.find(pl => pl.key === p);
-                          return <span key={p} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#eef4ff] text-[#3538cd] uppercase">{def ? def.title : p}</span>;
+                          return <span key={p} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-600 uppercase">{def ? def.title : p}</span>;
                         })}
                         {role.permissions?.length > 2 && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600">+{role.permissions.length - 2} MORE</span>
@@ -228,15 +230,11 @@ export default function Permissions() {
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      {role.status === 'Active' ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-medium bg-[#ecfdf3] text-[#027a48] border border-[#abefc6]">Active</span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-medium bg-[#fef3f2] text-[#b42318] border border-[#fecdca]">Inactive</span>
-                      )}
+                      <Badge status={role.status} />
                     </td>
                     <td className="px-5 py-4 text-right">
-                      <button onClick={() => handleOpenEdit(role)} className="text-gray-400 hover:text-[#005fb0] transition-colors p-1" title="Edit"><MaterialIcon icon="edit" className="text-[18px]" /></button>
-                      <button onClick={() => handleDeleteClick(role)} className="text-gray-400 hover:text-red-600 transition-colors p-1 ml-2" title="Delete"><MaterialIcon icon="delete" className="text-[18px]" /></button>
+                      <Button variant="ghost" onClick={() => handleOpenEdit(role)} className="text-gray-400 hover:text-blue-700 p-1 h-auto" title="Edit"><MaterialIcon icon="edit" className="text-[18px]" /></Button>
+                      <Button variant="ghost" onClick={() => handleDeleteClick(role)} className="text-gray-400 hover:text-red-600 p-1 h-auto ml-2" title="Delete"><MaterialIcon icon="delete" className="text-[18px]" /></Button>
                     </td>
                   </tr>
                 ))}
@@ -252,7 +250,7 @@ export default function Permissions() {
           ) : (
             <GlobalTable minWidth="800px" className="text-[14px]">
               <thead>
-                <tr className="bg-[#f9fafb] border-b border-[#e4e7ec] text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                <tr className="bg-gray-50 border-b border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                   <th className="px-5 py-4 text-left">TITLE (KEY)</th>
                   <th className="px-5 py-4 text-left">MODULE</th>
                   <th className="px-5 py-4 text-left">DESCRIPTION</th>
@@ -264,23 +262,19 @@ export default function Permissions() {
                 {filteredPermissions.map(perm => (
                   <tr key={perm.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-4">
-                      <div className="font-semibold text-[#0f1c2d]">{perm.title}</div>
+                      <div className="font-semibold text-on-surface">{perm.title}</div>
                       <div className="text-[11px] text-gray-400 font-mono mt-0.5">{perm.key}</div>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#f3f4f6] text-gray-700 uppercase">{perm.module}</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-gray-100 text-gray-700 uppercase">{perm.module}</span>
                     </td>
                     <td className="px-5 py-4 text-[13px] text-gray-500">{perm.desc}</td>
                     <td className="px-5 py-4">
-                      {perm.status === 'Active' ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-medium bg-[#ecfdf3] text-[#027a48] border border-[#abefc6]">Active</span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-medium bg-[#fef3f2] text-[#b42318] border border-[#fecdca]">Inactive</span>
-                      )}
+                      <Badge status={perm.status} />
                     </td>
                     <td className="px-5 py-4 text-right">
-                      <button onClick={() => handleOpenEdit(perm)} className="text-gray-400 hover:text-[#005fb0] transition-colors p-1" title="Edit"><MaterialIcon icon="edit" className="text-[18px]" /></button>
-                      <button onClick={() => handleDeleteClick(perm)} className="text-gray-400 hover:text-red-600 transition-colors p-1 ml-2" title="Delete"><MaterialIcon icon="delete" className="text-[18px]" /></button>
+                      <Button variant="ghost" onClick={() => handleOpenEdit(perm)} className="text-gray-400 hover:text-blue-700 p-1 h-auto" title="Edit"><MaterialIcon icon="edit" className="text-[18px]" /></Button>
+                      <Button variant="ghost" onClick={() => handleDeleteClick(perm)} className="text-gray-400 hover:text-red-600 p-1 h-auto ml-2" title="Delete"><MaterialIcon icon="delete" className="text-[18px]" /></Button>
                     </td>
                   </tr>
                 ))}
@@ -324,10 +318,10 @@ export default function Permissions() {
               {activeTab === 'roles' ? (
                 <>
                   <div className="mb-5">
-                    <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Role Name</label>
-                    <input
-                      value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
+                    <Input
+                      label="Role Name"
+                      value={formData.name || ''} 
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
                       placeholder="e.g. Data Analyst"
                     />
                   </div>
@@ -335,7 +329,7 @@ export default function Permissions() {
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
                     <textarea
                       value={formData.description || ''} onChange={e => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f] min-h-[80px]"
+                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange min-h-[80px]"
                       placeholder="Role description..."
                     />
                   </div>
@@ -343,7 +337,7 @@ export default function Permissions() {
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Status</label>
                     <select
                       value={formData.status || 'Active'} onChange={e => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
+                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange"
                     >
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
@@ -355,9 +349,9 @@ export default function Permissions() {
                       {permissions.map(perm => {
                         const isChecked = formData.permissions?.includes(perm.key);
                         return (
-                          <div key={perm.key} onClick={() => toggleRolePermission(perm.key)} className={`p-4 border rounded-xl cursor-pointer transition-colors ${isChecked ? 'border-[#ff5a1f] bg-[#fff5f2]' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+                          <div key={perm.key} onClick={() => toggleRolePermission(perm.key)} className={`p-4 border rounded-xl cursor-pointer transition-colors ${isChecked ? 'border-brand-orange bg-orange-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
                             <div className="flex items-start gap-3">
-                              <input type="checkbox" checked={isChecked} readOnly className="mt-1 w-4 h-4 text-[#ff5a1f] border-gray-300 focus:ring-[#ff5a1f] rounded" />
+                              <input type="checkbox" checked={isChecked} readOnly className="mt-1 w-4 h-4 text-brand-orange border-gray-300 focus:ring-brand-orange rounded" />
                               <div>
                                 <div className="text-[14px] font-bold text-gray-900 mb-0.5">{perm.title}</div>
                                 <div className="text-[12px] text-gray-500">{perm.desc}</div>
@@ -372,18 +366,19 @@ export default function Permissions() {
               ) : (
                 <>
                   <div className="mb-5">
-                    <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Permission Title</label>
-                    <input
-                      value={formData.title || ''} onChange={e => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
+                    <Input
+                      label="Permission Title"
+                      value={formData.title || ''} 
+                      onChange={e => setFormData({ ...formData, title: e.target.value })}
                       placeholder="e.g. Delete Reports"
                     />
                   </div>
                   <div className="mb-5">
-                    <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Permission Key</label>
-                    <input
-                      value={formData.key || ''} onChange={e => setFormData({ ...formData, key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })}
-                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f] font-mono text-[13px]"
+                    <Input
+                      label="Permission Key"
+                      value={formData.key || ''} 
+                      onChange={e => setFormData({ ...formData, key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })}
+                      className="font-mono text-[13px]"
                       placeholder="e.g. delete_reports"
                     />
                   </div>
@@ -391,7 +386,7 @@ export default function Permissions() {
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Module</label>
                     <select
                       value={formData.module || ''} onChange={e => setFormData({ ...formData, module: e.target.value })}
-                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
+                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange"
                     >
                       <option value="Analytics">Analytics</option>
                       <option value="Operations">Operations</option>
@@ -405,7 +400,7 @@ export default function Permissions() {
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Description</label>
                     <textarea
                       value={formData.desc || ''} onChange={e => setFormData({ ...formData, desc: e.target.value })}
-                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f] min-h-[80px]"
+                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange min-h-[80px]"
                       placeholder="What does this permission allow?"
                     />
                   </div>
@@ -413,7 +408,7 @@ export default function Permissions() {
                     <label className="block text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">Status</label>
                     <select
                       value={formData.status || 'Active'} onChange={e => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-[#ff5a1f] focus:ring-1 focus:ring-[#ff5a1f]"
+                      className="w-full px-4 py-2.5 text-[14px] border border-gray-300 rounded-lg focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange"
                     >
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
@@ -424,11 +419,11 @@ export default function Permissions() {
             </div>
 
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3">
-              <button onClick={() => setIsDrawerOpen(false)} className="px-5 py-2.5 text-[14px] font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-              <button onClick={handleSave} disabled={isSaving} className="px-6 py-2.5 text-[14px] font-semibold text-white bg-[#ff5a1f] rounded-lg hover:bg-[#e64a10] disabled:opacity-70 flex items-center gap-2">
-                {isSaving && <Spinner className="w-4 h-4" />}
+              <Button variant="secondary" onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
+              <Button onClick={handleSave} disabled={isSaving}>
+                {isSaving && <Spinner className="w-4 h-4 mr-2" />}
                 {editingItem ? 'Save Changes' : (activeTab === 'roles' ? 'Create Role' : 'Create Permission')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

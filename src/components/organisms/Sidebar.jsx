@@ -37,9 +37,9 @@ export default function Sidebar({ isOpen, onClose }) {
         </div>
 
         <SidebarLink icon="dashboard" label="Overview" to="/dashboard" active={currentPath === '/dashboard'} />
+        <SidebarLink icon="report_problem" label="Incidents" to="/incidents" active={currentPath === '/incidents'} />
         <SidebarLink icon="inbox" label="Requests" to="/requests" active={currentPath === '/requests'} />
         {/* <SidebarLink icon="fact_check" label="Approvals" to="/approvals" active={currentPath === '/approvals'} /> */}
-        <SidebarLink icon="report_problem" label="Incidents" to="/incidents" active={currentPath === '/incidents'} />
 
         <div className="mb-2 mt-6 px-3 pt-2">
           <span className="font-body-sm text-body-sm text-secondary uppercase tracking-wider text-[10px] font-semibold">INTELLIGENCE</span>
@@ -56,10 +56,9 @@ export default function Sidebar({ isOpen, onClose }) {
 
         <SidebarLink icon="settings_input_component" label="TV Control" to="/tv" active={currentPath === '/tv'} />
         <SidebarLink icon="link" label="Public Links" to="/links" active={currentPath === '/links'} />
-        <SidebarLink icon="admin_panel_settings" label="Roles & Permissions" to="/permissions" active={currentPath === '/permissions'} />
         <SidebarLink icon="people" label="Users" to="/members" active={currentPath === '/members'} />
         <SidebarLink icon="group" label="Principals" to="/team" active={currentPath === '/team'} />
-
+        <SidebarLink icon="admin_panel_settings" label="Roles & Permissions" to="/permissions" active={currentPath === '/permissions'} />
         <SidebarLink icon="list_alt" label="Audit Logs" to="/logs" active={currentPath === '/logs'} />
         <SidebarLink icon="settings" label="Settings" to="/settings" active={currentPath === '/settings'} />
       </div>

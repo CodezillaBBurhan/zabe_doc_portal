@@ -3,6 +3,9 @@ import MaterialIcon from '../components/atoms/MaterialIcon';
 import CompareCyclesDrawer from '../components/organisms/CompareCyclesDrawer';
 import HistoryFilterDrawer from '../components/organisms/HistoryFilterDrawer';
 import GlobalTable from '../components/organisms/GlobalTable';
+import PageHeader from '../components/molecules/PageHeader';
+import Button from '../components/atoms/Button';
+import Badge from '../components/atoms/Badge';
 
 /* ── UI Components ── */
 function DropdownFilter({ label, value, options, onChange, isActive, onClick, onClose }) {
@@ -127,22 +130,17 @@ export default function History() {
     <div style={{ width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 40 }}>
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#111827', letterSpacing: '-0.5px' }}>Historical Analysis</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Retrospective insights and trend analysis for previous election cycles.</p>
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button onClick={handleExportCSV} style={{ height: 36, padding: '0 16px', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <MaterialIcon icon="file_download" className="text-[16px]" />
-            Export Report
-          </button>
-          <button onClick={() => setIsCompareOpen(true)} style={{ height: 36, padding: '0 16px', borderRadius: 8, border: 'none', background: '#FF5A1F', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <MaterialIcon icon="compare_arrows" className="text-[16px]" />
-            Compare Cycles
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Historical Analysis"
+        description="Retrospective insights and trend analysis for previous election cycles."
+      >
+        <Button variant="secondary" icon="file_download" onClick={handleExportCSV}>
+          Export Report
+        </Button>
+        <Button variant="primary" icon="compare_arrows" onClick={() => setIsCompareOpen(true)}>
+          Compare Cycles
+        </Button>
+      </PageHeader>
 
       {/* Filters Container */}
       <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E5E7EB', display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap' }}>
@@ -150,10 +148,14 @@ export default function History() {
         <DropdownFilter label="Election Type" options={['All', 'General', 'Gubernatorial', 'Local']} value={electionType} onChange={setElectionType} isActive={activeDropdown === 'type'} onClick={() => setActiveDropdown(activeDropdown === 'type' ? null : 'type')} onClose={() => setActiveDropdown(null)} />
         <DropdownFilter label="Region" options={['All States', 'Lagos', 'Kano', 'Abuja (FCT)']} value={region} onChange={setRegion} isActive={activeDropdown === 'region'} onClick={() => setActiveDropdown(activeDropdown === 'region' ? null : 'region')} onClose={() => setActiveDropdown(null)} />
         <DropdownFilter label="Metric Focus" options={['Turnout', 'Incidents', 'Votes Cast']} value={metricFocus} onChange={setMetricFocus} isActive={activeDropdown === 'metric'} onClick={() => setActiveDropdown(activeDropdown === 'metric' ? null : 'metric')} onClose={() => setActiveDropdown(null)} />
-        <button onClick={() => setIsAdvancedFilterOpen(true)} style={{ height: 38, padding: '0 16px', borderRadius: 8, border: 'none', background: '#DBEAFE', color: '#1E40AF', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flexShrink: 0 }}>
-          <MaterialIcon icon="filter_list" className="text-[16px]" />
+        <Button 
+          variant="secondary" 
+          icon="filter_list" 
+          onClick={() => setIsAdvancedFilterOpen(true)}
+          className="bg-[#DBEAFE] text-[#1E40AF] border-none hover:bg-blue-200"
+        >
           Filters
-        </button>
+        </Button>
       </div>
 
       {/* Active Filters */}
@@ -183,9 +185,13 @@ export default function History() {
           </div>
         )}
         {(dateRange !== 'All' || electionType !== 'All' || region !== 'All States' || statusFilter !== 'All') && (
-          <button onClick={() => { setDateRange('All'); setElectionType('All'); setRegion('All States'); setStatusFilter('All'); }} style={{ background: 'none', border: 'none', fontSize: 12, fontWeight: 600, color: '#D97706', cursor: 'pointer' }}>
+          <Button 
+            variant="ghostPrimary" 
+            onClick={() => { setDateRange('All'); setElectionType('All'); setRegion('All States'); setStatusFilter('All'); }}
+            className="h-auto p-2"
+          >
             Clear Filters
-          </button>
+          </Button>
         )}
       </div>
 
@@ -348,9 +354,7 @@ export default function History() {
                   <td style={{ padding: '16px 24px', fontSize: 12, color: '#374151' }}>{row.party}</td>
                   <td style={{ padding: '16px 24px', fontSize: 12, color: row.change.includes('↓') ? '#DC2626' : '#6B7280', fontWeight: row.change !== '-' ? 600 : 400 }}>{row.change}</td>
                   <td style={{ padding: '16px 24px' }}>
-                    <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: row.status === 'Audited' ? '#DBEAFE' : '#F3F4F6', color: row.status === 'Audited' ? '#1E40AF' : '#4B5563' }}>
-                      {row.status}
-                    </span>
+                    <Badge status={row.status} />
                   </td>
                 </tr>
               ))}
